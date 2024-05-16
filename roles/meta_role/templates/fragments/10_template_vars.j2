@@ -1,0 +1,13 @@
+{# fragment: roles/meta_role/templates/fragments/10_template_vars.j2 #}
+{% set metadata = metadata %}
+{% set role_specification = specification %}
+{% set role_name = specification.role_name %}
+{% set role_path = specification.role_path  %}
+{% if file is not defined %}
+  {%- set file_metadata = file_metadata if file_metadata is defined else {} %}
+  {%- set file = { "path": file_path, "metadata": file_metadata } %}
+{% endif %}
+{% set file_path = file.path %}
+{% set file_location = role_path ~ '/' ~ file.path %}
+{% set parameters = role_specification.parameters %}
+{% set defaults = role_specification.defaults %}

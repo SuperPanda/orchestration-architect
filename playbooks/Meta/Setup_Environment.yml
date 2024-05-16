@@ -1,0 +1,42 @@
+
+# playbook: Setup the Orchestration Architect Environment
+# file: playbooks/Meta/00_Build_From_Bootstrap_0_8_0.yml
+# version: 0.8.0
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# NOTE: Manual changes should occur in this region, below the managed block
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+- name: Configure the Environment
+  connection: local
+  hosts: localhost
+  vars:
+    environment_vars_file_path: "../../vars/environment.yml"
+  tasks:
+    - name: Ensure environment variable directory exists
+      ansible.builtin.file:
+        state: directory
+        path: "{{ environment_vars_file_path | dirname }}"
+        mode: "0770"
+    - name: Write base path to environment variables file
+      vars:
+        base_path: "{{ playbook_dir | dirname | realpath | dirname }}"
+      ansible.builtin.lineinfile:
+        path: "{{ environment_vars_file_path }}"
+        line: "base_path: {{ base_path }}"
+        create: true
+
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+

@@ -1,0 +1,26 @@
+{# fragment: roles/meta_playbook/templates/fragments/11_common_template_macros.j2 #}
+{%- macro trigger_role_task(task) %}
+      ansible.builtin.include_role:
+        name: {{ task.trigger_role.name }}
+      vars:
+{% for key, value in task.trigger_role.items() %}
+{% if key != 'name' %}
+        {{ task.trigger_role.name}}_{{ key }}: {{ value }}
+{% endif %}
+{% endfor %}
+{%- endmacro %}
+
+{%- macro placeholder_task() %}
+      ansible.builtin.debug:
+        msg: "Placeholder task executed."
+{%- endmacro %}
+
+{%- macro render_task(task) %}
+- name: {{ task.name }}
+{% if task.get('trigger_role',false) %}
+{{- trigger_role_task(task) }}
+{% else %}
+{{- placeholder_task() }}
+{% endif %}
+{%- endmacro %}
+

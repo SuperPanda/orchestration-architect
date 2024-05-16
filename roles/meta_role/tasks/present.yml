@@ -1,0 +1,149 @@
+# role: meta_role
+# file: roles/meta_role/tasks/present.yml
+# version: 0.5
+---
+
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+- name: Ensure the presence of the {{ meta_role_params.specification.role_name }}
+  vars:
+    meta_execution_context: 
+      work_base_path: "/tmp/orchestration_architect/0.8.0/work/default"
+    specification: "{{ meta_role_params.specification }}"
+    metadata: "{{ meta_role_params.metadata }}"
+    directories: "{{ meta_role_params.specification.directories }}"
+    files: "{{ meta_role_params.specification.files }}"
+  block:
+    - name: Assert the specifications are correctly defined
+      ansible.builtin.assert:
+        that:
+          - specification | default(false, true)
+          - metadata | default(false, true)
+          - specification.role_path | default(false, true)
+          - specification.role_name | default(false, true)
+        fail_msg: |
+          "Meta expects the following arguments: metadata, role_name, role_path and specification"
+
+    - name: Create directory roles
+      loop: "{{ directories }}"
+      loop_control:
+        loop_var: directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ [base_path, specification.role_path, directory.path] | path_join }}"
+        mode: "{{ directory_mode }}"
+
+    - name: Update and render template files as specified or if missing
+      loop: "{{ files }}"
+      loop_control:
+        loop_var: file
+      ansible.builtin.template:
+        src: "{{ [base_path, metadata.role_template_path, file.template] | flatten | path_join }}"
+        dest: "{{ [base_path, specification.role_path, file.path] | flatten | path_join }}"
+        mode: "{{ file.mode | default(file_mode) }}"
+        force: '{{ file.state is defined and file.state == "pristine" }}'
+      when: file.template is defined
+
+    - name: Apply touch operation on files with state touch
+      loop: "{{ files }}"
+      loop_control:
+        loop_var: file
+      ansible.builtin.file:
+        path: "{{ [base_path, specification.role_path, file.path] | path_join }}"
+        state: touch
+        mode: "{{ file.mode | default(file_mode) }}"
+      when: file.state is defined and file.state == 'touch'
+
+    - name: Apply remove operation on files with state absent
+      loop: "{{ files }}"
+      loop_control:
+        loop_var: file
+      ansible.builtin.file:
+        path: "{{ [base_path, specification.role_path, file.path] | path_join }}"
+        state: absent
+      when: file.state is defined and file.state == 'absent'
+
+    - name: Update fragments on files with state updated
+      vars:
+        sections: "{{ [(file.metadata | default({})).sections | default(metadata.default_sections)] | flatten | unique }}"
+      when: file.state is defined and file.state == 'updated'
+      ansible.builtin.set_fact:
+        _update_sections: "{{
+           (_update_sections | default([])) + ([sections] | product([{
+           'source': ([base_path, metadata.role_template_path, file.template] | path_join),
+           'destination': ([base_path, specification.role_path, file.path] | path_join),
+           'file_specification': file
+            }])
+            )
+            }}"
+      loop: "{{ files }}"
+      loop_control:
+        loop_var: file
+
+    - name: Update generated role files
+      vars:
+        work_directory: "{{ [meta_execution_context.work_base_path, 'meta_role/updates', ansible_date_time.iso8601 | regex_replace('[^\\d\\w]+', '')] | path_join }}"
+        section_update_script: "{{ [base_path, metadata.collections.Meta.tools.update_rendered_section.path] | path_join }}"
+      block:
+        - ansible.builtin.debug:
+            msg: "Processing updates for {{ specification.role_path }} in {{ work_directory }}"
+        # - name: Debug vars
+        #   ansible.builtin.debug:
+        #     msg: |
+        #       "work_directory: {{ work_directory }}"
+        #       "specification.role_path: {{ specification.role_path }}"
+        #       "metadata.role_template_path: {{ metadata.role_template_path }}"
+        - name: Ensure temporary path for each item exists
+          ansible.builtin.file:
+            state: directory
+            path: "{{ work_directory }}/{{ section_update_params.1.file_specification.path | dirname }}"
+            mode: "{{ directory_mode }}"
+          vars:
+          loop: "{{ _update_sections }}"
+          loop_control:
+            loop_var: section_update_params
+        # - debug:
+        #     msg:
+        #       vars:
+        #         file: "{{ item.1.file_specification }}"
+        #       ansible.builtin.template:
+        #         src: "{{ [base_path, metadata.role_template_path, item.1.source] | path_join }}"
+        #         dest: "{{ [temp_directory, item.1.file_specification.path ] | path_join }}"
+        #         mode: "{{ file.mode | default(file_mode) }}"
+        #   loop: "{{ _update_sections  }}"
+        - name: Render file to temporary location
+          vars:
+            file: "{{ section_update_params.1.file_specification }}"
+          ansible.builtin.template:
+            src: "{{ [base_path, metadata.role_template_path, section_update_params.1.source] | path_join }}"
+            dest: "{{ [work_directory, section_update_params.1.file_specification.path ] | path_join }}"
+            mode: "{{ file.mode | default(file_mode) }}"
+          loop: "{{ _update_sections  }}"
+          loop_control:
+            loop_var: section_update_params
+        # - name: Debug sections
+        #   vars:
+        #     file_to_update: "{{ [base_path, item.1.destination] | path_join }}"
+        #     rendered_template: "{{ [temp_directory, item.1.destination] | path_join }}"
+        #     section_name: "{{ item.0 }}"
+        #   ansible.builtin.debug:
+        #     msg: |
+        #       file_to_update: "{{ [base_path, item.1.destination] | path_join }}"
+        #       rendered_template: "{{ [temp_directory, item.1.file_specification.path] | path_join }}"
+        #       section_name: "{{ item.0 | first }}"
+        #   loop: "{{ _update_sections }}"
+        - name: Update sections
+          vars:
+            file_to_update: "{{ [base_path, section_update_params.1.destination] | path_join }}"
+            rendered_template: "{{ [work_directory, section_update_params.1.file_specification.path] | path_join }}"
+            section_name: "{{ section_update_params.0 | first }}"
+          loop: "{{ _update_sections }}"
+          loop_control:
+            loop_var: section_update_params
+          ansible.builtin.command: "{{ section_update_script }} {{ file_to_update }} {{ rendered_template }} {{ section_name }}"
+          register: update_section_result
+          changed_when: "'Section updated successfully' in update_section_result.stdout"
+          failed_when: "'Error:' in update_section_result.stderr or update_section_result.rc != 0"
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###

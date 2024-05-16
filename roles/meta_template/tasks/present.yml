@@ -1,0 +1,455 @@
+# role: meta_template
+# file: roles/meta_template/tasks/present.yml
+# version: 0.8.0
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+# Containers used: meta_template_fields, meta_template_context, meta_template_fragment_context
+# (@Idea) Define the natural transformation Environment transformation between fixture, main, git, unit test, working environment.
+#         Implement as adjunction functor? define a mapping L*R f(x) = initial or something,
+# TODO: make schema dynamically map to specification field names and wire up schema to specification to context
+- name: Initialise Field Mappings for Meta Template
+  vars:
+    # use to extract fields from the specification.templates item values
+    template_specification:
+      skeleton_path: 'skeleton_path'
+      skeleton_specification: 'skeleton_specification'
+      template_path: 'path'
+  # Acts likea schema and allows for field names to change whilst preventing
+  # breaking changes
+  ansible.builtin.set_fact:
+    meta_template_fields:
+      # labels for arrows that access subobjects of parameter
+      params:
+        specification: 'specification'
+        environment_base_path: 'base_path'
+        metadata: 'metadata'
+      # labels for arrows that access subobjects of metadata
+      metadata:
+        version: 'version'
+      # labels for arrows to the meta_<compononent> template specification
+      # TODO: Rename directory paths to <thing>_directory_path
+      # and file paths to <thing>_file_path
+      context:
+        templates_path: 'templates_path'
+        fragments_path: 'fragments_path'
+        skeletons_path: 'templates_path'
+        old_fragments: 'template_fragments'
+        fragments: 'fragments'
+        templates: 'templates'
+        old_fields: 'fields_map'
+        fields: 'fields'
+        embed_script: 'embed_fragment_script_path'
+        # Added for template processing context
+        template_processing_endpoints: 'template_processing_endpoints'
+      # labels for arrows to the context.templates (a dict2items <template_id, template_specification>)
+      templates:
+        template_id: 'template_id'
+        specification: 'specification'
+        skeleton_path: "{{ ['specification', template_specification.skeleton_path] }}"
+        skeleton_specification: "{{ ['specification', template_specification.skeleton_specification ] }}"
+        template_path: "{{ ['specification', template_specification.template_path ] }}"
+      template_specification: "{{ template_specification }}"
+
+      # labels to a subobject of the context object (required as input to templates)
+      relative_paths:
+        templates: 'relative_templates_path'
+        fragments: 'relative_fragments_path'
+        skeleton: 'relative_skeletons_path'
+        meta_template: 'relative_meta_template_path'
+      # move so natural transformations ({working, output, environment_base} can easily be constructed)
+      work_path:
+        base: 'work_base_path'
+        meta_template: 'meta_template_work_path'
+      # labels to the skeleton.j2 and fragment.j2 (defined and used by meta_template only)
+      meta_template:
+        fragment_template: 'fragment_template_path'
+        skeleton_template: 'skeleton_template_path'
+      # labels used to map fields used to process template
+      template_process:
+        skeleton_path: 'skeleton_path'
+        working_template_path: 'working_template_path'
+        output_template_path: 'output_template_path'
+      fragments:
+        id: 'id'
+        specification: 'specification'
+      fragment_specification:
+        path: 'path'
+
+- name: Setup Initial Meta Template Execution Context
+  vars:
+    # Load fields for this block
+    fields: "{{ meta_template_fields }}"
+    # Load values from input parameters
+    specification: "{{ fields.params.specification | extract(meta_template_params) }}"
+    metadata: "{{ fields.params.metadata | extract(meta_template_params) }}"
+    environment_base_path: "{{ (fields.params.environment_base_path | extract(meta_template_params)) | default(base_path) }}"
+    # currently hard coded vars add to base specification
+    # TODO: Decide where to add temporary_work_directory,
+    #       possibly add to specification parameters for 
+    #       roles, define in environment.yml the default,
+    #       or pass to meta_orchestrator when it calls the
+    #       other roles.
+    #       
+    work_base_path: "/tmp/orchestration_architect/work/meta_template"
+    meta_template_paths:
+      base: "roles/meta_template"
+      fragment_template: "templates/fragment.j2"
+      skeleton_template: "templates/skeleton.j2"
+  ansible.builtin.set_fact:
+    meta_template_context:
+      base_path: "{{ environment_base_path }}"
+      embed_fragment_script_path: "{{ [environment_base_path, 'plugins/scripts/embed_template_fragment.sh'] | path_join }}"
+      work_base_path: "{{ work_base_path }}"
+      relative_meta_template_path: "{{ meta_template_paths.base }}"
+      meta_template_work_path: "{{ [work_base_path, meta_template_paths.base] | path_join }}"
+      # Meta Template Paths
+      fragment_template_path: "{{ [environment_base_path, meta_template_paths.base, meta_template_paths.fragment_template] | path_join }}"
+      skeleton_template_path: "{{ [environment_base_path, meta_template_paths.base, meta_template_paths.skeleton_template] | path_join }}"
+      # Target Role
+      relative_templates_path: "{{ fields.context.templates_path | extract(specification) }}"
+      relative_fragments_path: "{{ fields.context.fragments_path | extract(specification) }}"
+      relative_skeletons_path: "{{ fields.context.skeletons_path | extract(specification) }}"
+      templates_path: "{{ [environment_base_path, (fields.context.templates_path | extract(specification))] | path_join }}"
+      skeletons_path: "{{ [environment_base_path, (fields.context.skeletons_path | extract(specification))] | path_join }}"
+      fragments_path: "{{ [environment_base_path, (fields.context.fragments_path | extract(specification))] | path_join }}"
+      templates: "{{ fields.context.templates | extract(specification) | default({}) }}"
+      fragments: "{{ fields.context.old_fragments | extract(specification) }}"
+      fields: "{{ fields.context.old_fields | extract(specification) }}"
+      skeletons_to_generate: []
+      skeletons_to_update: []
+      metadata: "{{ metadata }}"
+      version: "{{ fields.metadata.version | extract(metadata) }}"
+
+- name: Clean Temporary Work Directory Before Execution
+  ansible.builtin.file:
+    state: absent
+    path: "{{ meta_template_fields.work_path.base }}"
+
+# needs to ensure topoi conditions is met
+# so initial to terminal (stat.exists -> true) or (stat.exists -> false)
+# needs to have pull back, so lets define the Chi_<x,x> mapping so that Chi_operation<item,value> has a unique mapping
+# the missing subobject is Chi_{stat_not_exists}<results,false>
+- name: Assess Skeletons for Update and Generation
+  vars:
+    fields: "{{ meta_template_fields }}"
+    templates: "{{ (fields.context.templates | extract(meta_template_context)) | dict2items(key_name=fields.templates.template_id, value_name=fields.templates.specification) }}"
+  block:
+    - name: Check if skeleton_path for template exists
+      loop: "{{ templates }}"
+      loop_control:
+        loop_var: template_item
+        label: "{{ template_id }},{{ skeleton_path }}"
+      vars:
+        template_id: "{{ fields.templates.template_id | extract(template_item) }}"
+        skeletons_path: "{{ fields.context.skeletons_path  | extract(meta_template_context) }}"
+        skeleton_path: "{{ 'specification' | extract(template_item, morekeys=[fields.template_specification.skeleton_path]) }}"
+      ansible.builtin.stat:
+        path: "{{ [skeletons_path, skeleton_path] | path_join }}"
+      register: skeleton_stat
+    - name: Update Context with Skeleton Processing Lists
+      vars:
+        # move this into a dynamic include (conditions.file_stat_exists, and the negation is ({'value': false}) )
+        skeleton_stat_results: "{{ 'results' | extract(skeleton_stat) }}"
+        condition:
+          attribute: 'stat.exists'
+          operator: 'equalto'
+          value: true
+        not_condition: "{{ condition | combine({'value': false}, recursive=true) }}"
+        existing_skeletons: "{{ skeleton_stat_results
+          | selectattr(condition.attribute, condition.operator, condition.value)
+          | map(attribute='template_item') | map(attribute=fields.templates.template_id) }}"
+        missing_skeletons: "{{ skeleton_stat_results
+          | selectattr(not_condition.attribute, not_condition.operator, not_condition.value)
+          | map(attribute='template_item') | map(attribute=fields.templates.template_id) }}"
+        context_delta:
+          skeletons_to_update: "{{ existing_skeletons }}"
+          skeletons_to_generate: "{{ missing_skeletons }}"
+      ansible.builtin.set_fact:
+        meta_template_context: "{{ meta_template_context | combine(context_delta, recursive=true, list_merge='append_rp') }}"
+    - name: Create Missing Skeleton Directories
+      vars:
+        templates: "{{ fields.context.templates | extract(meta_template_context) | dict2items(key_name=fields.templates.template_id, value_name=fields.templates.specification) }}"
+        skeletons_directory_path: "{{ fields.context.skeletons_path | extract(meta_template_context) }}"
+        skeleton_file_paths: "{{ templates | map(attribute=fields.templates.specification) | map(attribute=fields.template_specification.skeleton_path) | list | unique }}"
+      loop_control:
+        loop_var: skeleton_path
+      loop: "{{ skeleton_file_paths }}"
+      ansible.builtin.file:
+        state: directory
+        mode: '0660'
+        path: "{{ [ skeletons_directory_path, skeleton_path ] | path_join | dirname }}"
+    - name: Create Missing Skeletons (.skel) files
+      vars:
+        template_specification: "{{ fields.context.templates | extract(meta_template_context, morekeys=template_id) }}"
+        skeletons_relative_path: "{{ fields.relative_paths.skeleton | extract(meta_template_context) }}"
+        skeletons_base_path: "{{ fields.context.skeletons_path | extract(meta_template_context) }}"
+        skeleton_path: "{{ fields.template_specification.skeleton_path | extract(template_specification) }}"
+        skeleton_specification: "{{ fields.template_specification.skeleton_specification| extract(template_specification) }}"
+        skeleton_metadata:
+          file_location: "{{ skeletons_relative_path }}/{{ skeleton_path }}"
+        metadata: "{{ fields.params.metadata | extract(meta_template_context) }}"
+        fields_map: "{{ fields.context.fields | extract(meta_template_context) }}"
+      loop: "{{ meta_template_context.skeletons_to_generate }}"
+      loop_control:
+        loop_var: template_id
+      ansible.builtin.template:
+        src: "{{ fields.meta_template.skeleton_template | extract(meta_template_context) }}"
+        dest: "{{ [skeletons_base_path, skeleton_path] | path_join }}"
+        mode: "0660"
+    # Otherwise regenerate Skeleton while copying 03_Content_Region
+    #
+    # TODO: WHEN NEEDED IMPLEMENT UPDATING OF SKELETONS TO ADD/REMOVE/FRAGMENT MARKERS BASED ON SPECIFICATIONS
+    # - name: Existing regions per fragment
+    #
+    #
+    # - name: Update Skeleton
+    # (@documentation=abstract-composition-topology)
+    # per region
+    # difference between existing fragments and desired fragments
+    # if fragments to be removed, remove fragment
+    # if fragment needs to be added, add fragment
+    #
+    # remove - copy up to fragment and after fragment
+    # add - copy up to region, insert fragment, copy rest
+    #
+    # FOR EACH REGION, COMPARE EXISTING FRAGMENTS TO DESIRED FRAGMENTS,
+    # AND MODIFY EACH SUCH THAT ANY CONTENT IS PRESERVED,
+    # AND THE FIELDS ARE ADDED OR REMOVED AS NEEDED AT THE SPECIFIED LOCATION.
+    # Generate by copying skeleton to template and embed fragments
+    # Ensure Meta Work Directory eexists
+    - name: Verify or Create Meta Template Work Directory Exists
+      ansible.builtin.file:
+        state: directory
+        mode: "0770"
+        path: "{{ fields.work_path.meta_template | extract(meta_template_context) }}"
+    - name: Generate Template from Skeleton
+      vars:
+        template_specifications: "{{ fields.context.templates | extract(meta_template_context) | dict2items(key_name=fields.templates.template_id, value_name=fields.templates.specification) }}"
+        template_ids: "{{ template_specifications | map(attribute=fields.templates.template_id) }}"
+        work_base_path: "{{ fields.work_path.base | extract(meta_template_context) }}"
+        templates_base_path: "{{ fields.context.templates_path | extract(meta_template_context) }}"
+        skeletons_base_path: "{{ fields.context.skeletons_path | extract(meta_template_context) }}"
+        fragments_base_path: "{{ fields.context.fragments_path | extract(meta_template_context) }}"
+      block:
+        - name: Ensure context for template processing endpoints
+          loop: "{{ template_ids }}"
+          loop_control:
+            loop_var: template_id
+          vars:
+            specification: "{{ fields.context.templates |  extract(meta_template_context, morekeys=template_id) }}"
+            skeleton_path: "{{ [skeletons_base_path, (fields.template_specification.skeleton_path | extract(specification))] | path_join }}"
+            working_template_path: "{{ [work_base_path, (fields.template_specification.template_path | extract(specification))] | path_join }}"
+            output_template_path: "{{ [templates_base_path, (fields.template_specification.template_path | extract(specification))] | path_join }}"
+            context_delta:
+              template_processing_endpoints: "{{
+                ({
+                  template_id: {
+                    fields.template_process.skeleton_path: skeleton_path,
+                    fields.template_process.working_template_path: working_template_path,
+                    fields.template_process.output_template_path: output_template_path
+                  }
+                })
+                }}"
+
+          ansible.builtin.set_fact:
+            meta_template_context: "{{ meta_template_context | combine(context_delta, recursive=true) }}"
+
+        - name: Ensure the work directory exists for all template specifications
+          loop: "{{ template_ids }}"
+          loop_control:
+            loop_var: template_id
+          vars:
+            working_template_path: "{{ (fields.context.template_processing_endpoints | extract(meta_template_context, morekeys=[template_id, fields.template_process.working_template_path])) | dirname }}"
+          ansible.builtin.file:
+            state: directory
+            mode: "0770"
+            path: "{{ working_template_path }}"
+        - name: Prepare Template by Copying Skeleton to Temporary Work Directory
+          loop: "{{ template_ids }}"
+          loop_control:
+            loop_var: template_id
+          vars:
+            template_processing_endpoints: "{{ fields.context.template_processing_endpoints | extract(meta_template_context, morekeys=(template_id)) }}"
+          ansible.builtin.copy:
+            src: "{{ fields.template_process.skeleton_path | extract(template_processing_endpoints) }}"
+
+            dest: "{{ fields.template_process.working_template_path | extract(template_processing_endpoints) }}"
+            mode: "0660"
+        - name: Remove Skeleton Headers
+          loop: "{{ ['version', 'file'] | product(template_ids) }}"
+          loop_control:
+            loop_var: variable_to_replace_and_template_id
+          vars:
+            template_id: "{{ variable_to_replace_and_template_id.1 }}"
+            skeleton_header_to_remove: "{{ variable_to_replace_and_template_id.0 }}"
+            template_processing_endpoints: "{{ fields.context.template_processing_endpoints | extract(meta_template_context, morekeys=(template_id)) }}"
+            file_to_edit: "{{ fields.template_process.working_template_path | extract(template_processing_endpoints) }}"
+            line_to_remove: "{{ '# ' ~ skeleton_header_to_remove }}"
+          ansible.builtin.lineinfile:
+            path: "{{ file_to_edit }}"
+            regex: "{{ line_to_remove }}:"
+            state: absent
+        - name: Process fragments
+          vars:
+            # Relative Fragment Path is to ensure
+            # the correct path to the fragment file
+            # is found in template??
+            relative_fragments_path: "{{ fields.relative_paths.fragments | extract(meta_template_context) }}"
+            fragment_template_path: "{{ fields.meta_template.fragment_template | extract(meta_template_context) }}"
+            fragments_directory_path: "{{ fields.context.fragments_path | extract(meta_template_context) }}"
+            template_fragments: "{{ fields.context.fragments | extract(meta_template_context) }}"
+            fragments: "{{ template_fragments | dict2items(key_name=fields.fragments.id, value_name=fields.fragments.specification) }}"
+            fragment_ids: "{{ fragments | map(attribute=fields.fragments.id) | list }}"
+          block:
+            - name: Check if fragment file exists
+              vars:
+                fragment_id: "{{ fields.fragments.id | extract(fragment) }}"
+                fragments_directory_path: "{{ fields.context.fragments_path | extract(meta_template_context) }}"
+                fragment_path: "{{ fields.fragments.specification | extract(fragment, morekeys=fields.fragment_specification.path) }}"
+              loop: "{{ fragments  }}"
+              loop_control:
+                loop_var: fragment
+                label: "{{ fragment_id }},{{ fragment_path }}"
+              stat:
+                path: "{{ [fragments_directory_path, fragment_path] | path_join }}"
+              register: fragment_stat
+
+            - name: Update Context with Fragment Generation Que
+              vars:
+                fragment_stat_results: "{{ 'results' | extract(fragment_stat) }}"
+                condition:
+                  attribute: 'stat.exists'
+                  operator: 'equalto'
+                  value: false
+                missing_fragments: "{{ 'results' | extract(fragment_stat) | selectattr(condition.attribute, condition.operator, condition.value) | map(attribute='fragment') | list }}"
+                context_delta:
+                  fragments_to_generate: "{{ missing_fragments }}"
+              ansible.builtin.set_fact:
+                meta_template_context: "{{ meta_template_context | combine(context_delta, recursive=true, list_merge='append_rp') }}"
+            - name: Display List of Fragments To Generate
+              debug:
+                msg: "{{ 'fragments_to_generate' | extract(meta_template_context) }}"
+            - name: Create Absent Fragments Directory
+              ansible.builtin.file:
+                state: directory
+                mode: "0770"
+                path: "{{ fragments_directory_path }}"
+            - name: Create Absent Fragments from Fragment Template
+              loop: "{{ 'fragments_to_generate' | extract(meta_template_context) }}"
+              loop_control:
+                loop_var: fragment
+              vars:
+                relative_fragments_directory_path: "{{ fields.relative_paths.fragments | extract(meta_template_context) }}"
+                fragment_file_path: "{{ fields.fragments.specification | extract(fragment, morekeys=fields.fragment_specification.path) }}"
+                # needs to be fragment_path for template
+                fragment_path: "{{ relative_fragments_directory_path }}/{{ fragment_file_path }}"
+              ansible.builtin.template:
+                src: "{{ fragment_template_path }}"
+                dest: "{{ [ fragments_directory_path, fragment_file_path ] | path_join }}"
+                mode: "0660"
+        - name: Setup fragment processing context
+          vars:
+            template_ids: "{{ fields.context.templates | extract(meta_template_context) | dict2items | map(attribute='key') }}"
+          ansible.builtin.set_fact:
+            meta_template_fragment_context:
+              template_ids: "{{ template_ids }}"
+        - name: Load regions ids fragment process context
+          loop: "{{ 'template_ids' | extract(meta_template_fragment_context) }}"
+          loop_control:
+            loop_var: template_id
+          vars:
+            template_skeleton: "{{ fields.context.templates | extract(meta_template_context, morekeys=[template_id, fields.template_specification.skeleton_specification]) }}"
+            region_ids: "{{ template_skeleton | dict2items | map(attribute='key') }}"
+            fragment_context_delta:
+              template_region_ids: "{{ [template_id] | product(region_ids) }}"
+          ansible.builtin.set_fact:
+            meta_template_fragment_context: "{{ meta_template_fragment_context | combine(fragment_context_delta, recursive=true, list_merge='append_rp') }}"
+        - name: Map region fragments to templates in process queue context
+          when: "'template_region_ids' in meta_template_fragment_context"
+          loop: "{{ 'template_region_ids' | extract(meta_template_fragment_context) }}"
+          vars:
+            template_id: "{{ item.0 }}"
+            region_id: "{{ item.1 }}"
+            fragments: "{{ fields.context.templates | extract(meta_template_context, morekeys=[template_id, fields.template_specification.skeleton_specification, region_id]) }}"
+            context_delta:
+              fragment_process_queue: "{{ ([item] | product(fragments)) | map('flatten') }}"
+          ansible.builtin.set_fact:
+            meta_template_context: "{{ meta_template_context | combine(context_delta, recursive=true, list_merge='append_rp') }}"
+        - name: Embed fragments
+          when: "'fragment_process_queue' in meta_template_context"
+          loop: "{{ meta_template_context.fragment_process_queue }}"
+          vars:
+            template_id: "{{ item.0 }}"
+            template_processing_endpoints: "{{ fields.context.template_processing_endpoints | extract(meta_template_context) }}"
+            template_path: "{{ template_id | extract(template_processing_endpoints, morekeys=fields.template_process.working_template_path) }}"
+            region_id: "{{ item.1 }}"
+            fragment_id: "{{ item.2 }}"
+            fragment: "{{ fields.context.fragments | extract(meta_template_context, morekeys=fragment_id) }}"
+            # path to where fragments are stored
+            # in current context
+            fragments_base_path: "{{ fields.context.fragments_path | extract(meta_template_context) }}"
+            # fragment path from the fragment specification
+            fragment_relative_path: "{{ fields.context.fragments | extract(meta_template_context,
+              morekeys=[fragment_id, fields.fragment_specification.path]) }}"
+            fragment_file_path: "{{ [fragments_base_path, fragment_relative_path] | path_join }}"
+            script_path: "{{ fields.context.embed_script | extract(meta_template_context) }}"
+          ansible.builtin.command: >-
+            {{ script_path }}
+            {{ fragment_file_path }}
+            {{ template_path }}
+            {{ fragment_id }}
+            {{ '--region=' ~ region_id }}
+
+        - name: Prepare Template Fragment Variables for Injection
+          vars:
+            template_specifications: "{{ fields.context.templates | extract(meta_template_context) }}"
+            template_ids: "{{ template_specifications | dict2items(key_name='template_id') | map(attribute='template_id') }}"
+          block:
+            - name: Add template fragment vars to dictionary
+              loop: "{{ template_ids }}"
+              loop_control:
+                loop_var: template_id
+              vars:
+                template_specification: "{{ template_id | extract(template_specifications) }}"
+                fragment_vars:
+                  generation_timestamp: "{{ ansible_date_time.iso8601 | regex_replace('[^\\d\\w]+', '')}}"
+                  version: "{{ fields.metadata.version | extract(meta_template_context) }}"
+                  path: "{{ fields.template_specification.template_path | extract(template_specification) }}"
+                  skeleton_path: "{{ fields.template_specification.skeleton_path | extract(template_specification) }}"
+                context_delta:
+                  fragment_vars_by_template: "{{ ([template_id] | product(fragment_vars | dict2items(key_name='var_name', value_name='var_value'))) }}"
+              ansible.builtin.set_fact:
+                meta_template_context: "{{ meta_template_context | combine(context_delta, recursive=true, list_merge='append') }}"
+            - name: Inject fragment variables into template
+              when: "'fragment_vars_by_template' in meta_template_context"
+              loop: "{{ meta_template_context.fragment_vars_by_template }}"
+              vars:
+                template_id: "{{ item[0] }}"
+                var_name: "{{ item[1].var_name }}"
+                var_value: "{{ item[1].var_value }}"
+                template_processing_endpoints: "{{ fields.context.template_processing_endpoints | extract(meta_template_context) }}"
+                template_path: "{{ template_id | extract(template_processing_endpoints, morekeys=fields.template_process.working_template_path) }}"
+              ansible.builtin.replace:
+                path: "{{ template_path  }}"
+                regexp: "{{ '{{ fragment_vars.' ~ var_name ~ ' }}' }}"
+                replace: "{{ var_value }}"
+
+        - name: Copy working template to final location
+          when: fields.context.template_processing_endpoints in meta_template_context
+          loop: "{{ fields.context.template_processing_endpoints | extract(meta_template_context) | dict2items(key_name='template_id', value_name='process_context') }}"
+          ansible.builtin.copy:
+            src: "{{ item.process_context.working_template_path }}"
+            dest: "{{ item.process_context.output_template_path  }}"
+            mode: "0660"
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+

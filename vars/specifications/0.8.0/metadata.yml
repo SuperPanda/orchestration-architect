@@ -1,0 +1,16 @@
+# vars/specifications/0.8.0/metadata.yml
+---
+metadata:
+  version: '0.8.0'
+  execution_context:
+    integration_tests: tests/integration_environment
+    unit_tests: tests/unit_test
+    default: default
+    release: release
+  specifications_path: vars/specifications
+  specifications_map:
+    metadata: metadata
+    playbooks_specifications: playbooks
+    roles_specifications: roles
+    templates_specifications: templates
+    tests_specifications: tests

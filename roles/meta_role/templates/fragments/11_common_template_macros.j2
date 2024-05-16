@@ -1,0 +1,26 @@
+{%- macro render_param_value(param) %}
+{{- "{{ " + param + " | default('not set') }}" }}
+{%- endmacro %}
+
+{%- macro render_param(param, value) %}
+{{- param }}: {{ render_param_value(value) }}
+{%- endmacro %}
+
+{%- macro render_simple_var(param) %}
+{{- render_param(param, param) }}
+{%- endmacro %}
+
+{%- macro default_object(obj) %}
+({{ obj }} | default({}))
+{%- endmacro %}
+
+{%- macro render_param_override(role_name, param) %}
+{%- set object_var_name = role_name ~ '.' ~ param %}
+{%- set basic_var_name = role_name ~ '_' ~ param %}
+{{- ['{{ ', default_object(role_name), '.', param, ' is defined | ternary(', object_var_name, ', ', basic_var_name, ' | default(omit, true)) }}'] | join }}
+{%- endmacro %}
+
+{%- macro render_route(role_name) %}
+{%- set role_state = role_name ~ "_params.state" %}
+{{- "{{ (" ~ role_state ~ "==omit) | ternary('info', " ~ role_state ~ ") }}" }}
+{%- endmacro %}

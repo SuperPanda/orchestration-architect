@@ -1,0 +1,133 @@
+# role: meta_playbook
+# file: roles/meta_playbook/tasks/present.yml
+# version: 0.8.0
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# NOTE: Manual changes should occur in this region, below the managed block
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# Notes on how I modified this
+# 1) Map Template Vars to Specification
+# 2) Mock Template Vars in meta_playbook unit tests
+# 3) Test that Orchestrator Provides Current Enrichment and Calls the Playbooks
+# 4) Ensure Integration Test Generates Runnable Output
+# 5) Copy the needed output to next version via specifications (0.8.1)
+# TODO:
+# 0.8.0 Move fixtures path in the generated output
+# 0.8.1 Standardise paths such that environment can configure the execution environment
+#       and all roles have the base_path supplied in Base, and work path structure is a natural transformation
+# 0.8.1 Standardise and document that mapping between specifications and templates
+# 0.8.1 Make Templates conform to the collection/collection_object structure
+# 0.8.1 Setup meta_execution_context that uses a fragment to read the meta_execution_context, and will populate it
+#       based on meta_execution_environment. It defines the natural transformation between environments.
+#       Such as work directory, base directory, etc.
+# 0.8.2 Generate the mapping for present.yml task and the templates from specifications
+- name: Mapping Playbook Specification to Playbook Template Variables
+  vars:
+    # VARS THAT NEED TO BE STANDARDISE
+    # integration : tests/integration_environment
+    # release candidate: release
+    # unit_test : tests/unit_test/<unit_test_name>
+    # not specified: default
+    # Move tools to global metadata, rather than just roles
+    meta_execution_context:
+      tools:
+        update_rendered_section: "plugins/scripts/update_rendered_section.sh"
+      work_base_path: "/tmp/orchestration_architect/0.8.0/work/default"
+    # From meta_playbook params (defined in roles specifications)
+    specification: "{{ 'specification' | extract(meta_playbook_params) }}"
+    collection_metadata: "{{ 'collection_metadata' | extract(meta_playbook_params) }}"
+    metadata: "{{ 'metadata' | extract(meta_playbook_params) }}"
+    # Base specification from playbook specifications adds sections and playbook_vars_files
+    # Use template path from specification or collection
+    template_path: "{{ specification.template_path | default(collection_metadata.template_path) }}"
+    # add collection path to playbook path
+    playbook_name: "{{ specification.playbook_name }}"
+    playbook_path: "{{ [collection_metadata.path, specification.playbook_path] | path_join }}"
+    collection_name: "{{ 'collection_metadata' | extract(meta_playbook_params, morekeys='collection_name') }}"
+    playbook_sections: "{{'specification' | extract(meta_playbook_params, morekeys='sections') }}"
+  block:
+    - name: Display Namespace Variables
+      ansible.builtin.debug:
+        msg: |
+          playbook_name: {{ playbook_name }}
+          collection_name: {{ collection_name }}
+          playbook_path: {{ playbook_path }}
+          template_path: {{ template_path }}
+          metadata:
+            {{ metadata | to_nice_yaml }}
+          collection_metadata:
+            {{ collection_metadata | to_nice_yaml }}
+          meta_spec_sections: {{ playbook_sections }}
+          base_path: {{ base_path }}
+
+    - name: Assert the specifications are correctly defined for template vars
+      ansible.builtin.assert:
+        that:
+          - specification | default(false, true)
+          - metadata | default(false, true)
+          - playbook_path | default(false, true)
+          - playbook_name | default(false, true)
+          - collection_metadata | default(false, true)
+          - collection_name | default(false, true)
+          - template_path | default(false, true)
+        fail_msg: |
+          "meta_playbook role expects the following to be defined: 'specification, metadata, collection_metadata to be correct."
+
+    - name: Ensure playbook path exists
+      ansible.builtin.file:
+        state: directory
+        path: "{{ [base_path, playbook_path | dirname] | path_join }}"
+        mode: "{{ directory_mode }}"
+    - name: Ensure playbooks exist and regenerated if specified
+      ansible.builtin.template:
+        src: "{{ [base_path, 'roles/meta_playbook/templates/', template_path] | path_join }}"
+        dest: "{{ [base_path, playbook_path] | path_join }}"
+        mode: "{{ specification.file_mode | default(file_mode) }}"
+        force: '{{ specification.state is defined and specification.state == "pristine" }}'
+      when: template_path is defined
+      register: processed_playbook_info
+    - name: Update playbook if specified
+      when: not processed_playbook_info.changed and specification.state is defined and specification.state=='updated'
+      vars:
+        work_directory: "{{ [ meta_execution_context.work_base_path, 'meta_playbook/updates', (ansible_date_time.iso8601 | regex_replace('[^\\d\\w]+', ''))] | path_join }}"
+        section_update_script: "{{ [ base_path, meta_execution_context.tools.update_rendered_section ] | path_join }}"
+      block:
+        - name: Display playbook directory being processed
+          ansible.builtin.debug:
+            msg: Processing update of {{ playbook_path }} in {{ work_directory }}
+        - name: Ensure temporary path exists
+          ansible.builtin.file:
+            state: directory
+            path: "{{ [work_directory, playbook_path | dirname] | path_join }}"
+            mode: "{{ directory_mode }}"
+          changed_when: false
+        - name: Render file to temporary location
+          ansible.builtin.template:
+            src: "{{ [base_path, meta_spec_metadata.playbook_template_path, specification.template] | path_join }}"
+            dest: "{{ [work_directory, playbook_path] | path_join }}"
+            mode: "{{ specification.file_mode | default(file_mode) }}"
+          changed_when: false
+        - name: Update sections
+          vars:
+            file_to_update: "{{ [base_path, playbook_path] | path_join }}"
+            rendered_template: "{{ [work_directory, playbook_path] | path_join }}"
+          loop: "{{ meta_spec_sections }}"
+          loop_control:
+            loop_var: section_name
+          ansible.builtin.command: "{{ section_update_script }} {{ file_to_update }} {{ rendered_template }} {{ section_name }}"
+          register: update_section_result
+          changed_when: "'Section updated successfully' in update_section_result.stdout"
+          failed_when: "'Error:' in update_section_result.stderr or update_section_result.rc != 0"
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+

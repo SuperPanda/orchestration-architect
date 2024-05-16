@@ -1,0 +1,60 @@
+---
+- name: Setup Seed Branch
+  hosts: localhost
+  connection: localhost
+  gather_facts: false
+  vars_files:
+    - "../../vars/environment.yml"
+    - vars/repositories.yml
+  vars:
+    version: "0.8.0"
+    seed_branch: "0.8.0-seed"
+    fixtures_path: "{{ base_path }}/fixtures/{{ version }}"
+    bare_repo_path: "{{ repositories.orchestration_architect.bare_repo_path }}"
+  tasks:
+    - name: Ensure base directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ base_path }}"
+        - "{{ fixtures_path }}"
+
+    - name: Initialize bare repository if not exists
+      command: git init --bare
+      args:
+        chdir: "{{ bare_repo_path }}"
+      when: not ansible_check_mode
+      changed_when: false
+
+    - name: Create initial commit in bare repository if empty
+      command: >
+        bash -c 'if [ ! -d "{{ bare_repo_path }}/refs/heads" ]; then
+        git --git-dir={{ bare_repo_path }} commit --allow-empty -m "Initial commit";
+        fi'
+      args:
+        chdir: "{{ bare_repo_path }}"
+
+    - name: Create seed branch in bare repository
+      command: git branch {{ seed_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+      ignore_errors: yes
+
+    - name: Add worktree for seed branch
+      command: git worktree add {{ fixtures_path }} {{ seed_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+
+    - name: Commit initial state to seed branch
+      command: |
+        git add .
+        git commit -m "Initial state for {{ seed_branch }}"
+      args:
+        chdir: "{{ fixtures_path }}"
+
+    - name: Push seed branch to bare repository
+      command: git push origin {{ seed_branch }}
+      args:
+        chdir: "{{ fixtures_path }}"
+
