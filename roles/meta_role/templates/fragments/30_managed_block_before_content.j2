@@ -1,0 +1,11 @@
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+{% if file.get('metadata',{}).get('auto_include', []) %}
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK auto_includes
+{# Add auto included tasks #}
+{% for include_file in file.metadata.auto_include %}
+- name: Include task {{ include_file.path }}
+  ansible.builtin.include_tasks: "{{ include_file.path }}"
+{% endfor %}
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK auto_includes
+{% endif %}
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content

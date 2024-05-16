@@ -1,0 +1,21 @@
+{% set specification_params = { 'type': specification_filter.type, 'values': specification_filter.values } %}
+
+{% if specification_params.type == 'specifications.templates:fragments_from_templates' %}
+{% set result = [] %}
+{% for region, fragments in template_specification.skeleton_specification.items() %}
+  {% for fragment in fragments %}
+    {% set _ = result.append({ 'template_id': template_id, 'region': region, 'fragment_id': fragment }) %}
+  {% endfor %}
+{% endfor %}
+{{ result }}
+{% elif specification_params.type == 'roles_specifications:collection_specifications' %}
+{% set result = [] %}
+{% for collection_id, collection_roles in roles_specifications.items() %}
+  {% if collection_id not in ['Base','metadata'] %}
+    {% for role_id, role_specification in collection_roles.items() %}
+      {% set _ = result.append({ 'collection_id': collection_id, 'role_id': role_id, 'base_spec': roles_specifications.Base, 'role_spec': role_specification  }) %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+{{ result }}
+{% endif %}

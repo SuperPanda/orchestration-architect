@@ -1,0 +1,71 @@
+{#-
+ # file: roles/meta_template/templates/skeleton.j2
+ # version: 0.8.0
+ # description: Used to generate template skeletons to facilitate
+ #  user customization of templates and allow system-wide updates
+ #
+ # future work:
+ #   - dynamic toggling of fields, and mapping label positions
+ #     to allow consumers of skeleton to update rendered components
+ #   - customize white spacing management so {#- is used for header
+ #      regions so skeleton is more nicely formatted
+ #}
+{#-
+ # Template Variables
+ #
+ # Variables are declared here to ensure variable name changes propagate
+ #    throughout template.
+-#}
+{%- set skeleton_metadata = skeleton_metadata %}
+{%- set file_location = skeleton_metadata.file_location %}
+{%- set metadata = metadata %}
+{%- set version = metadata.version %}
+{%- set template_specification = template_specification %}
+{%- set template_fields = template_specification.get('fields',[]) %}
+{%- set fields_map = fields_map %}
+{#- Fields are used to toggle single line content from the template to rendered components during initial rendering and updates #}
+{% macro skeleton_file_header(location, version) %}
+{{- ['{#', 'file:', location, '#}'] | join(' ') }}
+{{ ['{#', 'version:', version, '#}'] | join(' ') }}
+{%- endmacro %}
+{% macro field_component(field) %}
+{{ ['{#', '(@' ~ field.label ~ ')', field.content, '#}'] | join(' ') }}
+{% endmacro %}
+{%- macro add_fields(included_fields, location, fragment) %}
+{% for included_field in included_fields %}
+{%- if fields_map.get(included_field, false) %}
+{%- set field = fields_map.get(included_field) %}
+{%- if field.get(location, 'missing') == fragment and field.get('state','missing') == 'present' %}
+{{- field_component(field) }}
+{%- endif %}
+{%- endif %}{% endfor %}
+{%- endmacro %}
+{%- macro content_region_marker(region) %}
+### {{ region }} ORCHESTRATION ARCHITECT REGION ###
+{% endmacro %}
+{%- macro region_marker(region) %}
+{{- ['{#', region, 'ORCHESTRATION ARCHITECT REGION', '#}'] | join(' ') }}
+{%- endmacro %}
+{%- macro fragment_marker(fragment) %}
+{{- ['{#', 'BEGIN ORCHESTRATION ARCHITECT FRAGMENT', fragment, '#}'] | join(' ') }}
+{{ ['{#', 'END ORCHESTRATION ARCHITECT FRAGMENT', fragment, '#}'] | join(' ') -}}
+{%- endmacro %}
+
+{#- Skeleton Rendering Logic Below #}
+{{- skeleton_file_header(file_location, version) }}
+{% for region, skeleton_specification in template_specification.skeleton_specification.items() %}
+{%- if region in ['00_Template_Header','01_Header'] %}
+{{- region_marker(region) }}
+{% for fragment in skeleton_specification %}
+{{- fragment_marker(fragment) }}
+{{- add_fields(template_fields, 'after_fragment', fragment) }}
+{% endfor %}
+{% else %}
+{{  region_marker(region) }}
+{{ content_region_marker(region) }}
+{% for fragment in skeleton_specification %}
+{{  fragment_marker(fragment) }}
+{{  add_fields(template_fields, 'after_fragment', fragment) }}
+{% endfor %}
+{% endif %}
+{% endfor %}

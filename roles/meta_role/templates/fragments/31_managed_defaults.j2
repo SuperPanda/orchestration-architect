@@ -1,0 +1,6 @@
+{# fragment: roles/meta_role/templates/fragments/31_managed_defaults.j2 #}
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
+{% for param, value in role_specification.get('defaults',{}).items() %}
+{{ param }}: "{{ value }}"
+{% endfor %}
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults

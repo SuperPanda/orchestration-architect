@@ -1,0 +1,54 @@
+{# file: roles/meta_role/templates/tasks/main.yml.j2.skel #}
+{# version: 0.8.0 #}
+{# 00_Template_Header ORCHESTRATION ARCHITECT REGION #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 10_template_vars #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 10_template_vars #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 11_common_template_macros #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 11_common_template_macros #}
+{# 01_Header ORCHESTRATION ARCHITECT REGION #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
+
+{# 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION #}
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 30_managed_block_before_content #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 30_managed_block_before_content #}
+
+{# 03_Content_Region ORCHESTRATION ARCHITECT REGION #}
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
+{# (@customization_msg) Customize Skeleton Here #}
+
+- name: Display supplied arguments to {{ role_name }} when verbosity is set
+  when: (ansible_verbosity | int)  > 1
+  ansible.builtin.debug:
+    msg: |
+      {{ render_simple_var(role_name) }}
+      {% for param in parameters %}
+{{ render_simple_var(role_name ~ '_' ~ param) }}
+      {% endfor %}
+
+- debug:
+    msg: |
+      {{ role_name }}_params:
+        {% for param in parameters %}
+{{ param }}: "{{ render_param_override(role_name, param) }}"
+        {% endfor %}
+
+- name: Pass configuration parameters to the {{ role_name }} role
+  vars:
+    {{ role_name ~ '_params' }}:
+      {% for param in parameters %}
+{{ param }}: "{{ render_param_override(role_name, param) }}"
+      {% endfor %}
+
+  ansible.builtin.include_tasks:
+    file: "{{ render_route(role_name) }}.yml"
+
+{# 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION #}
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 90_managed_block_after_content #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 90_managed_block_after_content #}

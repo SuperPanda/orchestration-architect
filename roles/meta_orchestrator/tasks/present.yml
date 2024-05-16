@@ -1,0 +1,1264 @@
+# role: meta_playbook
+# file: roles/meta_playbook/tasks/present.yml
+# version: 0.8.0
+---
+
+### 02_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+### 03_Content ORCHESTRATION ARCHITECT REGION ###
+# Here, the main logic of the task file is executed, encompassing the loading, processing, and application
+# of specifications to achieve the desired system state.
+
+# Parameters:
+# scope: schema, all, parmas
+#   determines what will be processed (achieved by transforming specifications required to enriched data to context.enriched_specifications
+
+# (@todo) extend meta_playbook, meta_template, etc. to have the specification schema in
+# vars folder, roles/meta_<meta_component_name>/vars/<specification_schema>.yml
+# like meta_role would have roles_specifications.schema.yml
+# which would list
+#
+# specification:
+# role_name: { type: string, required: true }
+# role_path: { type: string, required: true, description: relative to base_path or absolute path },
+# parameters: { type: dict, description: keys are the input parameters is used to generate the main.yml which will take the <role_name>_<parameter> vars or extract the object <role_name> object and extract the <paramaeter_name> (higher precedence), and provides main.yml the task file <role_name>_<role_state>.yml file the object with the parameters as <role_name>_params: { <param_name_1>: <param_1_value_extract_from_var_or_object>, <param_name_2>: ..., ...}, if a parametervalue is not supplied, and no defaultis specificied it will default to omit
+# defaults: { type: dict, description: used to generate the defaults/main.yml managed block,
+# if the var begins with <role_name>_ then it will autopopulate the <role_name>_params object as the var will be in a roles var when an objectis invoked
+# files: { type: spec, spec_id: ...}
+#
+# file_spec_id:
+#   path: {...}
+#
+
+# Initialises the meta orchestrator's context with parameters that dictate the behavior of this orchestration.
+# Parameters can be provided directly or inherited from defaults or the global orchestrator context.
+# These will auto generated at a later date
+
+# (@section) Initialization and Setup
+# (@todo) Autogenerate this part in templates.
+# (@todo) Update Meta Component Roles to allow systematic execution environment path resolution (base_path, work_directory, path)
+# Initialize essential orchestration settings based on parameters.
+# Sets up debug mode and environment base path variables
+- name: Initialize Debug and Base Path for Orchestration Architect Environment
+  ansible.builtin.set_fact:
+    debug_mode: "{{ ('debug' in meta_orchestrator_params.operations) | ternary(true, false) }}"
+    environment_base_path: "{{ (('base_path' in meta_orchestrator_params) and meta_orchestrator_params.base_path != omit) | ternary(meta_orchestrator_params.base_path, base_path) }}"
+    meta_orchestrator_skip_create: "{{ (('check_mode' in meta_orchestrator_params) and meta_orchestrator_params.check_mode != omit) | ternary(meta_orchestrator_params.check_mode, false) }}"
+- name: Display parameters provided to meta_orchestrator
+  ansible.builtin.debug:
+    var: meta_orchestrator_params
+
+- name: Initialise Meta Orchestratator Context (meta_orchestrator_context)
+  # (@context,project=OA-META-ORCH)
+  # Initialize the meta orchestrator context, setting up essential operational variables.
+  # This task sets the base for all mutable variables within the orchestration, aligning parameters and operational settings.
+  # It ensures that if any parameter names need updating, only this centralized configuration requires modification.
+  ansible.builtin.set_fact:
+    meta_orchestrator_process_queues: {}
+    meta_orchestrator_context:
+      # Specification version, defaulting to the version provided by parameters or falling back to a predefined default.
+      specifications_version: "{{ meta_orchestrator_params.specifications_version }}"
+      # The path to specifications, constructed from base paths and specific paths provided by parameters.
+      specifications_map: "{{ meta_orchestrator_params.specifications_map }}"
+      specifications_path: "{{ [environment_base_path, meta_orchestrator_params.specifications_path] | path_join }}"
+      # The schema used for processing specifications, directly influenced by parameters.
+      schema: "{{ meta_orchestrator_params.schema }}"
+      # Initial specifications are set based on the schema parameter, awaiting further processing.
+      specifications: "{{ meta_orchestrator_params.schema }}"
+      # A placeholder for specifications that will be enriched through subsequent steps.
+      enriched_specifications: {}
+
+- name: Find all version directories
+  # (section) Scan specifications versions
+  ansible.builtin.find:
+    paths: "{{ meta_orchestrator_context.specifications_path }}"
+    file_type: directory
+  register: all_spec_dirs
+
+- name: Determine Specifications Version if 'latest' is specified
+  # Determines the version of the specifications to be used, especially handling the case where 'latest' is specified (will be implemented as a symlink if latest is specified).
+  when: meta_orchestrator_params.specifications_version == 'latest'
+  block:
+    - name: Check if 'latest' directory exists
+      ansible.builtin.stat:
+        path: "{{ meta_orchestrator_context.specifications_path }}/latest"
+      register: latest_dir
+
+    - name: Set 'latest' if the directory exists
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context
+          | combine({'specifications_version': 'latest'}, recursive=True) }}"
+      when: latest_dir.stat.exists
+    - name: Find highest version if 'latest' directory does not exist
+      ansible.builtin.find:
+        paths: "{{ meta_orchestrator_context.specifications_path }}"
+        file_type: directory
+      register: spec_dirs
+      when: not latest_dir.stat.exists
+
+    - name: Extract versions and set the highest
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine({
+          'specifications_version': spec_dirs.files | map(attribute='path') | map('regex_replace', '^.*\/([^\/]+)$', '\\1') | list | sort | last }, recursive=True) }}"
+      when:
+        - not latest_dir.stat.exists
+        - spec_dirs.files | length > 0
+
+
+# (@section) Specification Configuration and Loading
+### Loads the specifications from the determined path and version, setting the stage for processing and application.
+- name: Configure and Load Specifications
+  vars:
+    context: "{{ meta_orchestrator_context }}"
+    specifications_path: "{{ [context.specifications_path, context.specifications_version] | path_join }}"
+  block:
+    - name: Show specification path (Debug)
+      when: debug_mode
+      ansible.builtin.debug:
+        msg: |
+          base_path: {{ environment_base_path }}
+          specifications_path: {{ specifications_path }}
+          context: {{ context }}
+
+    - name: Ensure specification directory exists
+      when: not meta_orchestrator_skip_create
+      ansible.builtin.file:
+        state: directory
+        path: "{{ specifications_path }}"
+        mode: "0660"
+
+    - name: Check if specification directory exists and is empty
+      ansible.builtin.find:
+        paths: "{{ specifications_path }}"
+        use_regex: true
+        patterns: '.*'  # Match all files
+      register: spec_dir_contents
+
+    - name: Copy specifications to new version
+      when:
+        - spec_dir_contents
+        - not meta_orchestrator_skip_create
+        - spec_dir_contents.files | length == 0
+      block:
+        - name: Show spec_dirs
+          ansible.builtin.debug:
+            var: spec_dirs
+        - name: Extract versions
+          ansible.builtin.set_fact:
+            versions: "{{ all_spec_dirs.files | map(attribute='path') | map('regex_replace', '^.*\/([^\/]+)$', '\\1') | list }}"
+
+        - name: Sort versions lexicographically
+          ansible.builtin.set_fact:
+            sorted_versions: "{{ versions | sort }}"
+
+        - name: Determine highest version before specified
+          vars:
+            clone_version: "{{ '' }}"
+            spec_version: "{{ meta_orchestrator_params.specifications_version }}"
+          block:
+            - name: Find previous version
+              ansible.builtin.set_fact:
+                clone_version: "{{ item }}"
+              loop: "{{ sorted_versions }}"
+              when: item < spec_version
+              loop_control:
+                extended: true
+              vars:
+                last_item: "{{ ansible_loop.previtem if ansible_loop.previtem is defined else '' }}"
+              # Ensure this task stops executing further once the condition fails to meet (i.e., item >= spec_version)
+              # This relies on the sorted list and assumes versions increment logically.
+              # NOTE: This assumes lexical comparison is sufficient and may not work for all semantic versioning cases.
+              failed_when: (last_item >= spec_version) and (item >= spec_version)
+
+        - name: Debug - Show version to clone
+          ansible.builtin.debug:
+            msg: "The target version before specified: {{ clone_version }}"
+          when: clone_version != '' and debug_mode
+
+        - name: Copy configuration files from the target version if directory is empty and a target version is identified
+          ansible.builtin.copy:
+            src: "{{ meta_orchestrator_context.specifications_path }}/{{ clone_version }}/"
+            dest: "{{ specifications_path }}"
+            remote_src: true
+            mode: "0660"
+          when:
+            - clone_version is defined and clone_version != ''
+
+    - name: Imports the specifications YAML from the designated directory
+      ansible.builtin.include_vars:
+        dir: "{{ specifications_path }}"
+        name: loaded_specifications
+
+#       - name: Show Loaded Specifications
+#         when: debug_mode
+#         ansible.builtin.debug:
+#           var: loaded_specifications
+    # A possible morphism fora meta_specification role
+    - name: Load Content based on Schema
+      vars:
+        metadata_from_existing_specifications: >-
+          {{
+            ('metadata' in loaded_specifications)
+            | ternary(loaded_specifications.metadata, {})
+          }}
+        supplied_specifications: >-
+          {{
+            (meta_orchestrator_params.specifications != omit)
+            | ternary(meta_orchestrator_params.specifications, {})
+          }}
+        metadata_from_supplied_specifications: >-
+          {{
+            ('metadata' in supplied_specifications)
+            | ternary(supplied_specifications.metadata, {})
+          }}
+        metadata: >-
+          {{
+            metadata_from_existing_specifications
+            | combine(
+                metadata_from_supplied_specifications, recursive=True, list_merge='append_rp'
+              )
+          }}
+        specifications_map: >-
+          {{
+            meta_orchestrator_params.specifications_map
+            | combine(
+                metadata.specifications_map
+                | default({}), recursive=True, list_merge='replace'
+              )
+          }}
+      block:
+        # Specification Field:
+        #
+        #   This top-level key in the specification files follows the pattern:
+        #   <Specification Field>.<Collection>.<Component>
+        #
+        #   When a file is included using include_vars, this field facilitates
+        #   easier development by organizing data systematically.
+        #
+        # Specification Label:
+        #
+        #   This label determines the filenames for specification files.
+        #   For instance, the object { roles_specifications: roles }
+        #   maps to roles.yml. This naming convention simplifies file management
+        #   by directly associating the specification label with its corresponding YAML file.
+        #
+        #   For example, a label 'roles' would result in the file path:
+        #   <current (environment) base_path>/vars/specifications/<version>/roles.yml
+        #
+        #   It's also used when loading specifications into an object, such as:
+        #   meta_orchestrator_context.specifications.role
+        #   This ensures that the data structure in the code mirrors
+        #   the file and label structures, enhancing maintainability.
+
+        #
+        # Specification Label:
+        #   The name of the specification used to determine file names.
+        #   For example, the object { roles_specifications: roles }
+        #   will map to roles.yml.
+        #
+        #
+        #   (e.g. roles_specifications -> roles.yml),
+        #   and ensure
+        #   and what it gets loaded into when include_vars (so roles,
+        #   has roles_specifications: {...}, and when loaded into vars will be loaded as
+        #   roles_specifications, also used for the schema
+        #
+        # specification label, is the specification name and is used to create the
+        #   specification file (i.e. label 'roles', would create
+        #   <current (environment) base_path>vars/specificatins/<version>//roles.yml
+        #   and it also used when storing the specification in an object (such as
+        #   meta_orchestrator_context.specifications.role)
+        #
+        - name: Specifications Map (debug)
+          loop: "{{ specifications_map | dict2items(key_name='spec_field', value_name='spec_label') }}"
+          when: debug_mode
+          ansible.builtin.debug:
+            msg: |
+              field: "{{ item.spec_field }}"
+              label: "{{ item.spec_label }}"
+
+        - name: Load the specifications from specifications map to context
+          loop: "{{ specifications_map | dict2items(key_name='spec_field', value_name='spec_label') }}"
+          when:
+            - item.spec_field in loaded_specifications
+          ansible.builtin.set_fact:
+            meta_orchestrator_context: "{{ meta_orchestrator_context | combine({
+              'specifications': { item.spec_label: loaded_specifications[item.spec_field] }
+                }, recursive=True, list_merge='append_rp') }}"
+
+    - name: Combine supplied specification parameter with the existing specification
+      when:
+        - "'specifications' in meta_orchestrator_params"
+        - meta_orchestrator_params.specifications != omit
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine({
+          'specifications': meta_orchestrator_params.specifications
+          }, recursive=True, list_merge='replace') }}"
+
+
+# Processes the loaded specifications, applying them to the system or component configuration.
+# This step is where the actual orchestration, based on the loaded and possibly modified specifications, takes place.
+# (@param) meta_orchestrator.operations [#contains process_specifications]
+
+- name: Process Specifications (Persist changes to the specification)
+  when: "'process_specifications' in meta_orchestrator_params.operations"
+  vars:
+    context: "{{ meta_orchestrator_context }}"
+    specifications: "{{ 'specifications' | extract(meta_orchestrator_context) }}"
+    specifications_map: "{{ 'specifications_map' | extract(meta_orchestrator_context) }}"
+    specification_label_to_field_map: >-
+      {{
+        specifications_map
+        | dict2items(key_name='value', value_name='key')
+        | list
+        | items2dict
+      }}
+  block:
+    - name: Ensures that the directory for specifications exists
+      ansible.builtin.file:
+        state: directory
+        mode: "{{ directory_mode | default('0770') }}"
+        path: "{{ context.specifications_path }}"
+
+    - name: Debug specifications processing
+      when: debug_mode
+      block:
+        - ansible.builtin.debug:
+            msg: |
+              specification_label_to_field_map: "{{ specifications_map | dict2items(key_name='value', value_name='key') | list | items2dict }}"
+              specifications: "{{ specifications.keys() }}"
+        - ansible.builtin.debug:
+            var: item.key
+          loop: "{{ specifications | dict2items }}"
+        - ansible.builtin.debug:
+            var: item.value.keys()
+          loop: "{{ specifications | dict2items }}"
+#           - ansible.builtin.debug:
+#               var: specification_label_to_field_map[item.key]
+#             loop: "{{ specifications | dict2items }}"
+
+    - name: Saves configuration updates
+      vars:
+        specification_label_to_field_map: "{{ specifications_map | dict2items(key_name='value', value_name='key') | list | items2dict }}"
+        content: "{{ ({ specification_label_to_field_map[item.key]: item.value }) | to_nice_yaml }}"
+        file_name: "{{ item.key + '.yml' }}"
+        file_path: "{{ context.specifications_path }}/{{ file_name }}"
+      ansible.builtin.copy:
+        dest: "{{ file_path }}"
+        content: "{{ content }}"
+        mode: "{{ file_mode | default('0660') }}"
+      loop: "{{ specifications | dict2items }}"
+    - name: Format specification files
+      vars:
+        specification_label_to_field_map: "{{ specifications_map | dict2items(key_name='value', value_name='key') | list | items2dict }}"
+        file_name: "{{ item.key + '.yml' }}"
+        file_path: "{{ context.specifications_path }}/{{ file_name }}"
+      ansible.builtin.command: "python {{ environment_base_path }}/plugins/scripts/format_yaml.py '{{ file_path }}' '{{ file_path }}'"
+      loop: "{{ specifications | dict2items }}"
+
+
+# SCOPE CUSTOMIZATION
+# all - will set schema to whatever is in specifications
+# params - will use params to use schema to determine what to generate in specifications
+# schema - will use the provide schema to process the specification
+#
+# Schema structure:
+# <specification_type>:
+#   <collection_id>:
+#     <component_id>: {}
+#
+# Note: If collection contains no components, it will use
+#
+# Gahh, doesn't work for template specifications! For now just pretend
+# it does but not use it.
+- name: Populate Specification Schema for Specified Scope '{{ meta_orchestrator_params.scope }}'
+  vars:
+    specified_scope: "{{ meta_orchestrator_params.scope }}"
+    default_non_collection_keys: ['metadata', 'Base']
+  block:
+    - name: Populate Schema with Specifications Sourced by Scope 'all' or 'params'
+      when:
+        - "specified_scope == 'all' or specified_scope == 'params'"
+      vars:
+        schema_using_specified_scope: >-
+          {{
+            (specified_scope == 'params')
+            | ternary(
+                meta_orchestrator_params.specifications,
+                meta_orchestrator_context.specifications
+              )
+          }}
+
+        schema_source: >-
+          {{
+            (specified_scope == 'params')
+            | ternary(
+                'meta_orchestrator_params.specifications',
+                'meta_orchestrator_context.specifications'
+              )
+          }}
+      block:
+#           - name: Display Schema Specified by Scope
+#             ansible.builtin.debug:
+#               msg: |
+#                 Schema Source: {{ schema_source }}
+#                 Specification used by Schema:
+#                 {{ schema_using_specified_scope | to_nice_yaml }}
+
+        - name: Initialize Populate Schema Context
+          ansible.builtin.set_fact:
+            populate_schema_context:
+              collection_key_paths: []
+              component_key_paths: []
+              schema: {}
+
+        - name: Identify Key Path for Collections in Scoped Specification as 'Specification Type' and 'Collection Key Path' Pair List
+          when: specification_type not in default_non_collection_keys
+          loop: "{{ schema_using_specified_scope | dict2items(key_name='specification_type', value_name='collections') }}"
+          loop_control:
+            loop_var: collections_by_specification_type
+          vars:
+            specification_type: "{{ 'specification_type' | extract(collections_by_specification_type) }}"
+            specification_collections: "{{ 'collections' | extract(collections_by_specification_type) }}"
+            specification_collection_keys: >-
+              {{
+                (specification_collections
+                | dict2items(key_name='collection_name')
+                | map(attribute='collection_name'))
+                | difference(default_non_collection_keys)
+              }}
+            populate_schema_context_delta:
+              collection_key_paths: >-
+                {{ ([specification_type] | product(specification_collection_keys)) | map('flatten') }}
+          ansible.builtin.set_fact:
+            populate_schema_context: "{{ populate_schema_context | combine(populate_schema_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Debug collection_key_paths
+          ansible.builtin.debug:
+            var: populate_schema_context.collection_key_paths
+        - name: Identify Key Paths to Specification Components to Populate Schema as 'Specification Type, Collection, Component' Tuples
+          loop: "{{ 'collection_key_paths' | extract(populate_schema_context) }}"
+          loop_control:
+            loop_var: collection_key_path
+            label: "(Specification Type = {{ specification_id }}, Collection Id = {{ collection_id }} )"
+          vars:
+            specification_id: "{{ collection_key_path.0 }}"
+            collection_id: "{{ collection_key_path.1 }}"
+            component_ids: >-
+              {{
+                (specification_id | extract(schema_using_specified_scope, morekeys=collection_id))
+                | dict2items(key_name='key')
+                | map(attribute='key')
+              }}
+            populate_schema_context_delta:
+              component_key_paths: "{{ ([collection_key_path] | product(component_ids)) | map('flatten') }}"
+          ansible.builtin.set_fact:
+            populate_schema_context: "{{ populate_schema_context | combine(populate_schema_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Populate Schema using Extracted Structure from Scoped Specification
+          loop: "{{ populate_schema_context.component_key_paths }}"
+          loop_control:
+            loop_var: component_key_path
+          vars:
+            specification_type: "{{ component_key_path.0 }}"
+            collection_id: "{{ component_key_path.1 }}"
+            component_id: "{{ component_key_path.2 }}"
+            schema_delta:
+              schema: >-
+                {{
+                  {
+                    specification_type: {
+                      collection_id: {
+                        component_id: {}
+                      }
+                    }
+                  }
+                }}
+          ansible.builtin.set_fact:
+            populate_schema_context: "{{ populate_schema_context | combine(schema_delta, recursive=True) }}"
+        - name: Add Populated Schema to Meta Orchestrator Context
+          vars:
+            meta_orchestrator_context_delta:
+              schema: "{{ populate_schema_context.schema }}"
+          ansible.builtin.set_fact:
+            meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta) }}"
+    - name: Generate Enriched Specification Skeleton from Schema
+      vars:
+        initial_schema: "{{ meta_orchestrator_context.schema }}"
+        specification_types_in_schema: "{{ initial_schema.keys() }}"
+        specifications: "{{ meta_orchestrator_context.specifications }}"
+      block:
+        - name: Initialize Enriched Specification Skeleton Context
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context:
+              empty_collections_schema: {}
+              empty_collection_key_paths: []
+              empty_collection_component_key_paths: []
+              enriched_schema_empty_collection: {}
+              enriched_schema: {}
+
+        # input: inital_schema
+        # output: empty_collections_schema
+        - name: Identify the Full Selector Collections (Collections in Schema with no Specified Components)
+          loop: "{{ specification_types_in_schema }}"
+          loop_control:
+            loop_var: specification_type
+          when: specification_type not in default_non_collection_keys
+          vars:
+            empty_schema_collections_for_specification_type: "{{
+              {
+                specification_type: (specification_type
+                  | extract(initial_schema)
+                  | dict2items
+                  | selectattr('value', '==', {})
+                  | items2dict)
+              }
+              }}"
+            enriched_specification_skeleton_context_delta:
+              empty_collections_schema: "{{ empty_schema_collections_for_specification_type }}"
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Enriched Specification Skeleton Context After Identifying Full Selector Collections
+          ansible.builtin.debug:
+            var: enriched_specification_skeleton_context
+        # input: empty_collections_schema
+        # output: empty_collections_key_paths
+        - name: Generate Specification Key Paths for Full Selector Collections
+          loop: "{{ enriched_specification_skeleton_context.empty_collections_schema | dict2items(key_name='specification_type', value_name='empty_collections') }}"
+          vars:
+            specification_type: "{{ item.specification_type }}"
+            empty_collections: "{{ item.empty_collections }}"
+            empty_collection_key_paths: "{{
+              [specification_type]
+              | product(empty_collections.keys())
+              }}"
+            enriched_specification_skeleton_context_delta:
+              empty_collection_key_paths: "{{ empty_collection_key_paths | map('flatten') }}"
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Scope Construct Context After 'Extract keys needed to process empty collections in schema'
+          ansible.builtin.debug:
+            var: enriched_specification_skeleton_context
+        # input: empty_collection_key_paths, specifications
+        # output: empty_collection_component_key_paths
+        - name: Populate Enriched Skeleton Specification Context with the Product of Full Selector Collection Key Paths and Collections Components
+          loop: "{{ enriched_specification_skeleton_context.empty_collection_key_paths }}"
+          loop_control:
+            loop_var: collection_key_path
+          vars:
+            specification_id: "{{ collection_key_path.0 }}"
+            collection_id: "{{ collection_key_path.1 }}"
+            component_ids: "{{ (specification_id | extract(specifications, morekeys=collection_id)).keys() }}"
+            component_key_paths: "{{ (([ collection_key_path ] | product(component_ids))) | map('flatten') }}"
+            enriched_specification_skeleton_context_delta:
+              empty_collection_component_key_paths: "{{ component_key_paths }}"
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+        # DEBUG
+        - name: Show Enriched Skeleton Specification Context After Product of Full Selector Collection Key Paths and Collections Components
+          loop: "{{ enriched_specification_skeleton_context.empty_collection_key_paths }}"
+          loop_control:
+            loop_var: collection_key_path
+          vars:
+            specification_id: "{{ collection_key_path.0 }}"
+            collection_id: "{{ collection_key_path.1 }}"
+            component_ids: "{{ (specification_id | extract(specifications, morekeys=collection_id)).keys() }}"
+            component_key_paths: "{{ (([ collection_key_path ] | product(component_ids))) | map('flatten') }}"
+            enriched_specification_skeleton_context_delta:
+              empty_collection_component_key_paths: "{{ component_key_paths }}"
+          ansible.builtin.debug:
+            msg: |
+              "{{ specifications | to_nice_yaml }}"
+              "{{ specification_id }}"
+              "{{ collection_id }}"
+              "{{ component_ids }}"
+              "{{ specification_id | extract(specifications, morekeys=collection_id) }}"
+        - name: Debug 'enriched_specification_skeleton_context' after setting empty_collection_component_key_paths
+          ansible.builtin.debug:
+            var: enriched_specification_skeleton_context
+        # input: empty_collection_component_key_paths
+        # output: enriched_schema_empty_collection
+        - name: Transform component key paths to fill the empty collection
+          loop: "{{ enriched_specification_skeleton_context.empty_collection_component_key_paths }}"
+          loop_control:
+            loop_var: component_key_path
+          vars:
+            specification_id: "{{ component_key_path.0 }}"
+            collection_id: "{{ component_key_path.1 }}"
+            component_id: "{{ component_key_path.2 }}"
+            enriched_specification_skeleton_context_delta:
+              enriched_schema_empty_collection: "{{
+                {
+                  specification_id: {
+                    collection_id: {
+                      component_id: {}
+                    }
+                  }
+                } }}"
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Show Enriched Specification Skeleton Context After Identification of Full Selector Collections
+          ansible.builtin.debug:
+            var: enriched_specification_skeleton_context
+        # input: enriched_schema_empty_collection_schema
+        # output: enriched_empty_schema
+        - name: Populate Enriched Specification Skeleton with Full Selector Collection Components
+          loop: "{{ enriched_specification_skeleton_context.empty_collection_component_key_paths }}"
+          loop_control:
+            loop_var: component_key_path
+          vars:
+            enriched_specification_skeleton_context_delta:
+              enriched_schema: "{{ enriched_specification_skeleton_context.enriched_schema_empty_collection }}"
+          ansible.builtin.set_fact:
+            enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+
+
+# The section on processing templates embodies the application of category theory to system configuration,
+# specifically focusing on the enrichment of template specifications. This step is crucial for ensuring that
+# template structures are dynamically adaptable to the current system's specifications, reflecting changes
+# and updates in an efficient and modular manner.
+
+- name: Enrich Templates Specification and Queue for Processing by Meta Template (meta_template)
+  vars:
+    context: "{{ meta_orchestrator_context }}"
+    templates_specifications: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys='templates') }}"
+    base_template: "{{ 'specifications' | extract(meta_orchestrator_context,morekeys=['templates','Base']) }}"
+    non_collection_keys: ['metadata', 'Base']
+  when:
+    - "'process_templates' in meta_orchestrator_params.operations"
+  block:
+    # Template Enrichment Context:
+    #   This context holds all data necessary for enriching template specifications, structured as follows:
+    #
+    #   - template_enrichment_queue:
+    #       A list of items where each item is a list composed of:
+    #         [collection_id, 'templates', template_id]
+    #       This queue represents templates that are to be enriched.
+    #
+    #   - enriched_specifications:
+    #       A dictionary where each key is a collection_id and each value is a collection_spec,
+    #       which includes all the enriched template data specific to that collection.
+    #
+    #       collection_spec:
+    #         - templates_path: Path where templates of the collection are stored.
+    #         - fragments_path: Path where fragments of the templates are stored.
+    #         - template_fragments: A dictionary of combined fragments from the base template and
+    #           specific collection templates. It merges base template fragments with collection-specific fragments.
+    #         - fields_map: A dictionary combining base fields with collection-specific fields map.
+    #         - templates: A dictionary mapping each template_id to its specific enriched template_spec.
+    #
+    #         Each template_spec is detailed further in:
+    #           - skeleton_specification: The basic structure or 'skeleton' of the template, which
+    #             may default to the base skeleton specification if not explicitly defined.
+    #           - path: The filesystem path to the template file.
+    #           - skeleton_path: Path to the skeleton part of the template.
+    #           - fields: A list of keys from the fields map that are applicable to this template.
+    #
+    #       skeleton_specification (part of template_spec):
+    #         - Defined per region within the template, where each region (like header, body, footer)
+    #           contains a list of keys pointing to specific template fragments.
+    #
+    #       template_fragments (part of collection_spec):
+    #         - Defined for each fragment block within the template, where each block includes:
+    #           - fragment_block_id: Unique identifier of the fragment.
+    #           - path: The path to the fragment data block.
+    #  #
+    # This task initializes the template enrichment context, which will hold all the modified and updated template data.
+    # It sets up an empty dictionary to begin collecting template specification data that will be enriched through subsequent tasks.
+    - name: Initialize Template Enrichment Context
+      ansible.builtin.set_fact:
+        template_enrichment_context: {}
+    - name: Show Template Collections to be Enriched
+      ansible.builtin.debug:
+        var: templates_specifications
+    - name: Show Base Template
+      ansible.builtin.debug:
+        msg: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['templates', 'Base']) }}"
+    # Iterate over each template collection, excluding non-collection keys, and enrich the specifications by combining them with base template properties.
+    - name: Enrich and Persist Template Collection Specifications to Template Enrichment Context
+      loop: "{{ templates_specifications | dict2items(key_name='collection_id', value_name='specification') }}"
+      loop_control:
+        loop_var: template_collection
+      when:
+        - "template_collection.collection_id not in non_collection_keys"
+      vars:
+        collection_id: "{{ template_collection.collection_id }}"
+        specification: "{{ template_collection.specification }}"
+        specification_template_fragments: "{{ ('specification' | extract(template_collection, morekeys='template_fragments')) | default({}) }}"
+        base_template: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['templates','Base']) }}"
+        collection_delta:
+          templates_path: "{{ specification.templates_path }}"
+          fragments_path: "{{ specification.fragments_path }}"
+          template_fragments: >-
+            {{
+              base_template.template_fragments
+              | combine(
+                  specification_template_fragments | default({}),
+                  recursive=True,
+                  list_merge='append_rp'
+                )
+            | default({})
+            }}
+          fields_map: >-
+            {{
+              base_template.fields
+              | combine(
+                  specification.fields_map | default({}),
+                  recursive=True
+               )
+              | default({})
+            }}
+        context_delta:
+          template_enrichment_queue: >-
+            {{
+              (
+                [[collection_id, 'templates']]
+                | product(
+                    ('templates' | extract(specification) | default({})).keys()
+                  )
+                | map('flatten')
+              )
+            }}
+          enriched_specification: "{{ {collection_id: collection_delta} }}"
+      ansible.builtin.set_fact:
+        template_enrichment_context: "{{ template_enrichment_context | combine(context_delta, recursive=True, list_merge='append_rp') }}"
+
+#       - name: Debug Enrich Template
+#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+#         loop_control:
+#           loop_var: loop_item
+#         ansible.builtin.debug:
+#           msg: |
+#             collection: "{{ loop_item.0 }}"
+#             collection_templates_field: "{{ loop_item.1 }}"
+#             template_to_update: "{{ loop_item.2 }}"
+#
+#       - name: Specification Keys
+#         ansible.builtin.debug:
+#           msg: "specifications_keys: {{ specifications | dict2items | map(attribute='key') }}"
+#       - name: Template Specification Keys
+#         when: "'templates' in specifications"
+#         vars:
+#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
+#         ansible.builtin.debug:
+#           msg: "templates_specifications keys:  {{templates_specifications | dict2items | map(attribute='key') }}"
+#       - name: Debug Enrich Template 2
+#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+#         loop_control:
+#           loop_var: loop_item
+#         vars:
+#           collection: "{{ loop_item.0 }}"
+#           collection_templates_field: "{{ loop_item.1 }}"
+#           template_id: "{{ loop_item.2 }}"
+#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
+#         ansible.builtin.debug:
+#           msg: |
+#             collection: "{{ collection }}"
+#             collection_templates_field: "{{ collection_templates_field }}"
+#             template_id: "{{ template_id }}"
+#             #templates_specifications: "{{ templates_specifications | to_nice_yaml }}"
+#       - name: Debug Enrich Template 3
+#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+#         loop_control:
+#           loop_var: loop_item
+#         vars:
+#           collection: "{{ loop_item.0 }}"
+#           collection_templates_field: "{{ loop_item.1 }}"
+#           template_id: "{{ loop_item.2 }}"
+#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
+#         ansible.builtin.debug:
+#           var: templates_specifications[collection]
+#
+#       - name: Debug Enrich Template 4
+#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+#         loop_control:
+#           loop_var: loop_item
+#         vars:
+#           collection: "{{ loop_item.0 }}"
+#           collection_templates_field: "{{ loop_item.1 }}"
+#           template_id: "{{ loop_item.2 }}"
+#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
+#           collection_specification: "{{ collection | extract(templates_specifications) }}"
+#           template_spec: "{{ collection_templates_field | extract(collection_specification) }}"
+#         ansible.builtin.debug:
+#           msg: |
+#             collection_specification: "{{ collection_specification }}"
+#             template_spec: "{{ template_spec }}"
+#             base_template: "{{ base_template }}"
+    - name: Enrich Template Specifications and Update Context with Extraction Paths
+      loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+      loop_control:
+        loop_var: template_key_path
+      vars:
+        collection_id: "{{ template_key_path.0 }}"
+        templates_field_key: "{{ template_key_path.1 }}"
+        template_id: "{{ template_key_path.2 }}"
+        # First, extract the collection specification using the collection_id
+        collection_specification: "{{ templates_specifications[collection_id] }}"
+        # Next, extract the template field within the collection specification
+        templates_specification: "{{ collection_specification[templates_field_key] }}"
+        # Finally, extract the specific template to enrich using the template_id
+        template_to_enrich: "{{ templates_specification[template_id] }}"
+        # Define template-level changes based on existing and default specifications
+        template_delta:
+          skeleton_specification: "{{ template_to_enrich.skeleton_specification | default(base_template.skeleton_specification) }}"
+        # Creating a collection-level delta that includes updated template details
+        collection_delta:
+          templates: "{{ {template_id: (template_to_enrich | combine(template_delta))} }}"
+        # Defining the context delta to update the global template enrichment context
+        context_delta:
+          enriched_specification: >-
+            {{
+              { collection_id: collection_delta }
+            }}
+      # Apply the defined deltas to the global template enrichment context
+      ansible.builtin.set_fact:
+        template_enrichment_context: "{{ template_enrichment_context | combine(context_delta, recursive=True, list_merge='append_rp') }}"
+      # After setting the fact, use a debug statement to confirm the changes
+#   - debug:
+#       msg: |
+#         "Updated Template Enrichment Context for Collection ID: {{ collection_id }}"
+#         "Details: {{ template_enrichment_context[collection_id] }}"
+#     - name: Enrich Template
+#       loop: "{{ template_enrichment_context.template_enrichment_queue }}"
+#       loop_control:
+#         loop_var: template_key_path
+#       vars:
+#         collection_id: "{{ template_key_path.0 }}"
+#         templates_field_key: "{{ template_key_path.1 }}"
+#         template_id: "{{ template_key_path.2 }}"
+#         template_to_enrich: "{{ templates_field_key | extract(specifications, morekeys=template_key_path) }}"
+#         template_delta:
+#           skeleton_specification: "{{ template_to_enrich.skeleton_specification | default(base_template.skeleton_specification) }}"
+#         collection_delta:
+#           templates: "{{
+#               { template_id: (template_to_enrich | combine(template_delta)) }
+#             }}"
+#         context_delta:
+#           enriched_specification: "{{
+#             {
+#               collection_id: collection_delta
+#             }
+#             }}"
+#       ansible.builtin.set_fact:
+#         template_enrichment_context: "{{ template_enrichment_context | combine(context_delta, recursive=True, list_merge='append_rp') }}"
+    # TODO MAKE PROCESS QUEUE RESPECT SCOPE FOR TEMPLATES
+    # For now just selectively use process_templates in the opeartions params
+    # Possible design: Automatically generated dependecy Directed Acyclic Graph
+    - name: Copy Template Enrichment Context to Meta Orchestrator Context
+      vars:
+        meta_orchestrator_context_delta:
+          enriched_specifications:
+            templates: "{{ template_enrichment_context.enriched_specification }}"
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta) }}"
+    - name: Determine Template Scope
+      when: template_collections
+      vars:
+        specified_scope: "{{ meta_orchestrator_params.scope }}"
+        template_collections: "{{ meta_orchestrator_context.enriched_specifications.templates | dict2items(key_name='id') }}"
+      block:
+        - name: Show template_collections
+          ansible.builtin.debug:
+            msg: "{{ template_collections }}"
+        - name: Add Template Processing when scope is all
+          when:
+            - "specified_scope == 'all'"
+          loop: "{{ template_collections }}"
+          loop_control:
+            loop_var: template_collection
+          vars:
+            meta_orchestrator_process_queues_delta:
+              templates: "{{ [ template_collection.id ] }}"
+          ansible.builtin.set_fact:
+            meta_orchestrator_process_queues: "{{ meta_orchestrator_process_queues | combine(meta_orchestrator_process_queues_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Add Template Processing when scope is schema
+          when:
+            - "specified_scope == 'schema'"
+            - "meta_orchestrator_context.schema is defined"
+            - "meta_orchestrator_context.schema.templates is defined"
+            - "template_collection is defined"
+            - "template_collection.id is defined"
+            - "template_collection.id in meta_orchestrator_context.schema.templates"
+          loop: "{{ template_collections }}"
+          loop_control:
+            loop_var: template_collection
+          vars:
+            meta_orchestrator_process_queues_delta:
+              templates: "{{ [template_collection.id] }}"
+          ansible.builtin.set_fact:
+            meta_orchestrator_process_queues: "{{ meta_orchestrator_process_queues | combine(meta_orchestrator_process_queues_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Add Template Processing when scope is params
+          when:
+            - specified_scope == 'params'
+            - meta_orchestrator_params.specifications is defined
+            - meta_orchestrator_params.specifications.templates == {} or (template_collection.id in meta_orchestrator_params.specifications.templates)
+          loop: "{{ template_collections }}"
+          loop_control:
+            loop_var: template_collection
+          vars:
+            meta_orchestrator_process_queues_delta:
+              templates: "{{ [ template_collection.id ] }}"
+          ansible.builtin.set_fact:
+            meta_orchestrator_process_queues: "{{ meta_orchestrator_process_queues | combine(meta_orchestrator_process_queues_delta, recursive=True, list_merge='append_rp') }}"
+        - ansible.builtin.debug:
+            var: meta_orchestrator_process_queues
+#           - ansible.builtin.debug:
+#               var: template_enrichment_context
+
+# Process Roles
+# This step involves enriching role specifications and preparing them for execution.
+# It demonstrates the system's adaptability and modularity by dynamically configuring roles based on the current specifications.
+# If only a collection is specified (no roles specified)
+# then it automatically includes all the roles from the specifications
+- name: Enrich Roles Specifications and Queue for Processing by Meta Role (meta_role)
+  vars:
+    context: "{{ meta_orchestrator_context }}"
+    specifications: "{{ context.specifications }}"
+    roles_specifications: "{{ specifications.roles }}"
+    base_role: "{{ roles_specifications.Base }}"
+    scope: "{{ meta_orchestrator_context.schema }}"
+    current_scope: "{{ scope.roles | default({}) | dict2items }}"
+    collections_ids: "{{ current_scope | map(attribute='key') }}"
+    collections_roles_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
+  when: "'process_roles' in meta_orchestrator_params.operations"
+  block:
+    # Enrich Roles Specifications
+    # This enriches roles by combining base specifications with role-specific modifications,
+    # ensuring all roles are up to date with the current system requirements.
+    - name: Present detailed debug messages
+      when: debug_mode
+      block:
+        - name: Current Scope
+          ansible.builtin.debug:
+            var: current_scope
+
+        - name: Role IDs grouped by Collection
+          ansible.builtin.debug:
+            msg: |
+              collections_roles_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
+
+        - name: Zipped Collection IDs and Role IDs By Collection
+          ansible.builtin.debug:
+            msg: "{{ collections_ids | zip(collections_roles_ids) }}"
+
+        - name: Product of first collection and roles
+          ansible.builtin.debug:
+            msg: "{{ [(collections_ids | first)] | product([collections_roles_ids | first] | flatten) }}"
+
+    - name: Enrich roles specifications
+      loop: "{{ (collections_ids | zip(collections_roles_ids)) }}"
+      loop_control:
+        loop_var: role_nodes
+        label: "Role Collection = {{ role_nodes.0 }}, Role = {{ role_nodes.1 | join(',') }}"
+      vars:
+        collection_id: "{{ role_nodes.0 }}"
+        role_ids: "{{ role_nodes.1 }}"
+        process_queue_delta:
+          roles: "{{ ([collection_id] | product(role_ids | flatten)) }}"
+      ansible.builtin.set_fact:
+        meta_orchestrator_process_queues: "{{ (meta_orchestrator_process_queues | default({})) | combine(process_queue_delta, recursive=True, list_merge='append_rp') }}"
+    - name: Display Role Process Queue (List of Specification Enrichment Paths)
+      ansible.builtin.debug:
+        var: meta_orchestrator_process_queues.roles
+    - name: Process Enrichment of Roles
+      loop_control:
+        loop_var: enrichment_path
+      vars:
+        collection_id: "{{ enrichment_path.0 }}"
+        role_id: "{{ enrichment_path.1 }}"
+        base_role: "{{ roles_specifications.Base | default({}) }}"
+        specification: "{{ base_role | combine((collection_id | extract(roles_specifications, morekeys=[role_id])), recursive=True, list_merge='append_rp') }}"
+        specifications_delta:
+          enriched_specifications:
+            roles: "{{ { collection_id: ({ role_id: specification })} }}"
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine(specifications_delta, recursive=True) }}"
+      loop: "{{ meta_orchestrator_process_queues.roles }}"
+
+
+ ## # Process Playbooks
+ ## # Similar to roles, this segment enriches playbook specifications and prepares them for execution,
+ ## # showcasing the orchestration system's dynamic and modular nature. When it is finished.
+- name: Enrich Playbooks Specifications and Queue for Processing by Meta Playbook (meta_playbook)
+  vars:
+    specifications: "{{ 'specifications' | extract(meta_orchestrator_context) }}"
+    playbooks_specifications: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys='playbooks') }}"
+    base_playbook: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['playbooks','Base']) }}"
+    scope: "{{ meta_orchestrator_context.schema }}"
+    current_scope: "{{ scope.playbooks | default({}) | dict2items }}"
+    collections_ids: "{{ current_scope | map(attribute='key') }}"
+    collections_playbooks_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
+  when: "'process_playbooks' in meta_orchestrator_params.operations"
+  block:
+    - name: Add Playbook Specifications Node Traversal Paths to Processing Queue
+      loop: "{{ (collections_ids | zip(collections_playbooks_ids)) }}"
+      loop_control:
+        loop_var: playbook_node_path
+        label: "(Playbook Collection = {{ playbook_node_path.0 }}, Playbooks = {{ playbook_node_path.1 | join(',') }}"
+      vars:
+        collection_id: "{{ playbook_node_path.0 }}"
+        playbook_ids: "{{ playbook_node_path.1 }}"
+        process_queue_delta:
+          playbooks: "{{ ([collection_id] | product(playbook_ids | flatten)) }}"
+      ansible.builtin.set_fact:
+        meta_orchestrator_process_queues: "{{ (meta_orchestrator_process_queues | default({})) | combine(process_queue_delta, recursive=True, list_merge='append_rp') }}"
+    - name: Display Playbook Process Enrichment Var Resolution
+      when:
+        - "'playbooks' in meta_orchestrator_process_queues"
+      block:
+        - ansible.builtin.debug:
+            var: meta_orchestrator_process_queues.playbooks
+        - ansible.builtin.debug:
+            msg: >-
+              {{ ('specifications' | extract(meta_orchestrator_context,morekeys='playbooks')) | dict2items(key_name='collection_name') | map(attribute='collection_name') }}
+    - name: Process Playbook Enrichment
+      when:
+        - "'playbooks' in meta_orchestrator_process_queues"
+      loop: "{{ meta_orchestrator_process_queues.playbooks }}"
+      loop_control:
+        loop_var: enrichment_path
+        label: "({{ enrichment_path.1 }}, {{ enrichment_path | join('->') }})"
+      vars:
+        collection_id: "{{ enrichment_path.0 }}"
+        playbook_id: "{{ enrichment_path.1 }}"
+        playbook_specification: >-
+          {{ 'specifications'| extract(meta_orchestrator_context, morekeys=['playbooks',collection_id,playbook_id]) }}
+        specification: >-
+          {{
+            base_playbook
+            | combine(
+                playbook_specification,
+                recursive=True,
+                list_merge='append_rp'
+              )
+          }}
+        enriched_specifications_delta:
+          playbooks: >-
+            {{
+              {
+                collection_id: ({
+                  playbook_id: specification
+                })
+              }
+            }}
+        meta_orchestrator_context_delta:
+          enriched_specifications: "{{ enriched_specifications_delta }}"
+      ansible.builtin.set_fact:
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta, recursive=True) }}"
+
+     # Enrich Playbooks Specifications
+     # Combines base playbook specifications with specific modifications,
+     # aligning playbooks with current system requirements.
+ ##     - name: Enrich playbooks specifications
+ ##       block:
+ ##         # Handle Non-Collection Playbook Specifications
+ ##         # Ensures playbooks not part of any collection are processed individually.
+ ##         - name: Copy non-collection playbook specifications
+ ##           when: item.playbook_name not in collections
+ ##           ansible.builtin.set_fact:
+ ##             meta_orchestrator_context:
+ ##               enriched_specifications:
+ ##                 playbooks: "{{
+ ##                   meta_orchestrator_context.enriched_specifications.playbooks | combine({
+ ##                     item.playbook_name: item.specification
+ ##                   }, recursive=True)
+ ##                 }}"
+ ##           loop: "{{ playbooks_specifications | dict2items(key_name='playbook_name', value_name='specification') }}"
+
+ ##         # Process Collection Playbooks
+ ##         # Ensures playbooks within collections are processed with their collection context,
+ ##         # maintaining the integrity and logical grouping.
+ ##         - name: Copy playbook collections
+ ##           ansible.builtin.set_fact:
+ ##             meta_orchestrator_context:
+ ##               enriched_specifications:
+ ##                 playbooks: "{{
+ ##                   meta_orchestrator_context.enriched_specifications.playbooks | combine({
+ ##                     item.collection_id: {
+ ##                       item.playbook_name: (base_spec | combine(item.playbook_spec, recursive=True))
+ ##                     }
+ ##                   }, recursive=True, list_merge='append_rp')
+ ##                 }}"
+ ##           loop: "{{ playbooks_with_collection }}"
+
+
+# # 3. Execute templates, roles, playbooks, tests, documentation based on the updated configuration
+# (@tags=execution_update)
+- name: Dispatch Template Processing to meta_template
+  when:
+    - "'process_templates' in meta_orchestrator_params.operations"
+    - not meta_orchestrator_skip_create
+  block:
+    - name: Debug params
+      ansible.builtin.debug:
+        var: meta_orchestrator_params
+    - name: Debug version
+      ansible.builtin.debug:
+        msg: "{{ meta_orchestrator_context.specifications_version }}"
+    - name: Debug process queues
+      ansible.builtin.debug:
+        var: meta_orchestrator_process_queues
+    - name: Debug process queues (templates)
+      ansible.builtin.debug:
+        var: meta_orchestrator_process_queues.templates
+    - name: Call meta_template
+      loop: "{{ meta_orchestrator_process_queues.templates }}"
+      loop_control:
+        loop_var: path_to_spec
+      ansible.builtin.include_role:
+        name: "{{ environment_base_path }}/roles/meta_template"
+      vars:
+        meta_template_metadata: "{{ meta_orchestrator_context.specifications.templates.metadata | combine({ 'version': meta_orchestrator_context.specifications_version }, recursive=True) }}"
+        meta_template_specification: "{{ 'templates' | extract(meta_orchestrator_context.enriched_specifications, morekeys=path_to_spec) }}"
+        meta_template_state: present
+# (@tags=meta_role)
+- name: Dispatch Role Processing to meta_role
+  when:
+    - "'process_roles' in meta_orchestrator_params.operations"
+    - not meta_orchestrator_skip_create
+  block:
+    - name: Debug version
+      ansible.builtin.debug:
+        msg: "{{ meta_orchestrator_context.specifications_version }}"
+    - name: Call meta_role
+      loop: "{{ meta_orchestrator_process_queues.roles }}"
+      loop_control:
+        loop_var: path_to_spec
+      ansible.builtin.include_role:
+        name: "{{ environment_base_path }}/roles/meta_role"
+      vars:
+        meta_role_metadata: "{{ meta_orchestrator_context.specifications.roles.metadata | combine({ 'version': meta_orchestrator_context.specifications_version }, recursive=True) }}"
+        meta_role_specification: "{{ 'roles' | extract(meta_orchestrator_context.enriched_specifications, morekeys=path_to_spec) }}"
+        meta_role_state: present
+
+# (@tags=meta_playbook)
+- name: Dispatch Playbook Processing to meta_playbook
+
+  when:
+    - "'process_playbooks' in meta_orchestrator_params.operations"
+    - not meta_orchestrator_skip_create
+  vars:
+    metadata_context_playbook_collections: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['playbooks', 'metadata', 'collections']) }}"
+    metadata_base:
+      version: "{{ meta_orchestrator_context.specifications_version }}"
+  block:
+#       - name: Debug Playbook Context
+#         ansible.builtin.debug:
+#           var: meta_orchestrator_context
+    - name: Debug Playbook Input
+      ansible.builtin.debug:
+        var: meta_orchestrator_process_queues
+    - name: Debug Params
+      ansible.builtin.debug:
+        var: meta_orchestrator_params
+    - name: Debug version
+      ansible.builtin.debug:
+        msg: "{{ meta_orchestrator_context.specifications_version }}"
+    #       - name: Debug Call Playbook Variables
+    #         block:
+    #           - debug:
+    #               var: meta_orchestrator_context.enriched_specifications.keys()
+    #           - debug:
+    #               msg: "{{ 'playbooks' | extract meta_orchestrator_context.enriched_specifications }}"
+    - name: Call meta_playbook
+      when:
+        - "'playbooks' in meta_orchestrator_context.enriched_specifications"
+      loop: "{{ meta_orchestrator_process_queues.playbooks }}"
+      loop_control:
+        loop_var: path_to_spec
+      ansible.builtin.include_role:
+        name: "{{ role_path_meta_playbook }}"
+      vars:
+        meta_playbook_collection_metadata: >-
+          {{
+            'specifications'
+             | extract(
+                  meta_orchestrator_context,
+                  morekeys=['playbooks', 'metadata', 'collections', path_to_spec.0]
+                )
+          }}
+        meta_playbook_metadata: >-
+          {{
+            meta_playbook_collection_metadata
+            | combine(
+                {'version': meta_orchestrator_context.specifications_version},
+                recursive=True
+              )
+          }}
+        meta_playbook_specification: >-
+          {{
+            'enriched_specifications'
+            | extract(
+                meta_orchestrator_context,
+                morekeys=['playbooks', path_to_spec.0, path_to_spec.1]
+              )
+          }}
+        meta_playbook_state: present
+        role_path_meta_playbook: "{{ [environment_base_path, 'roles/meta_playbook'] | path_join }}"
+#   process_configuration - process all items
+#   process_configuration wasn't provided and params specifications was provided:
+#   # NEED TO COMPARE meta_orchestrator_params.specifications and only select those from meta_orchestrator_context.enriched_specifications
+#     execute only items that match the parameter
+#   (which actual configurations that will run depend on whether (process_{specifications,roles,templates,tests})
+  # Dynamically Execute Configurations Based on Enriched Specifications
+#   - name: Dynamically execute configurations based on enriched specifications
+#     vars:
+#       context: "{{ meta_orchestrator_context }}"
+#       operations: "{{ meta_orchestrator_params.operations }}"
+#     block:
+#       # Execute Meta Roles
+#       - name: Execute meta roles based on enriched specifications
+#         when: "'process_roles' in operations"
+#         block:
+#           - name: Determine roles to be processed
+#             vars:
+#               update_all: "{{ 'process_specifications' in operations or ('process_specifications' not in operations and meta_orchestrator_params.specifications==omit }}"
+#                 #  'process_specifications' not in operations and )
+#             set_fact:
+#               roles_to_process: "{{ context.enriched_specifications.roles | dict2items | selectattr('key', 'in', operations) | list }}"
+#           - name: Execute each role
+#             include_role:
+#               name: "{{ role_spec.value.path }}" # Assuming path to role is specified
+#             loop: "{{ roles_to_process }}"
+#             loop_control:
+#               loop_var: role_spec
+
+#       # Execute Playbooks
+#       - name: Execute playbooks based on enriched specifications
+#         when: "'process_playbooks' in operations"
+#         block:
+#           - name: Determine playbooks to be processed
+#             set_fact:
+#               playbooks_to_process: "{{ context.enriched_specifications.playbooks | dict2items | selectattr('key', 'in', operations) | list }}"
+#           - name: Execute each playbook
+#             include_tasks: "{{ playbook_spec.value.path }}" # Assuming path to playbook tasks is specified
+#             loop: "{{ playbooks_to_process }}"
+#             loop_control:
+#               loop_var: playbook_spec
+
+    # Extend this block to include additional processes such as tests, documentation, etc.,
+    # following a similar pattern of dynamic selection and execution.
+
+
+# HERE WHAT IT USED TO DO
+# - name: Process Meta Roles based on enriched specifications
+#   loop: "{{ meta_orchestrator_context.enriched_specifications.roles | dict2items(value_name='specification') | select('spec') }}"
+#   loop_control:
+#     loop_var: meta_role_specificaton
+#   ansible.builtin.include_role:
+#     name: "meta_role"
+#   vars:
+#     meta_role_state: present
+#     meta_role_metadata: "{{ meta_orchestrator_context.specifications.<'roles' from the specifications map>.metadata }}"
+
+# - name: Process Playbooks based on enriched specifications
+#   loop: "{{ [meta_playbooks, playbooks] | flatten }}"
+#   loop_control:
+#     loop_var: playbook_spec
+#   ansible.builtin.include_role:
+#     name: "meta_playbook"
+#   vars:
+#     meta_playbook_spec: "{{ playbook_spec }}"
+#     meta_playbook_metadata: "{{ meta_specifications[active_meta_specifications_version]['metadata'] }}"
+#     meta_playbook_state: present
+
+# ### 04_Region_After_Content ORCHESTRATION ARCHITECT REGION ###

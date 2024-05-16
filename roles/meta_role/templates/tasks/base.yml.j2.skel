@@ -1,0 +1,31 @@
+{# file: roles/meta_role/templates/tasks/base.yml.j2.skel #}
+{# version: 0.8.0 #}
+{# 00_Template_Header ORCHESTRATION ARCHITECT REGION #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 10_template_vars #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 10_template_vars #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 11_common_template_macros #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 11_common_template_macros #}
+{# 01_Header ORCHESTRATION ARCHITECT REGION #}
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
+{# 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION #}
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 30_managed_block_before_content #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 30_managed_block_before_content #}
+
+{# 03_Content_Region ORCHESTRATION ARCHITECT REGION #}
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
+{# (@customization_msg) Customize Skeleton Here #}
+
+{# 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION #}
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 90_managed_block_after_content #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 90_managed_block_after_content #}
+

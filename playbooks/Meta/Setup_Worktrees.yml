@@ -1,0 +1,130 @@
+- name: Setup Worktrees and Branches
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - "../../vars/environment.yml"
+    - "{{ base_path }}/vars/repositories.yml"
+  vars:
+    version: "0.8.0"
+    next_version: "0.8.1"
+    pristine_branch: "{{ version }}-pristine"
+    dev_branch: "{{ version }}-dev"
+    next_dev_branch: "{{ next_version }}-dev"
+    generated_output_path: "/tmp/orchestration_architect/{{ version }}/tests/integration_environment"
+    dev_worktree_path: "~/orchestration_architect"
+    bare_repo_path: "{{ repositories.orchestration_architect.bare_repo_path }}"
+  tasks:
+    - name: Ensure the bare repository exists
+      command: git init --bare
+      args:
+        chdir: "{{ bare_repo_path }}"
+      when: not ansible_check_mode
+      changed_when: false
+
+    - name: Check if any commits exist in the repository
+      command: git rev-parse --verify HEAD
+      args:
+        chdir: "{{ bare_repo_path }}"
+      register: git_rev_parse
+      failed_when: false
+      changed_when: false
+
+    - name: Create an initial empty commit in a temporary directory if no commits exist
+      shell: |
+        mkdir -p {{ base_path }}/temp_initial_commit
+        cd {{ base_path }}/temp_initial_commit
+        git init
+        git commit --allow-empty -m "Initial empty commit"
+        git branch -M main
+        git remote add origin {{ bare_repo_path }}
+        git push -u origin main
+      when: git_rev_parse.rc != 0
+
+    - name: Check if the pristine branch exists
+      command: git show-ref --verify refs/heads/{{ pristine_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+      register: pristine_branch_check
+      failed_when: false
+      changed_when: false
+
+    - name: Create pristine branch from main if it does not exist
+      command: git branch {{ pristine_branch }} main
+      args:
+        chdir: "{{ bare_repo_path }}"
+      when: pristine_branch_check.stdout == ''
+
+    - name: Check if the generated output directory already contains a git repository
+      stat:
+        path: "{{ generated_output_path }}/.git"
+      register: generated_output_git_check
+
+    - name: Initialize a new git repository in the generated output directory if it doesn't exist
+      command: git init
+      args:
+        chdir: "{{ generated_output_path }}"
+      when: generated_output_git_check.stat.exists == false
+
+    - name: Add worktree for pristine branch if it does not exist
+      command: git worktree add {{ generated_output_path }} {{ pristine_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+
+    - name: Set remote for pristine worktree
+      command: git remote add origin {{ bare_repo_path }}
+      args:
+        chdir: "{{ generated_output_path }}"
+      when: generated_output_git_check.stat.exists == false
+
+    - name: Check if there are any commits in the pristine worktree
+      command: git rev-parse --verify HEAD
+      args:
+        chdir: "{{ generated_output_path }}"
+      register: git_rev_parse_pristine
+      failed_when: false
+      changed_when: false
+
+    - name: Commit changes to pristine branch if no commits exist
+      command: |
+        git add .
+        git commit -m "Initial commit for {{ pristine_branch }}"
+      args:
+        chdir: "{{ generated_output_path }}"
+      when: git_rev_parse_pristine.rc != 0
+
+    - name: Push pristine branch to bare repository
+      command: git push origin {{ pristine_branch }}
+      args:
+        chdir: "{{ generated_output_path }}"
+      when: git_rev_parse_pristine.rc != 0
+
+    - name: Check if dev branch exists
+      command: git show-ref --verify refs/heads/{{ dev_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+      register: dev_branch_check
+      failed_when: false
+      changed_when: false
+
+    - name: Create dev branch from pristine if it does not exist
+      command: git branch {{ dev_branch }} {{ pristine_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+      when: dev_branch_check.stdout == ''
+
+    - name: Add worktree for dev branch
+      command: git worktree add {{ dev_worktree_path }} {{ dev_branch }}
+      args:
+        chdir: "{{ bare_repo_path }}"
+
+    - name: Set remote for dev worktree
+      command: git remote add origin {{ bare_repo_path }}
+      args:
+        chdir: "{{ dev_worktree_path }}"
+      when: dev_branch_check.stdout == ''
+
+    - name: Push dev branch to bare repository
+      command: git push origin {{ dev_branch }}
+      args:
+        chdir: "{{ dev_worktree_path }}"
+      when: dev_branch_check.stdout == ''
