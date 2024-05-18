@@ -31,6 +31,7 @@
 # 0.8.2 Generate the mapping for present.yml task and the templates from specifications
 - name: Mapping Playbook Specification to Playbook Template Variables
   vars:
+    playbook_templates_path: 'roles/meta_playbook/templates'
     # VARS THAT NEED TO BE STANDARDISE
     # integration : tests/integration_environment
     # release candidate: release
@@ -65,7 +66,7 @@
             {{ metadata | to_nice_yaml }}
           collection_metadata:
             {{ collection_metadata | to_nice_yaml }}
-          meta_spec_sections: {{ playbook_sections }}
+          playbook_sections: {{ playbook_sections }}
           base_path: {{ base_path }}
 
     - name: Assert the specifications are correctly defined for template vars
@@ -88,7 +89,7 @@
         mode: "{{ directory_mode }}"
     - name: Ensure playbooks exist and regenerated if specified
       ansible.builtin.template:
-        src: "{{ [base_path, 'roles/meta_playbook/templates/', template_path] | path_join }}"
+        src: "{{ [base_path, playbook_templates_path, template_path] | path_join }}"
         dest: "{{ [base_path, playbook_path] | path_join }}"
         mode: "{{ specification.file_mode | default(file_mode) }}"
         force: '{{ specification.state is defined and specification.state == "pristine" }}'
@@ -111,7 +112,7 @@
           changed_when: false
         - name: Render file to temporary location
           ansible.builtin.template:
-            src: "{{ [base_path, meta_spec_metadata.playbook_template_path, specification.template] | path_join }}"
+            src: "{{ [base_path, playbook_templates_path, template_path] | path_join }}"
             dest: "{{ [work_directory, playbook_path] | path_join }}"
             mode: "{{ specification.file_mode | default(file_mode) }}"
           changed_when: false
@@ -119,7 +120,7 @@
           vars:
             file_to_update: "{{ [base_path, playbook_path] | path_join }}"
             rendered_template: "{{ [work_directory, playbook_path] | path_join }}"
-          loop: "{{ meta_spec_sections }}"
+          loop: "{{ playbook_sections }}"
           loop_control:
             loop_var: section_name
           ansible.builtin.command: "{{ section_update_script }} {{ file_to_update }} {{ rendered_template }} {{ section_name }}"
