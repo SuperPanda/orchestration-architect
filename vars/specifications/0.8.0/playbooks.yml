@@ -50,8 +50,14 @@ playbooks_specifications:
         collection_name: Default
         description: Playbooks not in a collection.
         path: playbooks/Default
-  # End Metadata
-  # Collections 
+  Base:
+    playbook_vars_files:
+      - ../../vars/environment.yml
+    sections:
+      - file_header
+      - 30_managed_block_before_content
+      - 50_content_region_message
+      - 90_managed_block_after_content
   Meta:
     Setup_Environment:
       playbook_name: Setup Environment
