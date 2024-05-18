@@ -1,5 +1,12 @@
+# file: playbooks/Meta/Execute_orchestrator.yml
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 - name: Call Setup Environment
   ansible.builtin.import_playbook: "Setup_Environment.yml"
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 - name: Call Orchestrator
   connection: local
   hosts: localhost
@@ -10,3 +17,7 @@
       meta_orchestrator_state: present
       meta_orchestrator_specifications_path: "vars/specifications"
       meta_orchestrator_specifications_version: "0.8.0"
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

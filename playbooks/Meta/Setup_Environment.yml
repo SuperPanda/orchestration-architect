@@ -2,6 +2,7 @@
 # playbook: Setup the Orchestration Architect Environment
 # file: playbooks/Meta/00_Build_From_Bootstrap_0_8_0.yml
 # version: 0.8.0
+---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
