@@ -78,5 +78,5 @@ playbooks_specifications:
             name: meta_orchestrator
             state: present
             specifications_version: "0.8.0"
-            specifications_path: "vars/specifications/0.8.0"
+            specifications_path: "vars/specifications"
 

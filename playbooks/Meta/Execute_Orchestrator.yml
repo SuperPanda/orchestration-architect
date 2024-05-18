@@ -8,3 +8,5 @@
   roles:
     - name: meta_orchestrator
       meta_orchestrator_state: present
+      meta_orchestrator_specifications_path: "vars/specifications"
+      meta_orchestrator_specifications_version: "0.8.0"
