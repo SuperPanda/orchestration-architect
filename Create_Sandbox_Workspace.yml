@@ -1,0 +1,104 @@
+---
+- name: Ensure Git Repository State
+  hosts: localhost
+  gather_facts: false
+  vars:
+    bare_repo_path: /srv/git/orchestration_architect.git
+    remote_url: <REMOTE_URL>
+    temp_dir_prefix: orchestration_architect_temp
+    workspace_base_dir: ~/orchestration_architect
+    workspace_sandbox_dir: "{{ workspace_base_dir }}/sandbox"
+    sandbox_branch: 0.8.0-sandbox
+    initial_branch: 0.8.0-initial
+
+  tasks:
+    - name: Ensure Bare Repository Exists
+      ansible.builtin.command:
+        cmd: "git init --bare {{ bare_repo_path }}"
+        creates: "{{ bare_repo_path }}"
+      register: init_bare_repo
+      changed_when: init_bare_repo.rc == 0
+
+    - name: Ensure Remote is Set for Bare Repository
+      ansible.builtin.command:
+        cmd: "git --git-dir={{ bare_repo_path }} remote add origin {{ remote_url }}"
+      register: set_remote
+      changed_when: set_remote.rc == 0
+      ignore_errors: yes
+
+    - name: Create Temporary Directory for Orphan Branch
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: "{{ temp_dir_prefix }}"
+      register: temp_dir
+
+    - name: Create Orphan Branch in Temporary Repository
+      block:
+        - name: Clone Bare Repository to Temporary Directory
+          ansible.builtin.shell:
+            cmd: "git clone {{ bare_repo_path }} {{ temp_dir.path }}"
+          register: clone_temp_repo
+          changed_when: clone_temp_repo.rc == 0
+
+        - name: Create Orphan Branch in Temporary Repository
+          ansible.builtin.shell:
+            cmd: |
+              cd {{ temp_dir.path }} &&
+              git checkout --orphan {{ initial_branch }} &&
+              git commit --allow-empty -m 'Initial empty commit'
+          register: create_orphan_branch
+          changed_when: create_orphan_branch.rc == 0
+
+        - name: Push Orphan Branch to Bare Repository
+          ansible.builtin.shell:
+            cmd: |
+              cd {{ temp_dir.path }} &&
+              git push origin {{ initial_branch }}
+          register: push_orphan_branch
+          changed_when: push_orphan_branch.rc == 0
+
+        - name: Remove Temporary Repository
+          ansible.builtin.file:
+            path: "{{ temp_dir.path }}"
+            state: absent
+      when: init_bare_repo.changed or set_remote.changed
+      ignore_errors: yes
+
+    - name: Ensure Workspace Base Directory Exists
+      ansible.builtin.file:
+        path: "{{ workspace_base_dir }}"
+        state: directory
+        mode: '0770'
+
+    - name: Ensure Worktree for Sandbox Branch Exists
+      block:
+        - name: Create Sandbox Branch if Not Exists
+          ansible.builtin.shell:
+            cmd: "git --git-dir={{ bare_repo_path }} branch {{ sandbox_branch }} {{ initial_branch }}"
+          register: create_sandbox_branch
+          changed_when: create_sandbox_branch.rc == 0
+          ignore_errors: yes
+
+        - name: Add Worktree for Sandbox Branch
+          ansible.builtin.shell:
+            cmd: "git --git-dir={{ bare_repo_path }} worktree add {{ workspace_sandbox_dir }} {{ sandbox_branch }}"
+          register: add_sandbox_worktree
+          changed_when: add_sandbox_worktree.rc == 0
+      ignore_errors: yes
+
+    - name: Display Repository Structure
+      ansible.builtin.shell:
+        cmd: "git --git-dir={{ bare_repo_path }} log --oneline --graph --all"
+      register: repo_structure
+
+    - name: Print Repository Structure
+      ansible.builtin.debug:
+        msg: "{{ repo_structure.stdout }}"
+
+    - name: Push Bare Repository to Remote
+      ansible.builtin.shell:
+        cmd: "git --git-dir={{ bare_repo_path }} push origin --all"
+      when: create_sandbox_branch.changed or add_sandbox_worktree.changed
+      register: push_bare_repo
+      changed_when: push_bare_repo.rc == 0
+
