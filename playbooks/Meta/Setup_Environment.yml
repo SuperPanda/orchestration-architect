@@ -1,6 +1,6 @@
 
-# playbook: Setup the Orchestration Architect Environment
-# file: playbooks/Meta/00_Build_From_Bootstrap_0_8_0.yml
+# playbook: Setup Environment
+# file: playbooks/Meta/Setup_Environment.yml
 # version: 0.8.0
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
@@ -34,8 +34,13 @@
         path: "{{ environment_vars_file_path }}"
         line: "base_path: {{ base_path }}"
         create: true
-
-
+    - name: Include Environment Variables File
+      ansible.builtin.include_vars:
+        file: "{{ environment_vars_file_path }}"
+    - name: Displayed Included Variables
+      ansible.builtin.debug:
+        msg: |
+          base_path: {{ base_path }}
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
