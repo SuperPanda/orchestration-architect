@@ -1,0 +1,119 @@
+---
+- name: Ensure Repository State
+  hosts: localhost
+  connection: local
+  vars:
+    workspace_configuration_context: "{{ lookup('file', 'workspace_specifications.yml') | from_yaml }}"
+    workspace_specification_keys:
+      metadata: ['metadata']
+      repositories: ['repositories', 'Meta', 'Orchestration_Architect']
+      configurations: ['workspaces', 'configurations']
+  tasks:
+    - name: Set repository context variables
+      ansible.builtin.set_fact:
+        repository_meta: "{{ workspace_specifications | extract(workspace_configuration_context, morekeys=workspace_specification_keys.metadata) }}"
+        repositories: "{{ workspace_specifications | extract(workspace_configuration_context, morekeys=workspace_specification_keys.repositories) }}"
+        configurations: "{{ workspace_specifications | extract(workspace_configuration_context, morekeys=workspace_specification_keys.configurations) }}"
+        workspace_base_path: "{{ configurations.workspace_base_path }}"
+        workspaces: "{{ configurations.workspaces }}"
+
+    - name: Ensure Bare Repository Exists
+      ansible.builtin.shell: |
+        if [ ! -d {{ repositories[item.repository].bare_repository }} ]; then
+          git init --bare {{ repositories[item.repository].bare_repository }}
+        fi
+      loop: "{{ workspaces }}"
+      loop_control:
+        loop_var: item
+      changed_when: false
+      # (@example=OA-META-VERSION-REPOSITORY-INFO) Ensure bare repository exists.
+
+    - name: Ensure Orphan Branches Exist
+      ansible.builtin.shell: |
+        if [ "$(git --git-dir={{ repositories[item.repository].bare_repository }} branch --list {{ branch.name }})" == "" ]; then
+          temp_dir=$(mktemp -d)
+          git -C $temp_dir init
+          git -C $temp_dir checkout --orphan {{ branch.name }}
+          git -C $temp_dir commit --allow-empty -m "Initial commit"
+          git -C $temp_dir push {{ repositories[item.repository].bare_repository }} {{ branch.name }}
+          rm -rf $temp_dir
+        fi
+      loop: "{{ repositories.branches }}"
+      loop_control:
+        loop_var: branch
+      changed_when: false
+      # (@example=OA-META-VERSION-BRANCH-PRESENT) Ensure orphan branches exist.
+
+    - name: Configure Remotes
+      ansible.builtin.shell: |
+        git --git-dir={{ repositories[item.repository].bare_repository }} remote add origin {{ repositories[item.repository].remote_repository }} 2>/dev/null || true
+        git --git-dir={{ repositories[item.repository].bare_repository }} remote set-url origin {{ repositories[item.repository].remote_repository }}
+        git --git-dir={{ repositories[item.repository].bare_repository }} remote set-url --push origin {{ repositories[item.repository].remote_repository }}
+      loop: "{{ workspaces }}"
+      loop_control:
+        loop_var: item
+      changed_when: false
+      # (@example=OA-META-VERSION-REPOSITORY-INFO) Configure remotes.
+
+    - name: Push to GitHub Mirror
+      ansible.builtin.shell: |
+        git --git-dir={{ repositories[item.repository].bare_repository }} push --mirror origin
+      loop: "{{ workspaces }}"
+      loop_control:
+        loop_var: item
+      changed_when: false
+      # (@example=OA-META-VERSION-REPOSITORY-INFO) Push to GitHub mirror.
+
+- name: Setup Workspaces
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Create Worktrees
+      ansible.builtin.shell: |
+        if [ ! -d {{ workspace_base_path }}/{{ item.path }} ]; then
+          git --git-dir={{ repositories[item.repository].bare_repository }} worktree add -B {{ item.branch }} {{ workspace_base_path }}/{{ item.path }} {{ item.branch }}
+        fi
+      loop: "{{ workspaces }}"
+      loop_control:
+        loop_var: item
+      changed_when: false
+      # (@example=OA-META-VERSION-WORKSPACE-PRESENT) Create worktrees.
+
+    - name: Set Workspace Permissions
+      ansible.builtin.file:
+        path: "{{ workspace_base_path }}/{{ item.path }}"
+        state: directory
+        mode: '0770'
+      loop: "{{ workspaces }}"
+      changed_when: false
+      # (@example=OA-META-VERSION-WORKSPACE-INFO) Set workspace permissions.
+
+    - name: Create Symlinks
+      ansible.builtin.file:
+        src: "{{ item.src }}"
+        dest: "{{ workspace_base_path }}/{{ item.dest }}"
+        state: link
+      loop: "{{ workspaces | selectattr('symlinks', 'defined') | map(attribute='symlinks') | list | flatten(levels=1) }}"
+      loop_control:
+        loop_var: item
+      when: item is defined
+      # (@example=OA-META-VERSION-WORKSPACE-PRESENT) Create symlinks.
+
+    - name: Add Scripts to PATH
+      ansible.builtin.lineinfile:
+        path: "/etc/profile.d/orchestration_architect.sh"
+        state: present
+        line: "export PATH={{ workspace_base_path }}/{{ item.path }}:$PATH"
+      when: item.add_to_path is defined and item.add_to_path
+      loop: "{{ workspaces }}"
+      loop_control:
+        loop_var: item
+      # (@example=OA-META-VERSION-WORKSPACE-UPDATED) Add scripts to PATH.
+
+    - name: Add Subtrees to dev Branch
+      ansible.builtin.shell: |
+        git --git-dir={{ repositories['Meta']['Orchestration_Architect'].bare_repository }} --work-tree={{ workspace_base_path }}/dev subtree add --prefix=dev/scripts {{ repositories['Meta']['Orchestration_Architect'].bare_repository }} 0.8.0-scripts
+        git --git-dir={{ repositories['Meta']['Orchestration_Architect'].bare_repository }} --work-tree={{ workspace_base_path }}/dev subtree add --prefix=dev/documents {{ repositories['Meta']['Orchestration_Architect'].bare_repository }} 0.8.0-documents
+        git --git-dir={{ repositories['Meta']['Orchestration_Architect'].bare_repository }} --work-tree={{ workspace_base_path }}/dev subtree add --prefix=dev/tests {{ repositories['Meta']['Orchestration_Architect'].bare_repository }} 0.8.0-tests
+      # (@example=OA-META-VERSION-WORKSPACE-UPDATED) Add subtrees to dev branch.
+

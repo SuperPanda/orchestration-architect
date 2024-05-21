@@ -1,0 +1,81 @@
+workspace_specifications:
+  metadata:
+    schema_specification:
+      file: workspace_specifications.schema.yml
+
+  repositories:
+    Meta:
+      Orchestration_Architect:
+        name: "Orchestration Architect Meta"
+        bare_repository: "/srv/git/orchestration_architect.git"
+        remote_repository: "git@github.com:SuperPanda/orchestration-architect.git"
+        description: |
+          The initial branch holds an orphan branch with an empty commit.
+          The seed branch is universally constructed from the initial branch.
+          The pristine branch is also universally constructed from the initial branch.
+          Changes are mapped from the seed branch to the pristine branch via diffs.
+          The main branch is a projection of tests, documentation, and tools, rebased on the pristine branch.
+          The dev branch is used for integrating new features and testing, rebased on the pristine branch.
+          Dev branch commits are squashed and merged into the main branch.
+          The sandbox branch is a temporary working environment for building and bootstrapping new features.
+        branches:
+          - name: "0.8.0-initial"
+            description: "Initial Branch Object. Contains empty commit."
+          - name: "0.8.0-seed"
+            description: "Seed Branch. Used to seed bootstrap environment."
+            base_branch: "0.8.0-initial"
+          - name: "0.8.0-pristine"
+            description: "Resulting environment from bootstrapping a seed."
+            base_branch: "0.8.0-initial"
+          - name: "0.8.0-main"
+            description: "Rebased on pristine, coproduct of various branches."
+            base_branch: "0.8.0-pristine"
+          - name: "0.8.0-dev"
+            description: "Development branch for creating new features and testing."
+            base_branch: "0.8.0-pristine"
+            auto_include_branches:
+              - "0.8.0-scripts"
+              - "0.8.0-documents"
+              - "0.8.0-tests"
+          - name: "0.8.0-sandbox"
+            description: "Temporary working environment for building and bootstrapping."
+            base_branch: "0.8.0-initial"
+          - name: "0.8.0-tests"
+            description: "Holds test components."
+            base_branch: "0.8.0-initial"
+          - name: "0.8.0-scripts"
+            description: "Holds scripts and tools."
+            base_branch: "0.8.0-initial"
+          - name: "0.8.0-documents"
+            description: "Holds documentation."
+            base_branch: "0.8.0-initial"
+
+  workspaces:
+    configurations:
+      workspace_base_path: "~/orchestration_architect"
+      workspaces:
+        - path: "sandbox"
+          branch: "0.8.0-sandbox"
+          description: "Sandbox worktree for testing."
+          repository: "Meta.Orchestration_Architect"
+        - path: "dev"
+          branch: "0.8.0-dev"
+          description: "Development worktree"
+          repository: "Meta.Orchestration_Architect"
+          symlinks:
+            - src: "~/orchestration_architect/playbooks"
+              dest: "dev/playbooks"
+            - src: "~/orchestration_architect/roles"
+              dest: "dev/roles"
+            - src: "~/orchestration_architect/vars"
+              dest: "dev/vars"
+        - path: "tests"
+          branch: "0.8.0-tests"
+          description: "Tests worktree"
+          repository: "Meta.Orchestration_Architect"
+        - path: "scripts"
+          branch: "0.8.0-scripts"
+          description: "Scripts worktree"
+          repository: "Meta.Orchestration_Architect"
+          add_to_path: true
+
