@@ -172,9 +172,7 @@ The validation of operations within the Abstract Compositional Topology (ACT) re
 **Functorial Properties and Higher Order Operations**
 
 - **Functorial Consistency**:
-  - Prove that (H), (T), and (C) are functors by demonstrating they respect the identities and composition in (&#x2102;). For instance, the identity element in concatenation is a plane (I) such that (C
-
-(P, I) = P).
+  - Prove that (H), (T), and (C) are functors by demonstrating they respect the identities and composition in (&#x2102;). For instance, the identity element in concatenation is a plane (I) such that (C(P, I) = P).
 
 Sure, let's enhance the section with examples of how the Abstract Compositional Topology (ACT) can be used in various practical scenarios, such as updating 2D renderings, synchronizing content edited by both machines and humans, and dynamically updating configuration files.
 
