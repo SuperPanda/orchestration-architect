@@ -1,6 +1,6 @@
 # Abstract Compositional Topology (ACT)
 
-![ACT Framework](../resources/abstract_compositional_toplogy.webm)
+<img alt="Whimsical ACT Framework" src="../resources/abstract_compositional_topology.webp" width="25%" align="center" />
 
 ## Table of Contents
 1. [Topological and Categorical Foundations](#section-1-topological-and-categorical-foundations)
