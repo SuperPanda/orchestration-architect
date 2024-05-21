@@ -36,7 +36,7 @@ By treating boundaries as morphisms, ACT leverages classical topological ideas t
 
 **Operations as Morphisms**
 
-In the category (&#x2102;) of the Abstract Compositional Topology, fundamental operations such as Head (H)), Tail (T)), and Concatenation (C)) are not merely functions but are conceptualized as functors. These functors facilitate the transformation of objects (data planes) within (&#x2102;) while preserving the categorical structure, thereby maintaining the integrity and the topological constraints of each operation.
+In the category (&#x2102;) of the Abstract Compositional Topology, fundamental operations such as Head (H), Tail (T), and Concatenation (C) are not merely functions but are conceptualized as functors. These functors facilitate the transformation of objects (data planes) within (&#x2102;) while preserving the categorical structure, thereby maintaining the integrity and the topological constraints of each operation.
 
 - **Head (H)**: This functor captures the initial segment of a plane up to a specified boundary. Depending on whether the boundary is open or closed, (H) might include or exclude the boundary point. The functorial nature of (H) ensures that it consistently applies across all objects in (&#x2102;), respecting their individual topologies.
 - **Tail (T)**: (T) operates by isolating the segment of a plane from a specified boundary to the end of the plane. Similar to (H), the inclusivity or exclusivity of the boundary point is dictated by the boundary’s nature (open vs. closed). (T), as a functor, guarantees that the tail operation adheres to the topological rules set for each plane.
@@ -54,15 +54,15 @@ This section underlines the critical role of functorial operations in maintainin
 
 ## Section 3: Compositional Operations
 
-In the Abstract Compositional Topology (ACT), the framework is enhanced with sophisticated compositional operations that extend the basic functionalities of Head (H)), Tail (T)), and Concatenation (C)). These operations, including Extract (E)), Delete, Replace, Embed, and Reorder, utilize boundaries that can be inclusive or exclusive and may define a single point or a dual boundary to manipulate and transform planes.
+In the Abstract Compositional Topology (ACT), the framework is enhanced with sophisticated compositional operations that extend the basic functionalities of Head (H), Tail (T), and Concatenation (C). These operations, including Extract (E), Delete, Replace, Embed, and Reorder, utilize boundaries that can be inclusive or exclusive and may define a single point or a dual boundary to manipulate and transform planes.
 
 **Extract (E)**
 
-Extract is a composite operation that uses (H) and (T) to delineate a specific segment within a plane, defined by two boundaries (b<sub>1</sub>) and (b<sub>2</sub>)). Formally, (E) is defined as (E(P, b<sub>1</sub>, b<sub>2</sub>) = H(T(P, b<sub>1</sub>), b<sub>2</sub>), where the segment starts just beyond (b<sub>1</sub>) and ends just before (b<sub>2</sub>), dependent on the openness or closedness of these boundaries.
+Extract is a composite operation that uses (H) and (T) to delineate a specific segment within a plane, defined by two boundaries (b<sub>1</sub>) and (b<sub>2</sub>). Formally, (E) is defined as (E(P, b<sub>1</sub>, b<sub>2</sub>) = H(T(P, b<sub>1</sub>), b<sub>2</sub>), where the segment starts just beyond (b<sub>1</sub>) and ends just before (b<sub>2</sub>), dependent on the openness or closedness of these boundaries.
 
 **Delete**
 
-Delete constructs a new plane by removing a specified segment between two boundaries (b<sub>1</sub>) and (b<sub>2</sub>)). It is represented as (**Delete**(P, b<sub>1</sub>, b<sub>2</sub>) = C(H(P, b<sub>1</sub>), T(P, b<sub>2</sub>)), effectively preserving all data outside the specified segment while excluding the interior bounded by (b<sub>1</sub>) and (b<sub>2</sub>).
+Delete constructs a new plane by removing a specified segment between two boundaries (b<sub>1</sub>) and (b<sub>2</sub>). It is represented as (**Delete**(P, b<sub>1</sub>, b<sub>2</sub>) = C(H(P, b<sub>1</sub>), T(P, b<sub>2</sub>)), effectively preserving all data outside the specified segment while excluding the interior bounded by (b<sub>1</sub>) and (b<sub>2</sub>).
 
 **Replace**
 
@@ -130,7 +130,7 @@ This axiomatic framework not only ensures the mathematical rigor of ACT but also
 
 ## Section 5: Validation of Operations with Mathematical Proofs
 
-The validation of operations within the Abstract Compositional Topology (ACT) relies on rigorous mathematical proofs to ensure the correctness and consistency of operations defined within the category (&#x2102;). This section details the proofs for fundamental operations like Concatenation (C)), Extract (E)), and complex compositional transformations, using concepts such as limits, colimits, and pullback lemmas to establish their categorical and topological properties.
+The validation of operations within the Abstract Compositional Topology (ACT) relies on rigorous mathematical proofs to ensure the correctness and consistency of operations defined within the category (&#x2102;). This section details the proofs for fundamental operations like Concatenation (C), Extract (E), and complex compositional transformations, using concepts such as limits, colimits, and pullback lemmas to establish their categorical and topological properties.
 
 **Proof of Associativity for Concatenation (C)**
 
@@ -151,9 +151,9 @@ The validation of operations within the Abstract Compositional Topology (ACT) re
 3. **Categorical Perspective**:
    - In the category (&#x2102;), the operations are morphisms. The associativity of (C) ensures that the diagram involving (P<sub>1</sub>), (P<sub>2</sub>), (P<sub>3</sub>), and their concatenations commutes, meaning the path taken through the operations does not affect the outcome.
 
-**Proof of Correctness for Extract (E)) Using Pullback**
+**Proof of Correctness for Extract (E) Using Pullback**
 
-- **Goal**: Show that Extract (E)) using boundaries (b<sub>1</sub>) and (b<sub>2</sub>) produces a subobject of the plane (P).
+- **Goal**: Show that Extract (E) using boundaries (b<sub>1</sub>) and (b<sub>2</sub>) produces a subobject of the plane (P).
 - **Given**: Plane (P) and boundaries (b<sub>1</sub>) and (b<sub>2</sub>) within (P).
 - **To Prove**: (E(P, b<sub>1</sub>, b<sub>2</sub>) forms a subobject in (&#x2102;) which is the segment between (b<sub>1</sub>) and (b<sub>2</sub>).
 
@@ -181,7 +181,7 @@ Sure, let's enhance the section with examples of how the Abstract Compositional 
 #### Surjectivity, Injectivity, and Bijectivity
 
 - **Surjectivity, Injectivity, and Bijectivity**:
-  - Analyze operations like Extract (E)) and Delete to determine if they are surjective (cover all target elements), injective (no element in the target more than once), or bijective (both surjective and injective). This analysis ensures that operations can effectively handle data transformations with the necessary precision and correctness.
+  - Analyze operations like Extract (E) and Delete to determine if they are surjective (cover all target elements), injective (no element in the target more than once), or bijective (both surjective and injective). This analysis ensures that operations can effectively handle data transformations with the necessary precision and correctness.
 
 #### Higher Order Compositions
 
@@ -199,14 +199,14 @@ This section explores the incorporation of higher-order representations and theo
 ACT is designed to handle not only basic data manipulations but also to support the construction and integration of higher-order categorical structures. These structures facilitate the mapping of operations across various projects and the derivation of new operations from existing ones.
 
 - **Compositional Flexibility**:
-  - Introduce higher-order operations that utilize compositions of basic operations like Head (H)), Tail (T)), and Concatenation (C)) to perform complex transformations. For example, a sequence of operations can be structured to automatically adapt to varying data structures and requirements, including audio, images, floor tiles, wiring, or any data type with well-defined constructs before and after.
+  - Introduce higher-order operations that utilize compositions of basic operations like Head (H), Tail (T), and Concatenation (C) to perform complex transformations. For example, a sequence of operations can be structured to automatically adapt to varying data structures and requirements, including audio, images, floor tiles, wiring, or any data type with well-defined constructs before and after.
   - Derived Operations: Define operations such as dynamic data reordering, conditional data transformations, and hierarchical data manipulations that are tailored to specific project needs. This includes updating 2D renderings, configuration files, synchronizing content edited by both machines and humans, and other system updates.
 
 **Examples of Applications**
 
 1. **Updating 2D Renderings**:
    - **Scenario**: A game engine needs to update 2D sprites based on user input and system state.
-   - **Operation**: Use Extract (E)) to isolate specific regions of the sprite, Delete to remove outdated sections, and Replace to insert updated images. For example, (E(sprite, b<sub>1</sub>, b<sub>2</sub>) extracts the region to be updated, (**Delete**(sprite, b<sub>1</sub>, b<sub>2</sub>) removes it, and (**Replace**(sprite, new_sprite, b<sub>1</sub>, b<sub>2</sub>) inserts the new image.
+   - **Operation**: Use Extract (E) to isolate specific regions of the sprite, Delete to remove outdated sections, and Replace to insert updated images. For example, (E(sprite, b<sub>1</sub>, b<sub>2</sub>) extracts the region to be updated, (**Delete**(sprite, b<sub>1</sub>, b<sub>2</sub>) removes it, and (**Replace**(sprite, new_sprite, b<sub>1</sub>, b<sub>2</sub>) inserts the new image.
 
 2. **Synchronizing Configuration Files**:
    - **Scenario**: Configuration files need to be synchronized between different environments, with sections updated by both system processes and users.
