@@ -1,6 +1,6 @@
 # Abstract Compositional Topology (ACT)
 
-![ACT Framework](resources/abstract_compositional_toplogy.webm)
+![ACT Framework](../resources/abstract_compositional_toplogy.webm)
 
 ## Table of Contents
 1. [Topological and Categorical Foundations](#section-1-topological-and-categorical-foundations)
