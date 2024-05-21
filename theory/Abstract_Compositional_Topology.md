@@ -46,7 +46,7 @@ In the category (&#x2102;) of the Abstract Compositional Topology, fundamental o
 
 The interaction between morphisms (operations) and the topology of data planes is intricate, particularly when considering how operations modify or interact with the boundaries of these planes:
 
-- **Influence of Boundary Conditions**: The way (H) and (T) handle boundaries—whether including or excluding boundary points—significantly affects the outcome of these operations. This sensitivity to boundary conditions is vital for operations that require precision, such as data slicing or segment isolation.
+- **Influence of Boundary Conditions**: The way (H) and (T) handle boundaries - whether including or excluding boundary points - significantly affects the outcome of these operations. This sensitivity to boundary conditions is vital for operations that require precision, such as data slicing or segment isolation.
 - **Functorial Consistency**: The consistent application of (H), (T), and (C) across different contexts within (&#x2102;) is guaranteed by their functorial properties. This consistency ensures that operations are predictable and reliable, regardless of the specific topological nuances of each plane.
 - **Topological Closure Operations**: Both (H) and (T) can be seen as implementing forms of topological closure operations. For example, (H) could be thought of as applying a form of closure that restricts the domain to the segment preceding the boundary, whereas (T) applies closure from the boundary onwards. These operations must align with the topological definitions of closure within each specific context, ensuring that the operations do not inadvertently alter data outside of their intended scope.
 
