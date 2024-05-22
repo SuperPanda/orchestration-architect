@@ -1,7 +1,6 @@
 # Abstract Compositional Topology (ACT)
 
-<img alt="Whimsical ACT Framework" src="../resources/abstract_compositional_topology.webp" width="25%" align="center" />
-
+<img alt="Whimsical ACT Framework" src="https://raw.githubusercontent.com/SuperPanda/orchestration-architect/78a8f4e0831a4e56adf9b1d351f4f3527382a4a6/documentation/abstract_compositional_topology.webp" width="25%" align="center" />
 ## Table of Contents
 1. [Topological and Categorical Foundations](#section-1-topological-and-categorical-foundations)
 2. [Fundamental Operations and Morphisms](#section-2-fundamental-operations-and-morphisms)
