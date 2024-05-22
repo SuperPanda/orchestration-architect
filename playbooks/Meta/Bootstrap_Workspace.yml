@@ -1,0 +1,7 @@
+# file: playbbooks/Meta/Bootstrap_Workspace.yml
+---
+- name: Run bootstrap
+  tasks:
+    - name: Placehold Task
+      ansible.builtin.debug:
+        msg: Placeholder Task

@@ -40,23 +40,20 @@
         state: directory
 
 - name: Seed Bootstrap Environment with Git
-  when:
-    - "trigger_bootstrap_context.seed_type == 'git'"
   tags: ['seed']
   tasks:
     - name: Clone {{ trigger_bootstrap_context.version_to_bootstrap }}-seed into Bootstrap Environment
+      when: 
+        - "trigger_bootstrap_context.seed_type == 'git'"
       ansible.builtin.git:
         repo: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'repo']) }}"
         dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
         version: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'branch']) }}"
         depth: 1
 
-- name: Seed Bootstrap Environment with Fixture Directory
-  when:
-    - "trigger_bootstrap_context.seed_type == 'fixtures'"
-  tags: ['seed']
-  tasks:
     - name: Synchronize files from {{ trigger_bootstrap_context.fixtures_seed_source.configuration.path }} into Bootstrap Environment
+      when:
+        - "trigger_bootstrap_context.seed_type == 'fixtures'"
       ansible.builtin.synchronize:
         src: "{{ 'fixtures_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'path']) }}"
         dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
@@ -64,4 +61,4 @@
 
 - name: Trigger Bootstrap Execution Playbook
   tags: ['execute']
-  ansible.builtin.include_playbook: "{{ ['bootstrap_workspace_path' | extract(trigger_bootstrap_context), bootstrap_playbook] | path_join }}"
+  import_playbook: "{{ ['bootstrap_workspace_path' | extract(trigger_bootstrap_context), bootstrap_playbook] | path_join }}"
