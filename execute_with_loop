@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Initialize variables
+cooldown=0
+loop_count=1
+script_name=""
+script_args=""
+
+# Function to display usage
+usage() {
+  echo "Usage: $0 --script <script_name> [--cooldown <seconds>] [--loop <number of times>] [--args <arguments>]"
+  echo
+  echo "Options:"
+  echo "  --script    Name of the script to execute"
+  echo "  --cooldown  Number of seconds to wait between executions (default: 0)"
+  echo "  --loop      Number of times to execute the script (default: 1, 0 for infinite loop)"
+  echo "  --args      Arguments to pass to the script being executed"
+  exit 1
+}
+
+# Parse command line arguments
+while [[ "$1" != "" ]]; do
+  case "$1" in
+    --script )    shift
+                  script_name="$1"
+                  ;;
+    --cooldown )  shift
+                  cooldown="$1"
+                  ;;
+    --loop )      shift
+                  loop_count="$1"
+                  ;;
+    --args )      shift
+                  script_args="$1"
+                  ;;
+    -h | --help ) usage
+                  ;;
+    * )           usage
+                  ;;
+  esac
+  shift
+done
+
+# Check if script name is provided
+if [[ -z "$script_name" ]]; then
+  echo "Error: Script name is required."
+  usage
+fi
+
+# Function to execute the script
+execute_script() {
+  echo "Executing $script_name with arguments: $script_args"
+  "$script_name" $script_args
+}
+
+# Loop to execute the script the specified number of times
+if [[ "$loop_count" -eq 0 ]]; then
+  while true; do
+    execute_script
+    if [[ $cooldown -gt 0 ]]; then
+      echo "Waiting for $cooldown seconds before the next execution..."
+      sleep "$cooldown"
+    fi
+  done
+else
+  for (( i=1; i<=loop_count; i++ ))
+  do
+    execute_script
+    # Wait for the cooldown period if not the last iteration
+    if [[ $i -lt $loop_count && $cooldown -gt 0 ]]; then
+      echo "Waiting for $cooldown seconds before the next execution..."
+      sleep "$cooldown"
+    fi
+  done
+fi
+

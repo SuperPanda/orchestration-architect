@@ -1,0 +1,1 @@
+ansible-doc -l | cut -f1 -d' ' | fzf | xargs -I {} ansible-doc '{}'
