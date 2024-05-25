@@ -2,7 +2,7 @@
 # File: scripts/monitor-outline.sh
 # Description: Monitors changes in YAML files or directory trees, displaying an outline based on `- name:` or `- ansible.builtin.debug:` tags.
 #              Allows monitoring of directory tree structures and tracks file modifications. Utilizes `fzf` for file selection if no specific file is provided.
-# Usage: ./monitor-outline.sh [path_to_yaml_file_or_directory] [--tree | --track-modifications]
+# Usage: ./monitor-outline.sh [path_to_yaml_file_or_directory] [--tree | --track-modifications | --oneshot]
 # (@project=OA-VIM)
 # (@tool=OUTLINE-MONITOR)
 
@@ -15,6 +15,7 @@
 # (@srs=SRS-OA-OUTLINE-MONITOR-001) Provide file or directory selection interface using `fzf`.
 # (@srs=SRS-OA-OUTLINE-MONITOR-002) Display updates in real-time for selected YAML files or directory trees.
 # (@srs=SRS-OA-OUTLINE-MONITOR-003) Monitor entire directory trees and track file modifications with timestamps.
+# (@srs=SRS-OA-OUTLINE-MONITOR-004) Provide a one-shot mode to display the outline or changes once without continuous monitoring.
 
 # Function to display the outline of a file
 monitor_file() {
@@ -34,6 +35,16 @@ monitor_file() {
         sleep 5  # Check for changes every 5 seconds
     done
 }
+
+# Function to display the outline of a file once
+oneshot_file() {
+    local file=$1
+    echo "Outline of $file:"
+    local max_length=$(grep -nE '^( )*-( name:| ansible.builtin.debug:)' "$file" | cut -d: -f1 | wc -L)
+    grep -nE '^( )*-( name:| ansible.builtin.debug:)' "$file" | sed 's/\- name\:/\* /g' | \
+    awk -v max_length="$max_length" -F: '{printf "%-" max_length "s: %s\n", $1, $2}'
+}
+
 # Function to monitor a directory tree
 monitor_tree() {
     local directory=$1
@@ -48,12 +59,18 @@ monitor_tree() {
     done
 }
 
+# Function to check directory tree once
+oneshot_tree() {
+    local directory=$1
+    find "$directory" -type f -exec stat --format="%y - %n" {} \;
+}
+
 # Main execution block
 mode=$2
 path=$1
 
 if [[ -z "$path" || "$mode" == "--help" ]]; then
-    echo "Usage: $0 [path_to_yaml_file_or_directory] [--tree | --track-modifications]"
+    echo "Usage: $0 [path_to_yaml_file_or_directory] [--tree | --track-modifications | --oneshot]"
     exit 1
 fi
 
@@ -63,6 +80,17 @@ if [[ "$mode" == "--tree" ]]; then
         monitor_tree "$path"
     else
         echo "Invalid directory path: $path"
+        exit 1
+    fi
+elif [[ "$mode" == "--oneshot" ]]; then
+    if [ -d "$path" ]; then
+        echo "Checking directory tree once: $path"
+        oneshot_tree "$path"
+    elif [ -f "$path" ]; then
+        echo "Checking file once: $path"
+        oneshot_file "$path"
+    else
+        echo "Invalid path: $path"
         exit 1
     fi
 else
