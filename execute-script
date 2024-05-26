@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# File: scripts/execute-script
 # Initialize variables
 cooldown=0
 loop_count=1

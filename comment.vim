@@ -1,5 +1,5 @@
 " File: scripts/comment.vim
-" Description: Provides a utility in Vim to toggle comments for selected lines in visual mode,
+" Description: VimScript to toggle comments for selected lines in visual mode,
 "              specifically for YAML, Vim script, Python, Ansible, and JavaScript files.
 "              This script helps maintain clean and readable code by managing comments efficiently.
 " (@project=OA-VIM)

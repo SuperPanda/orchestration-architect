@@ -1,0 +1,144 @@
+#!/bin/bash
+# File: ./terminal-ai
+# Description: Script to Communicate and Log with GPT.
+# Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] <MSG_TO_SEND_TO_GPT>
+
+LOG_STORAGE_PATH="/root/artifacts/logs/terminal-ai/transcripts"
+LOG_FILE="`date --rfc-3339=date`.md"
+mkdir -p "$LOG_STORAGE_PATH"
+touch "$LOG_STORAGE_PATH/$LOG_FILE"
+
+# Default values for optional arguments
+DRY_RUN=0
+VERBOSE=0
+OUTPUT_DIR="$LOG_STORAGE_PATH"
+OUTPUT_FILE="$LOG_FILE"
+
+# Function to display help
+show_help() {
+  echo "Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] <MSG_TO_SEND_TO_GPT>"
+  echo ""
+  echo "Options:"
+  echo "  --output-dir=<OUTPUT_DIRECTORY_PATH>   Specifies the directory where the log file will be stored. Defaults to /home/root/artifacts/logs/terminal-ai/transcripts."
+  echo "  --output-file=<OUTPUT_FILE>            Specifies the name of the log file. Defaults to the current date in RFC-3339 format."
+  echo "  --env-file=<OPENAI_ENV_FILE>           If set, specifies the file path to source environment variables for OpenAI."
+  echo "  --dry-run                              If set, the script will not actually send the message to GPT, but will log a placeholder response."
+  echo "  --help                                 Show this help message and exit."
+  echo "  --verbose                              If set, the entire response from GPT will be outputted."
+}
+
+# Parse command-line arguments
+while [[ "$1" == --* ]]; do
+  case $1 in
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --output-dir=*)
+      output_dir="${1#*=}"
+      shift
+      ;;
+    --output-file=*)
+      OUTPUT_FILE="${1#*=}"
+      shift
+      ;;
+    --env-file=*)
+      source "${1#*=}"
+      shift
+      ;;
+    --help)
+      show_help
+      exit 0
+      ;;
+    --verbose)
+      VERBOSE=1
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+SUPPLIED_PROMPT="$*"
+
+if [ -z "$SUPPLIED_PROMPT" ]; then
+  echo "Error: No message provided to send to GPT."
+  exit 1
+fi
+
+Converse() {
+  local supplied_prompt=$1
+  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+  user_speech=$(Speak "USER" "$supplied_prompt")
+  Record "USER" "$user_speech"
+  gpt_speech=$(Speak "GPT" "$user_speech")
+  Record "GPT" "$gpt_speech"
+}
+
+Speak() {
+  local speaker=$1
+  local prompt=$2
+  if [ "$speaker" == "USER" ]; then
+    UserSpeak "$prompt"
+  elif [ "$speaker" == "GPT" ]; then
+    GPTSpeak "$prompt"
+  fi
+}
+
+Record() {
+  local speaker=$1
+  local speech=$2
+  local speech_metadata="[`date --rfc-3339=seconds`,speaker=$speaker]" 
+  
+  echo "$speech_metadata"
+  echo "$speech"
+
+  echo "$speech_metadata" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+  echo "$speech" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+}
+
+UserSpeak() {
+  local user_speech="$1"
+  echo "$user_speech"
+}
+
+GPTSpeak() {
+  local prompt=$1
+  local gpt_speech
+  if [ "$DRY_RUN" -eq 1 ]; then
+    gpt_speech="<GPT Response>"
+  else
+    if [ -z "$OPENAI_API_KEY" ] || [ -z "$OPENAI_PROJECT_ID" ]; then
+      Record "SYSTEM" "Error: OPENAI_API_KEY or OPENAI_PROJECT_ID is not set."
+      exit 1
+    fi
+    response=$(curl -s https://api.openai.com/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "OpenAI-Project: $OPENAI_PROJECT_ID" \
+      -d '{
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a Terminal Based Assistant"
+          },
+          {
+            "role": "user",
+            "content": "'"$prompt"'"
+          }
+        ]
+      }')
+    if [ "$VERBOSE" -eq 1 ]; then
+      gpt_speech="$response"
+    else
+      gpt_speech=$(echo "$response" | jq -r '.choices[0].message.content')
+    fi
+  fi
+  echo "$gpt_speech"
+}
+
+Converse "$SUPPLIED_PROMPT"
