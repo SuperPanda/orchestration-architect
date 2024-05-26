@@ -1,0 +1,96 @@
+#!/bin/bash
+# File: terminal-ai-extract
+# Script to find the latest file and process specific sections demarcated by triple dashes ("---")
+# Usage: terminal-ai-extract [options]
+# Options:
+#   -d <dash_count>   The nth occurrence of triple dashes from the end. Default is 1 (last occurrence).
+#   -s <span_count>   The number of dashes to span. Default is the whole section to the next triple dash.
+#   -h                Display help.
+
+help_message() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -d <dash_count>   The nth occurrence of triple dashes from the end. Default is 1 (last occurrence)."
+    echo "  -s <span_count>   The number of dashes to span. Default is the whole section to the next triple dash."
+    echo "  -h                Display help."
+}
+
+DASH_COUNT=1
+SPAN_COUNT=0
+
+# Parse command line arguments
+while getopts ":d:s:h" opt; do
+  case ${opt} in
+    d)
+      DASH_COUNT=$OPTARG
+      ;;
+    s)
+      SPAN_COUNT=$OPTARG
+      ;;
+    h)
+      help_message
+      exit 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      help_message
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      help_message
+      exit 1
+      ;;
+  esac
+done
+
+# Main logic
+main() {
+  local directory="/root/artifacts/logs/terminal-ai/transcripts"
+  local latest_file
+  local dash_lines
+  local selected_dash_line
+  local last_line
+  local num_lines
+
+  latest_file=$(ls -t "$directory/"*.md | head -n 1)
+  dash_lines=$(grep -n "^---$" "$latest_file" | cut -d: -f1)
+
+  if [ -n "$dash_lines" ]; then
+    dash_lines=($dash_lines)  # Convert to array
+    local dash_count=${#dash_lines[@]}
+    local reference_index=$((dash_count - DASH_COUNT))
+
+    # Ensure valid reference index
+    if [ $reference_index -lt 0 ]; then
+      echo "Error: Invalid dash occurrence specified." >&2
+      exit 1
+    fi
+
+    selected_dash_line=${dash_lines[$reference_index]}
+    if [ $reference_index -lt $((dash_count - 1)) ]; then
+      last_line=${dash_lines[$((reference_index + 1))]}
+      num_lines=$((last_line - selected_dash_line))
+    else
+      num_lines=$(($(wc -l < "$latest_file") - selected_dash_line + 1))
+    fi
+
+    if [ "$SPAN_COUNT" -ge 2 ]; then
+      for ((i=1; i<SPAN_COUNT; i++)); do
+        if [ $((reference_index + i)) -lt $dash_count ]; then
+          last_line=${dash_lines[$((reference_index + i))]}
+          num_lines=$((last_line - selected_dash_line))
+        else
+          break
+        fi
+      done
+    fi
+
+    explore-file -m copy "$latest_file" "$selected_dash_line" "$num_lines"
+  else
+    echo "No triple dash separators found in the latest file." >&2
+    exit 1
+  fi
+}
+
+main "$@"

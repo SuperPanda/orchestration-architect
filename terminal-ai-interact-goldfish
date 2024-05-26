@@ -1,0 +1,14 @@
+#!/bin/bash
+# File: ./scripts/terminal-ai-interact-goldfish
+# Get the directory the script is located
+DEFAULT_ENV_VAR_FILE="$HOME/keystore/api-keys/openai"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo $SCRIPT_DIR
+# Source activate-terminal-ai to load the variables
+source "$DEFAULT_ENV_VAR_FILE"
+
+# Run execute-script 
+$SCRIPT_DIR/execute-script --script $SCRIPT_DIR/terminal-ai --loop 0 --args "--env-file=$DEFAULT_ENV_VAR_FILE"
+
+exit 0
+

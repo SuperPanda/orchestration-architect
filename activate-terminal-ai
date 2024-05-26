@@ -14,10 +14,17 @@ if [ ! -f "$OPENAI_ENV_FILE_PATH" ]; then
 fi
 
 # Load environment variables
-source "$OPENAI_ENV_FILE_PATH"
+eval "$(cat $OPENAI_ENV_FILE_PATH)"
+export OPENAI_API_KEY=$OPENAI_API_KEY
+export OPENAI_PROJECT_ID=$OPENAI_PROJECT_ID 
 
 # Add orchestration architect scripts to PATH
-export PATH="$ORCHESTRATION_ARCHITECT_HOME/scripts:$PATH"
+
+NEW_PATH="$ORCHESTRATION_ARCHITECT_HOME/scripts:$PATH"
+
+if [ -d "$NEW_PATH" ] && [[ ":$PATH:" != *":$NEW_PATH:"* ]]; then
+  export PATH="$NEW_PATH:$PATH"
+fi
 
 # Function to update PS1
 update_ps1() {
@@ -27,8 +34,3 @@ update_ps1() {
 # Call the function to update PS1
 update_ps1
 
-# Export the function
-export -f update_ps1
-
-# Execute shell with environment variables
-exec "$SHELL" -l

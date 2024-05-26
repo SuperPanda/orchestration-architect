@@ -16,7 +16,7 @@ OUTPUT_FILE="$LOG_FILE"
 
 # Function to display help
 show_help() {
-  echo "Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] <MSG_TO_SEND_TO_GPT>"
+  echo "Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] [<MSG_TO_SEND_TO_GPT>]"
   echo ""
   echo "Options:"
   echo "  --output-dir=<OUTPUT_DIRECTORY_PATH>   Specifies the directory where the log file will be stored. Defaults to /home/root/artifacts/logs/terminal-ai/transcripts."
@@ -65,17 +65,27 @@ done
 SUPPLIED_PROMPT="$*"
 
 if [ -z "$SUPPLIED_PROMPT" ]; then
-  echo "Error: No message provided to send to GPT."
-  exit 1
+  read -p "Enter prompt: " user_response
+  if [ -z "$user_response" ]; then
+    echo "Error: No message provided to send to GPT."
+    exit 1
+  fi
+  SUPPLIED_PROMPT="$user_response"
 fi
 
 Converse() {
+  
   local supplied_prompt=$1
-  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+
   user_speech=$(Speak "USER" "$supplied_prompt")
+  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   Record "USER" "$user_speech"
+  echo "" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+
   gpt_speech=$(Speak "GPT" "$user_speech")
+  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   Record "GPT" "$gpt_speech"
+  echo "" >> "$OUTPUT_DIR/$OUTPUT_FILE"
 }
 
 Speak() {
@@ -111,16 +121,12 @@ GPTSpeak() {
   if [ "$DRY_RUN" -eq 1 ]; then
     gpt_speech="<GPT Response>"
   else
-    if [ -z "$OPENAI_API_KEY" ] || [ -z "$OPENAI_PROJECT_ID" ]; then
-      Record "SYSTEM" "Error: OPENAI_API_KEY or OPENAI_PROJECT_ID is not set."
-      exit 1
-    fi
     response=$(curl -s https://api.openai.com/v1/chat/completions \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "OpenAI-Project: $OPENAI_PROJECT_ID" \
       -d '{
-        "model": "gpt-4",
+        "model": "gpt-4o",
         "messages": [
           {
             "role": "system",
@@ -141,4 +147,16 @@ GPTSpeak() {
   echo "$gpt_speech"
 }
 
-Converse "$SUPPLIED_PROMPT"
+
+
+Main() {
+  if [ "$DRY_RUN" -eq 0 ]; then
+    if [ -z "$OPENAI_API_KEY" ] || [ -z "$OPENAI_PROJECT_ID" ]; then
+      Record "SYSTEM" "Error: OPENAI_API_KEY or OPENAI_PROJECT_ID is not set."
+      exit 1
+    fi
+  fi
+  Converse "$SUPPLIED_PROMPT"
+}
+
+Main
