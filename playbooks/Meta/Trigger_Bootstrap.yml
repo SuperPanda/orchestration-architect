@@ -2,20 +2,23 @@
 ---
 - name: Setup Playbook Variables
   tags: ['always', 'configure']
-  vars: 
+  connection: local
+  vars:
     version_to_bootstrap: '0.8.0'
     seed_type: 'fixtures' # Options: 'git' or 'fixtures'
-    bootstrap_workspace_path: /tmp/orchestration_architect
     repo: /srv/git/orchestration_architect.git
     fixtures_path: ~/orchestration_architect/fixtures
+    bootstrap_workspace_path: /tmp/orchestration_architect
     bootstrap_playbook: playbooks/Meta/Bootstrap_Workspace.yml
-
   tasks:
-    - name: Create Trigger Bootstrap Context 
+    - name: Create Trigger Bootstrap Context
+      vars:
+        bootstrap_playbook_path: "{{ [bootstrap_playbook, bootstrap_playbook] | path_join }}"
       ansible.builtin.set_fact:
         trigger_bootstrap_context:
           version_to_bootstrap: "{{ version_to_bootstrap }}"
           bootstrap_workspace_path: "{{ bootstrap_workspace_path }}"
+          bootstrap_playbook_path: "{{ bootstrap_playbook_path }}"
           seed_type: "{{ seed_type }}"
           git_seed_source:
             configuration:
@@ -41,9 +44,10 @@
 
 - name: Seed Bootstrap Environment with Git
   tags: ['seed']
+  gather_facts: true
   tasks:
     - name: Clone {{ trigger_bootstrap_context.version_to_bootstrap }}-seed into Bootstrap Environment
-      when: 
+      when:
         - "trigger_bootstrap_context.seed_type == 'git'"
       ansible.builtin.git:
         repo: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'repo']) }}"
@@ -54,11 +58,11 @@
     - name: Synchronize files from {{ trigger_bootstrap_context.fixtures_seed_source.configuration.path }} into Bootstrap Environment
       when:
         - "trigger_bootstrap_context.seed_type == 'fixtures'"
-      ansible.builtin.synchronize:
+      ansible.posix.synchronize:
         src: "{{ 'fixtures_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'path']) }}"
         dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
         recursive: true
 
 - name: Trigger Bootstrap Execution Playbook
   tags: ['execute']
-  import_playbook: "{{ ['bootstrap_workspace_path' | extract(trigger_bootstrap_context), bootstrap_playbook] | path_join }}"
+  ansible.builtin.import_playbook: "{{ 'bootstrap_playbook_path' | extract(trigger_bootstrap_context) }}"

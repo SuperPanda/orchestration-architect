@@ -1,7 +1,348 @@
-# file: playbbooks/Meta/Bootstrap_Workspace.yml
+# file: playbooks/Meta/Bootstrap_Workspace.yml
 ---
-- name: Run bootstrap
+- name: Import Setup Environment Playbook
+  import_playbook: Setup_Environment.yml
+- name: Extract, Transform and Load Seed Specification into Bootstrap Workspace Context
+  hosts: localhost
+  connection: local
+  vars:
+    path_to_specifications: 'vars/specifications/0.8.0'
+    bootstrap_version: '0.8.0'
   tasks:
-    - name: Placehold Task
-      ansible.builtin.debug:
-        msg: Placeholder Task
+    - name: Setup 'Bootstrap Workspace' Playbook Context
+      tags: ['always']
+      block:
+        - name: Show Base Path of the Bootstrap Workspace
+          ansible.builtin.debug:
+            var: base_path
+        - name: Create Bootstrap and Specifications Context
+          ansible.builtin.set_fact:
+            bootstrap_workspace_context:
+              specifications_version: "{{ bootstrap_version }}"
+              specifications_path: "{{ [base_path, path_to_specifications] | path_join }}"
+            specifications_context: {}
+        - name: Import Specifications
+          ansible.builtin.include_vars:
+            dir: "{{ 'specifications_path' | extract(bootstrap_workspace_context) }}"
+            name: imported_specifications
+        - name: Load Specifications into Specification Context
+          vars:
+            specifications_context_delta: "{{ imported_specifications }}"
+          ansible.builtin.set_fact:
+            specifications_context: "{{ specifications_context | combine(specifications_context_delta, recursive=True) }}"
+        - name: Show Specification Context
+          ansible.builtin.debug:
+            msg: "{{ specifications_context | dict2items | map(attribute='key') }}"
+    - name: Add Enriched Roles Specifications from the Meta Collection to Bootstrap Workspace Context
+      tags: ['always']
+      vars:
+        meta_roles_specifications: "{{ 'roles_specifications' | extract(specifications_context, morekeys='Meta') }}"
+        base_role_specification: "{{ 'roles_specifications' | extract(specifications_context, morekeys='Base') }}"
+      block:
+        - name: Show Roles from Meta Collection
+          ansible.builtin.debug:
+            msg: "{{ meta_roles_specifications | dict2items | map(attribute='key') }}"
+        - name: Enrich Roles from the Meta Collection and update Bootstrap Workspace Context
+          loop: "{{ meta_roles_specifications | dict2items(key_name='role_name', value_name='role_specification') }}"
+          loop_control:
+            loop_var: enrichment_item
+          vars:
+            role_name: "{{ enrichment_item.role_name }}"
+            specification: "{{ enrichment_item.role_specification }}"
+            base: "{{ 'roles_specifications' | extract(specifications_context, morekeys='Base') }}"
+            bootstrap_workspace_context_delta: 
+              enriched_specifications:
+                roles: |-
+                  {{
+                    ({
+                      role_name: base | combine(specification)
+                    })
+                  }}
+          ansible.builtin.set_fact:
+            bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True, list_merge='append_rp') }}"
+        
+    # (@doc=specifications.templates.base) Usage of Base Object in Templates Specifications
+    #
+    # Base Object :: Template Specifications
+    # --------------------------------------
+    #
+    # Template Specifications uses the Base object to provide:
+    #   - **Default Skeleton**: The default skeleton specifications to use if not provided.
+    #       Skeletons are used to create templates, with the skeleton specification specifying
+    #       which fragment placeholders to include in the skeleton. The skeleton is used to
+    #       hold specific template logic or content that is not available within fragments,
+    #       and provides a place to make changes that persist during reinjection of fragments to
+    #        create templates.
+    #
+    #   - **Base Fragments**: The minimal set of fragments that generated templates will use.
+    #       In version 0.8.0 these include:
+    #         - template headers (fragment that will be used for the header of generated templates)
+    #         - file headers (fragment that define the file headers that templates will generate)
+    #         - common macros (macros that are used by generated templates to generate files)
+    #         - managed block before content (fragment that is used to generate sections that
+    #              is managed by the system before the main content (user edited or generated)
+    #         - content region message (used to indicate where and how the file is edited)
+    #         - managed block after content (fragment that is used to generate sections that
+    #             is managed by the system after the main content.
+    #   - **Base Fields**: Fields are used to inject tags into skeletons relative to regions
+    #          or fragments. These are combined with collection specific fields.
+
+    - name: Enrich Templates Specifications needed to create Role Templates and Add to Bootstrap Workspace Context
+      tags: ['always']
+      vars:
+        base_template_specification: "{{ 'templates_specifications' | extract(specifications_context, morekeys='Base') }}"
+        default_skeleton: "{{ 'skeleton_specification' | extract(base_template_specification) }}"
+        base_fragments: "{{ 'template_fragments' | extract(base_template_specification) }}"
+        base_fields: "{{ 'fields' | extract(base_template_specification) }}"
+        roles_template_collection: "{{ 'templates_specifications' | extract(specifications_context, morekeys='Roles') }}"        
+      block:
+        - name: Enrich Template Specification for the Roles Collection
+          vars:
+            roles_fragments: "{{ 'template_fragments' | extract(roles_template_collection) }}"
+            roles_fields: "{{ 'fields_map' | extract(roles_template_collection) }}"
+            collection_delta:
+              template_fragments: "{{ base_fragments | combine(roles_fragments, recursive=True) }}"
+              fields_map: "{{ base_fields | combine(roles_fields | default({}), recursive=True) }}"
+              templates_path: "{{ 'templates_path' | extract(roles_template_collection) }}"
+              fragments_path: "{{ 'fragments_path' | extract(roles_template_collection) }}"
+              templates: {}
+            bootstrap_workspace_context_delta:
+              enriched_specifications:
+                templates:
+                  Roles: "{{ collection_delta }}"
+          ansible.builtin.set_fact:
+            bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True) }}"
+        - name: Enrich Individual Template Specifications within the Roles Collection
+          loop: "{{ 'templates' | extract(roles_template_collection) | dict2items(key_name='key', value_name='specification') }}"
+          loop_control:
+            loop_var: template_item
+          vars:
+            template_id: "{{ template_item.key }}"
+            template_specification: "{{ template_item.specification }}"
+            template_delta:
+              skeleton_specification: "{{ ('skeleton_specification' | extract(template_specification)) | default(default_skeleton) }}"
+            bootstrap_workspace_context_delta:
+              enriched_specifications:
+                templates: 
+                  Roles:
+                    templates: |-
+                      {{ 
+                        ({
+                          template_id: (template_specification | combine(template_delta))
+                        })
+                      }}
+          ansible.builtin.set_fact:
+            bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True) }}"
+                  
+- name: Bootstrap Role Managmeent Functionality (The 'meta_role' Role)
+  hosts: localhost
+  connection: local
+  tags: ['bootstrap_meta_role']
+  tasks:
+    - name: Generate Missing (Template) Skeletons required for Role Management
+      vars:
+        template_specifications: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates']) }}"
+        role_template_specifications: "{{ 'Roles' | extract(template_specifications) }}"
+        role_templates_path: "{{ 'templates_path' | extract(role_template_specifications) }}"
+      block:
+        - name: Gather the status of skeleton files used in Specifications for Role Templates
+          loop: "{{ 'templates' | extract(role_template_specifications) | dict2items(key_name='id', value_name='specification') }}"
+          loop_control:
+            loop_var: template_item
+            label: >-
+              template_specifications['Roles'].templates['{{template_item.id }}'].skeleton_path => '{{ template_item.specification.skeleton_path }}'
+          vars:
+            skeleton_path: "{{ 'specification' | extract(template_item, morekeys='skeleton_path') }}"
+          ansible.builtin.stat:
+            path: "{{ [base_path, role_templates_path, skeleton_path] | path_join }}"
+          register: skeleton_status
+        - name: Process Skeletons based on File Status for Specifications
+          vars: 
+            template_items_with_existing_skeleton: |-
+                {{
+                  skeleton_status.results
+                  | selectattr('stat.exists', 'equalto', true)
+                  | map(attribute='template_item')
+                }}
+            template_items_with_missing_skeleton: |-
+                {{
+                  skeleton_status.results
+                  | selectattr('stat.exists', 'equalto', false)
+                  | map(attribute='template_item')
+                }}
+          block:
+            # (@todo) Clean Up
+            - name: Display Status of Skeleton File
+              vars:
+                templates_path: "{{ [base_path, role_templates_path] | path_join }}"
+                found: |
+                  {{ 
+                    template_items_with_existing_skeleton
+                    | map(attribute='specification.skeleton_path')                      
+                  }}
+                not_found: |
+                  {{ 
+                    template_items_with_missing_skeleton
+                    | map(attribute='specification.skeleton_path')                      
+                  }}
+              ansible.builtin.debug:
+                msg: >-
+                  Within Templates Directory '{{ templates_path }}'...
+                  Found Skeleton Files: {{ found }}.
+                  Missing Skeleton Files: {{ not_found }}.
+            - name: Ensure Directories Exist for Missing Skeleton Files
+              vars:
+                skeleton_file_paths: "{{ [[base_path, role_templates_path]] | product(template_items_with_missing_skeleton |  map(attribute='specification.skeleton_path')) | map('flatten') | map('ansible.builtin.path_join') | map('ansible.builtin.dirname') | unique }}"
+              block:
+                - name: Display Directories Required for Missing Skeleton Files
+                  ansible.builtin.debug:
+                    var: skeleton_file_paths
+                - name: Create Absent Directories needed for Missing Skeleton Files
+                  ansible.builtin.file:
+                    state: directory
+                    mode: "0770"
+                    path: "{{ skeleton_directory_path }}"
+                  loop: "{{ skeleton_file_paths }}"
+                  loop_control:
+                    loop_var: skeleton_directory_path
+            - name: Generate Missing Skeleton Files
+              loop: "{{ template_items_with_missing_skeleton }}"
+              loop_control:
+                loop_var: template_item
+              vars:
+                template_id: "{{ template_item.id }}"
+                template_specification: "{{ template_item.specification }}"
+                skeleton_metadata:
+                  file_location: "{{ [role_templates_path, template_specification.skeleton_path] | path_join }}"
+                metadata:
+                  version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
+                fields_map: "{{ 'fields_map' | extract(role_template_specifications) }}"
+              ansible.builtin.template:
+                src: "{{ [base_path, 'roles/meta_template/templates/skeleton.j2'] | path_join }}"
+                dest: "{{ [base_path, role_templates_path, template_specification.skeleton_path] | path_join }}"
+                mode: "0660"
+    - name: Generate Missing Templates required for Role Management
+      vars:
+        template_specifications: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates']) }}"
+        role_template_specifications: "{{ 'Roles' | extract(template_specifications) }}"
+        role_templates_path: "{{ 'templates_path' | extract(role_template_specifications) }}"
+        role_fragments_path: "{{ 'fragments_path' | extract(role_template_specifications) }}"
+      block:
+        - name: Gather the status of template files used in Specifications for Role Templates
+          loop: "{{ 'templates' | extract(role_template_specifications) | dict2items(key_name='id', value_name='specification') }}"
+          loop_control:
+            loop_var: template_item
+            label: |
+              template_specifications['Roles'].templates['{{template_item.id }}'].template_path => '{{ template_item.specification.path }}'
+          vars:
+            template_path: "{{ 'specification' | extract(template_item, morekeys='path') }}"
+          ansible.builtin.stat:
+            path: "{{ [base_path, role_templates_path, template_path] | path_join }}"
+          register: template_status
+        - name: Process Templates based on File Status for Specifications
+          vars: 
+            template_items_with_existing_template: |-
+              {{
+                template_status.results
+                | selectattr('stat.exists', 'equalto', true)
+                | map(attribute='template_item')
+              }}
+            template_items_with_missing_template: |-
+              {{
+                template_status.results
+                | selectattr('stat.exists', 'equalto', false)
+                | map(attribute='template_item')
+              }}
+          block:
+            - name: Create Temporary Build Directory
+              ansible.builtin.tempfile:
+                state: directory
+                prefix: orchestration_architect_0_8_0_build_
+                suffix: _templates
+              register: temporary_build_directory
+            - name: Display Temporary Build Directory
+              ansible.builtin.debug:
+                var: temporary_build_directory
+            - name: Ensure Directories Exist for Temporary Build Directory
+              vars:
+                template_build_directory_paths: >-
+                  {{ 
+                    [[temporary_build_directory.path, role_templates_path]]
+                    | product(
+                        template_items_with_missing_template
+                        | map(attribute='specification.path')
+                      )
+                    | map('flatten')
+                    | map('ansible.builtin.path_join')
+                    | map('ansible.builtin.dirname')
+                    | unique
+                  }}
+              block:
+                - name: Create Build Directories needed for Missing Templates
+                  ansible.builtin.file:
+                    state: directory
+                    mode: "0770"
+                    path: "{{ template_build_path }}"
+                  loop: "{{ template_build_directory_paths }}"
+                  loop_control:
+                    loop_var: template_build_path
+            - name: Generate Injection Target for Missing Templates in Temporary Build Directory (Copy Template Skeletons)
+              loop: "{{ template_items_with_missing_template }}"
+              loop_control:
+                loop_var: template_item
+                label: "{{ template_item.id }}"
+              vars:
+                template_path: "{{ 'specification' | extract(template_item, morekeys='path') }}"
+                skeleton_path: "{{ 'specification' | extract(template_item, morekeys='skeleton_path') }}"
+                source: "{{ [base_path, role_templates_path, skeleton_path] | path_join }}"
+                destination: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
+              ansible.builtin.copy:
+                src: "{{ source }}"
+                dest: "{{ destination }}"
+                mode: "0660"
+            - name: Remove Skeleton Headers from Templates
+              loop: "{{ ['version', 'file'] | product(template_items_with_missing_template | map(attribute='specification.path')) }}"
+              loop_control:
+                loop_var: header_removal_item
+                label: "skeleton_header_to_remove={{ header_removal_item.0 }},template_id={{ header_removal_item.1 }}"
+              vars:
+                skeleton_header_to_remove: "{{ header_removal_item.0 }}"
+                target: "{{ [temporary_build_directory.path, role_templates_path, header_removal_item.1] | path_join }}"
+              ansible.builtin.lineinfile:
+                path: "{{ target }}"
+                regex: "{{ '# ' ~ skeleton_header_to_remove }}:"
+                state: absent
+                
+              
+
+                  
+
+
+
+
+
+
+#   - name: Copy files to temporary build directory
+#     ansible.builtin.copy:
+#       src: "{{ item }}"
+#       dest: "{{ temp_build_dir.path }}/{{ item | basename }}"
+#       remote_src: no
+#     loop:
+#       - file1.txt
+#       - file2.txt
+#       - file3.txt
+#     register: copied_files
+#   
+#   - name: Create list of copied files
+#     ansible.builtin.set_fact:
+#       copied_files_list: "{{ copied_files.results | map(attribute='dest') | list }}"
+#   
+#   - name: Process each copied file
+#     ansible.builtin.debug:
+#       msg: "Processing file: {{ item }}"
+#     loop: "{{ copied_files_list }}"
+#   
+
+#    - name: Generate Missing Templates required for Role Management
+#      block:
+#        - name: Initialise
