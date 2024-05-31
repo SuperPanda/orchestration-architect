@@ -8,7 +8,7 @@
   vars:
     path_to_specifications: 'vars/specifications/0.8.0'
     bootstrap_version: '0.8.0'
-    embed_template_fragments_script: 'plugins/scripts/embed_template_fragments.sh'
+    embed_template_fragments_script: 'plugins/scripts/embed_template_fragment.sh'
   tasks:
     - name: Setup 'Bootstrap Workspace' Playbook Context
       tags: ['always']
@@ -141,6 +141,8 @@
   hosts: localhost
   connection: local
   tags: ['bootstrap_meta_role']
+  gather_subset:
+    - date_time
   tasks:
     - name: Generate Missing (Template) Skeletons required for Role Management
       vars:
@@ -397,113 +399,75 @@
                       fragment_location: "{{ [base_path, role_fragments_path, fragment_path] | path_join }}"
                       fragment_marker: "{{ fragment_id }}"
                       template_location: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
-                      region: "{{ '--region=' ~ region_id }}"
-                    ansible.builtin.command: >
-                      {{ command_arguments.script_path }}
-                      {{ command_arguments.fragment_location }}
-                      {{ command_arguments.template_location }}
-                      {{ command_arguments.fragment_marker }}
-                      {{ command_arguments.region }}
-                  - name: Prepare Template Fragment Variables to be Rendered
-                    loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys='template_ids') }}"
-                    loop_control:
-                      loop_var: template_id
-                    vars:
-                      specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id]) }}"
-                      fragment_vars:
-                        generation_timestamp: "{{ ansible_date_time.iso1806 }}"
-                        version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
-                        path: "{{ 'path' | extract(specification) }}"
-                        skeleton_path: "{{ 'skeleton_path' | extract(specification) }}"
-                      bootstrap_workspace_context_delta:
-                        fragment_context:
-                          fragment_vars_by_template: |-
-                            {{
-                              [template_id]
-                              | product(
-                                fragment_vars
-                                | dict2items(key_name='var_name', value_name='var_value')
-                              )
-                            }}
-                      ansible.builtin.set_fact:
-                        bootstrap_workspace_context: |-
-                          {{
-                            bootstrap_workspace_context
-                            | combine(
-                              bootstrap_workspace_context_delta,
-                              recursive=True,
-                              list_merge='append')
-                            }}
-                  - name: Inject fragment variables into templates
-                    loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys=['fragment_vars_by_template']) }}"
-                    loop_control:
-                      loop_var: fragment_var_item
-                    vars:
-                      template_id: "{{ fragment_var_item.0 }}"
-                      specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id]) }}"
-                      template_path: "{{ 'path' | extract(specification) }}"
-                      var_item: "{{ fragment_var_item.1 }}"
-                      var_name: "{{ 'var_name' | extract(var_item) }}"
-                      var_value: "{{ 'var_value' | extract(var_item) }}"
-                    ansible.builtin.replace:
-                      path: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
-                      regexp: "{{ '{{ fragment_vars.' ~ var_name ~ ' }}' }}"
-                      replace: "{{ var_value }}"
-                  - name: Copy rendered template to bootstrap path
-                    loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys='template_ids') }}"
-                    loop_control:
-                      loop_var: template_id
-                    vars:
-                      template_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id,'template_path']) }}"
-                      source: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
-                      destination: "{{  [base_path, role_templates_path, templates_path] | path_join }}"
-                    ansible.builtin.copy:
-                      src: "{{ source }}"
-                      dest: "{{ destination }}"
-                      mode: "0660"
-                  - name: Remove Temporary Build Directory for Templates
-                    ansible.builtin.tempfile:
-                      state: absent
-                      path: "{{ temporary_build_directory.path }}"
-                    when: temporary_build_directory.path is defined
+                      region: "--region={{ region_id }}"
+                  ansible.builtin.command: >
+                    {{ command_arguments.script_path }}
+                    {{ command_arguments.fragment_location }}
+                    {{ command_arguments.template_location }}
+                    {{ command_arguments.fragment_marker }}
+                    {{ command_arguments.region }}
 
-                        
-                      
+                - name: Evalute and Collate Fragment Variables (Prepare Rendering of Fragment Variable in Templates)
+                  loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys='template_ids') }}"
+                  loop_control:
+                    loop_var: template_id
+                  vars:
+                    specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id]) }}"
+                    fragment_vars:
+                      generation_timestamp: "{{ ansible_date_time.iso8601 }}"
+                      version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
+                      path: "{{ 'path' | extract(specification) }}"
+                      skeleton_path: "{{ 'skeleton_path' | extract(specification) }}"
+                    bootstrap_workspace_context_delta:
+                      fragment_context:
+                        fragment_vars_by_template: |-
+                          {{                           
+                            [ template_id ] | product(
+                              (fragment_vars
+                              | dict2items(key_name='var_name', value_name='var_value')                                       ))
+                          }}
+                  ansible.builtin.set_fact:
+                    bootstrap_workspace_context: |-
+                      {{
+                        bootstrap_workspace_context
+                        | combine(
+                            bootstrap_workspace_context_delta,
+                            recursive=True,
+                            list_merge='append'
+                          )
+                       }}
+                - name: Inject fragment variables into templates
+                  when:
+                    - "'fragment_vars_by_template' in bootstrap_workspace_context.fragment_context"
+                  loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys=['fragment_vars_by_template']) }}"
+                  loop_control:
+                    loop_var: fragment_var_item
+                  vars:
+                    template_id: "{{ 0 | extract(fragment_var_item) }}"
+                    specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id]) }}"
+                    template_path: "{{ 'path' | extract(specification) }}"
+                    var_item: "{{ 1 | extract(fragment_var_item) }}"
+                    var_name: "{{ 'var_name' | extract(var_item) }}"
+                    var_value: "{{ 'var_value' | extract(var_item) }}"
+                  ansible.builtin.replace:
+                    path: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
+                    regexp: "{{ '{{ fragment_vars.' ~ var_name ~ ' }}' }}"
+                    replace: "{{ var_value }}"
+            - name: Copy rendered template to bootstrap path
+              loop: "{{ 'fragment_context' | extract(bootstrap_workspace_context, morekeys='template_ids') }}"
+              loop_control:
+                loop_var: template_id
+              vars:
+                template_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates','Roles','templates',template_id,'path']) }}"
+                source: "{{ [temporary_build_directory.path, role_templates_path, template_path] | path_join }}"
+                destination: "{{  [base_path, role_templates_path, template_path] | path_join }}"
+              ansible.builtin.copy:
+                src: "{{ source }}"
+                dest: "{{ destination }}"
+                mode: "0660"
+            - name: Remove Temporary Build Directory for Templates
+              ansible.builtin.file:
+                state: absent
+                path: "{{ temporary_build_directory.path }}"
+              when: temporary_build_directory.path is defined
 
-                      
-
-
-
-
-
-                  
-
-
-
-
-
-
-#   - name: Copy files to temporary build directory
-#     ansible.builtin.copy:
-#       src: "{{ item }}"
-#       dest: "{{ temp_build_dir.path }}/{{ item | basename }}"
-#       remote_src: no
-#     loop:
-#       - file1.txt
-#       - file2.txt
-#       - file3.txt
-#     register: copied_files
-#   
-#   - name: Create list of copied files
-#     ansible.builtin.set_fact:
-#       copied_files_list: "{{ copied_files.results | map(attribute='dest') | list }}"
-#   
-#   - name: Process each copied file
-#     ansible.builtin.debug:
-#       msg: "Processing file: {{ item }}"
-#     loop: "{{ copied_files_list }}"
-#   
-
-#    - name: Generate Missing Templates required for Role Management
-#      block:
-#        - name: Initialise
