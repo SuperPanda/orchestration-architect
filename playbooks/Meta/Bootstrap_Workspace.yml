@@ -2,7 +2,7 @@
 ---
 - name: Import Setup Environment Playbook
   import_playbook: Setup_Environment.yml
-- name: Extract, Transform and Load Seed Specification into Bootstrap Workspace Context
+- name: Load Specification and Variables into the Bootstrap Workspace Context
   hosts: localhost
   connection: local
   vars:
@@ -55,12 +55,13 @@
             base: "{{ 'roles_specifications' | extract(specifications_context, morekeys='Base') }}"
             bootstrap_workspace_context_delta: 
               enriched_specifications:
-                roles: |-
-                  {{
-                    ({
-                      role_name: base | combine(specification)
-                    })
-                  }}
+                roles: 
+                  Meta: |-
+                    {{
+                      ({
+                        role_name: base | combine(specification)
+                      })
+                    }}
           ansible.builtin.set_fact:
             bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True, list_merge='append_rp') }}"
         
@@ -137,7 +138,7 @@
           ansible.builtin.set_fact:
             bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True) }}"
                   
-- name: Bootstrap Role Managmeent Functionality (The 'meta_role' Role)
+- name: Bootstrap Templates needed for Role Managment Functionality (Generate Templates used by 'meta_role' Role)
   hosts: localhost
   connection: local
   tags: ['bootstrap_meta_role']
@@ -471,3 +472,39 @@
                 path: "{{ temporary_build_directory.path }}"
               when: temporary_build_directory.path is defined
 
+- name: Bootstrap 'meta_role' Role (version 0.8.0)
+  hosts: localhost
+  connection: local
+  tags: ['bootstrap_meta_role']
+  vars:
+    file_mode: "0660"
+    directory_mode: "0770"
+    metadata:
+      version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
+  tasks:
+      - name: Create 'meta_role' directories
+        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta','meta_role', 'directories']) }}"
+        loop_control:
+          loop_var: directory
+        vars:
+          role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
+          directory_path: "{{ directory.path }}"
+        ansible.builtin.file:
+          state: directory
+          path: "{{ [base_path, role_path, directory_path] | path_join }}"
+          mode: "{{ directory_mode }}"
+      - name:  Process (Update/Generate) 'meta_role' Files from Specifications
+        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'files']) }}"
+        loop_control:
+          loop_var: file          
+        vars:
+          specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
+          role_path: "{{ 'role_path' | extract(specification) }}"
+          template_path: "templates/{{ 'template' | extract(file) }}"
+          file_path: "{{ 'path' | extract(file) }}"
+        ansible.builtin.template:
+          src: "{{ [base_path, role_path, template_path] | path_join }}"
+          dest: "{{ [base_path, role_path, file_path] | path_join }}"
+          mode: "{{ file.mode | default(file_mode) }}"
+          force: "{{ file.state is defined and file.state == 'pristine' }}"
+        when: file.template is defined
