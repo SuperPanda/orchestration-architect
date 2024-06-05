@@ -90,11 +90,11 @@
     environment_base_path: "{{ (fields.params.environment_base_path | extract(meta_template_params)) | default(base_path) }}"
     # currently hard coded vars add to base specification
     # TODO: Decide where to add temporary_work_directory,
-    #       possibly add to specification parameters for 
+    #       possibly add to specification parameters for
     #       roles, define in environment.yml the default,
     #       or pass to meta_orchestrator when it calls the
     #       other roles.
-    #       
+    #
     work_base_path: "/tmp/orchestration_architect/work/meta_template"
     meta_template_paths:
       base: "roles/meta_template"

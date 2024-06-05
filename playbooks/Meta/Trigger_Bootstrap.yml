@@ -6,7 +6,7 @@
   connection: local
   vars:
     version_to_bootstrap: '0.8.0'
-    seed_type: 'fixtures' # Options: 'git' or 'fixtures'
+    seed_type: 'git' # Options: 'git' or 'fixtures'
     repo: /srv/git/orchestration_architect.git
     fixtures_path: ~/orchestration_architect/fixtures/{{ version_to_bootstrap }}/
     bootstrap_workspace_path: /tmp/orchestration_architect/0.8.0/bootstrap_workspace
@@ -44,6 +44,7 @@
       ansible.builtin.file:
         path: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
         state: directory
+        mode: '0770'
 
 - name: Seed Bootstrap Environment with Git
   tags: ['seed']
@@ -75,4 +76,3 @@
       ansible.builtin.command: "ansible-playbook {{ 'bootstrap_playbook_path' | extract(trigger_bootstrap_context) }}"
       args:
         chdir: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
-

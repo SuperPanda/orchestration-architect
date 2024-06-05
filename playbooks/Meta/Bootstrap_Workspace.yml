@@ -19,7 +19,7 @@
         - name: Create Bootstrap and Specifications Context
           ansible.builtin.set_fact:
             plugins_context:
-                embed_template_fragments: "{{ [base_path, embed_template_fragments_script] | path_join }}"
+              embed_template_fragments: "{{ [base_path, embed_template_fragments_script] | path_join }}"
             bootstrap_workspace_context:
               specifications_version: "{{ bootstrap_version }}"
               specifications_path: "{{ [base_path, path_to_specifications] | path_join }}"
@@ -55,9 +55,9 @@
             specification: "{{ enrichment_item.role_specification }}"
             base: "{{ 'roles_specifications' | extract(specifications_context, morekeys='Base') }}"
             enriched_specification: "{{ base | combine(specification, recursive=True, list_merge='append_rp') }}"
-            bootstrap_workspace_context_delta: 
+            bootstrap_workspace_context_delta:
               enriched_specifications:
-                roles: 
+                roles:
                   Meta: |-
                     {{
                       ({
@@ -66,7 +66,7 @@
                     }}
           ansible.builtin.set_fact:
             bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True, list_merge='append_rp') }}"
-        
+
     # (@doc=specifications.templates.base) Usage of Base Object in Templates Specifications
     #
     # Base Object :: Template Specifications
@@ -100,7 +100,7 @@
         default_skeleton: "{{ 'skeleton_specification' | extract(base_template_specification) }}"
         base_fragments: "{{ 'template_fragments' | extract(base_template_specification) }}"
         base_fields: "{{ 'fields' | extract(base_template_specification) }}"
-        roles_template_collection: "{{ 'templates_specifications' | extract(specifications_context, morekeys='Roles') }}"        
+        roles_template_collection: "{{ 'templates_specifications' | extract(specifications_context, morekeys='Roles') }}"
       block:
         - name: Enrich Template Specification for the Roles Collection
           vars:
@@ -129,17 +129,17 @@
               skeleton_specification: "{{ ('skeleton_specification' | extract(template_specification)) | default(default_skeleton) }}"
             bootstrap_workspace_context_delta:
               enriched_specifications:
-                templates: 
+                templates:
                   Roles:
                     templates: |-
-                      {{ 
+                      {{
                         ({
                           template_id: (template_specification | combine(template_delta))
                         })
                       }}
           ansible.builtin.set_fact:
             bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True) }}"
-                  
+
 # Once 'meta_template' is bootstrapped it will perform these tasks
 - name: Bootstrap Templates needed for Role Managment Functionality (Generate Templates used by 'meta_role' Role)
   hosts: localhost
@@ -167,7 +167,7 @@
             path: "{{ [base_path, role_templates_path, skeleton_path] | path_join }}"
           register: skeleton_status
         - name: Process Skeletons based on File Status for Specifications
-          vars: 
+          vars:
             template_items_with_existing_skeleton: |-
                 {{
                   skeleton_status.results
@@ -186,14 +186,14 @@
               vars:
                 templates_path: "{{ [base_path, role_templates_path] | path_join }}"
                 found: |
-                  {{ 
+                  {{
                     template_items_with_existing_skeleton
-                    | map(attribute='specification.skeleton_path')                      
+                    | map(attribute='specification.skeleton_path')
                   }}
                 not_found: |
-                  {{ 
+                  {{
                     template_items_with_missing_skeleton
-                    | map(attribute='specification.skeleton_path')                      
+                    | map(attribute='specification.skeleton_path')
                   }}
               ansible.builtin.debug:
                 msg: >-
@@ -251,7 +251,7 @@
             path: "{{ [base_path, role_templates_path, template_path] | path_join }}"
           register: template_status
         - name: Process Templates based on File Status for Specifications
-          vars: 
+          vars:
             template_items_with_existing_template: |-
               {{
                 template_status.results
@@ -277,7 +277,7 @@
             - name: Ensure Directories Exist for Temporary Build Directory
               vars:
                 template_build_directory_paths: >-
-                  {{ 
+                  {{
                     [[temporary_build_directory.path, role_templates_path]]
                     | product(
                         template_items_with_missing_template
@@ -334,7 +334,7 @@
                         template_region_fragments_ids: []
                   ansible.builtin.set_fact:
                     bootstrap_workspace_context: |-
-                      {{ 
+                      {{
                         bootstrap_workspace_context
                         | combine(bootstrap_workspace_context_delta, recursive=True)
                       }}
@@ -345,7 +345,7 @@
                         template_ids: "{{ template_items_with_missing_template | map(attribute='id') }}"
                   ansible.builtin.set_fact:
                     bootstrap_workspace_context: |-
-                      {{ 
+                      {{
                         bootstrap_workspace_context
                         | combine(bootstrap_workspace_context_delta, recursive=True)
                       }}
@@ -354,13 +354,13 @@
                   loop_control:
                     loop_var: template_id
                   vars:
-                    regions: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates', 'Roles', 'templates', template_id, 'skeleton_specification']) | dict2items | map(attribute='key') }}"                    
+                    regions: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates', 'Roles', 'templates', template_id, 'skeleton_specification']) | dict2items | map(attribute='key') }}"
                     bootstrap_workspace_context_delta:
                       fragment_context:
                         template_region_ids: "{{ [template_id] | product(regions) }}"
                   ansible.builtin.set_fact:
                     bootstrap_workspace_context: |-
-                      {{ 
+                      {{
                         bootstrap_workspace_context
                         | combine(bootstrap_workspace_context_delta, recursive=True, list_merge='append_rp')
                       }}
@@ -371,13 +371,13 @@
                   vars:
                     template_id: "{{ template_region_item.0 }}"
                     region_id: "{{ template_region_item.1 }}"
-                    fragments: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates', 'Roles', 'templates', template_id, 'skeleton_specification', region_id]) }}"                 
+                    fragments: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['templates', 'Roles', 'templates', template_id, 'skeleton_specification', region_id]) }}"
                     bootstrap_workspace_context_delta:
                       fragment_context:
                         template_region_fragments_ids: "{{ [template_region_item] | product(fragments) | map('flatten') }}"
                   ansible.builtin.set_fact:
                     bootstrap_workspace_context: |-
-                      {{ 
+                      {{
                         bootstrap_workspace_context
                         | combine(bootstrap_workspace_context_delta, recursive=True, list_merge='append_rp')
                       }}
@@ -425,7 +425,7 @@
                     bootstrap_workspace_context_delta:
                       fragment_context:
                         fragment_vars_by_template: |-
-                          {{                           
+                          {{
                             [ template_id ] | product(
                               (fragment_vars
                               | dict2items(key_name='var_name', value_name='var_value')                                       ))
@@ -484,7 +484,7 @@
     file_mode: "0660"
     directory_mode: "0770"
     roles_metadata: |-
-      {{ 
+      {{
         'roles_specifications'
         | extract(specifications_context, morekeys=['metadata'])
         | combine(
@@ -492,41 +492,41 @@
           )
       }}
   tasks:
-      - name: Create 'meta_role' directories
-        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta','meta_role', 'directories']) }}"
-        loop_control:
-          loop_var: directory
-        vars:
-          role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
-          directory_path: "{{ directory.path }}"
-        ansible.builtin.file:
-          state: directory
-          path: "{{ [base_path, role_path, directory_path] | path_join }}"
-          mode: "{{ directory_mode }}"
-      - name:  Process 'meta_role' Files If Missing or if File is Configured to Always Regenerate (The file's state is set to Pristine in the Specification)
-        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'files']) }}"
-        loop_control:
-          loop_var: file          
-        vars:
+    - name: Create 'meta_role' directories
+      loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'directories']) }}"
+      loop_control:
+        loop_var: directory
+      vars:
+        role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
+        directory_path: "{{ directory.path }}"
+      ansible.builtin.file:
+        state: directory
+        path: "{{ [base_path, role_path, directory_path] | path_join }}"
+        mode: "{{ directory_mode }}"
+    - name: Process 'meta_role' Files If Missing or if File is Configured to Always Regenerate (The file's state is set to Pristine in the Specification)
+      loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'files']) }}"
+      loop_control:
+        loop_var: file
+      vars:
+        specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
+        metadata: "{{ roles_metadata }}"
+        role_path: "{{ 'role_path' | extract(specification) }}"
+        template_path: "templates/{{ 'template' | extract(file) }}"
+        file_path: "{{ 'path' | extract(file) }}"
+      ansible.builtin.template:
+        src: "{{ [base_path, role_path, template_path] | path_join }}"
+        dest: "{{ [base_path, role_path, file_path] | path_join }}"
+        mode: "{{ file.mode | default(file_mode) }}"
+        force: '{{ file.state is defined and file.state == "pristine" }}'
+      when: file.template is defined
+    - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
+      ansible.builtin.include_role:
+        name: meta_role
+      vars:
+        meta_role:
+          state: present
           specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
           metadata: "{{ roles_metadata }}"
-          role_path: "{{ 'role_path' | extract(specification) }}"
-          template_path: "templates/{{ 'template' | extract(file) }}"
-          file_path: "{{ 'path' | extract(file) }}"
-        ansible.builtin.template:
-          src: "{{ [base_path, role_path, template_path] | path_join }}"
-          dest: "{{ [base_path, role_path, file_path] | path_join }}"
-          mode: "{{ file.mode | default(file_mode) }}"
-          force: '{{ file.state is defined and file.state == "pristine" }}'
-        when: file.template is defined
-      - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
-        ansible.builtin.include_role:
-          name: meta_role
-        vars:
-          meta_role:
-            state: present
-            specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
-            metadata: "{{ roles_metadata }}"
 
 - name: Bootstrap 'meta_orchestrator' Role with 'meta_role'
   hosts: localhost
@@ -537,7 +537,7 @@
       specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_orchestrator']) }}"
       state: present
       metadata: |-
-        {{ 
+        {{
           'roles_specifications'
           | extract(specifications_context, morekeys=['metadata'])
           | combine(
@@ -579,11 +579,11 @@
       specifications_path: "{{ 'specifications_path' | extract(bootstrap_workspace_context) }}"
       specifications_version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
       state: present
-      scope: schema      
+      scope: schema
       schema:
         templates:
           Roles:
-            meta_playbook: {}              
+            meta_playbook: {}
           Playbooks:
             base_playbook: {}
             meta_playbook: {}
@@ -594,5 +594,3 @@
     - name: Execute 'meta_orchestrator' to build the 'meta_playbook' role from the specifications
       ansible.builtin.include_role:
         name: meta_orchestrator
-
-

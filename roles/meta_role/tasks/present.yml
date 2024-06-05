@@ -8,7 +8,7 @@
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 - name: Ensure the presence of the {{ meta_role_params.specification.role_name }}
   vars:
-    meta_execution_context: 
+    meta_execution_context:
       work_base_path: "/tmp/orchestration_architect/0.8.0/work/default"
     specification: "{{ meta_role_params.specification }}"
     metadata: "{{ meta_role_params.metadata }}"
@@ -114,7 +114,7 @@
         #   loop: "{{ _update_sections  }}"
         - name: Render file to temporary location
           vars:
-            file: "{{ section_update_params.1.file_specification }}"
+            ansible.builtin.file: "{{ section_update_params.1.file_specification }}"
           ansible.builtin.template:
             src: "{{ [base_path, metadata.role_template_path, section_update_params.1.source] | path_join }}"
             dest: "{{ [work_directory, section_update_params.1.file_specification.path ] | path_join }}"
