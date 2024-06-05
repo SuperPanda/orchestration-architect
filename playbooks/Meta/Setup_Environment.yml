@@ -3,6 +3,8 @@
 # file: playbooks/Meta/Setup_Environment.yml
 # version: 0.8.0
 ---
+# (@TODO=OA-0.8.1-ALIGN_PATH_TRANSFORMATIONS): Add args based loop, and use it to set the temporary directory
+# (@TODO-OA-0.8.1-ALIGN_PATH_TRANSFORMATIONS): Change Work Directories to use Temp_Files
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content

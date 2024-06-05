@@ -36,6 +36,7 @@
         - name: Show Specification Context
           ansible.builtin.debug:
             msg: "{{ specifications_context | dict2items | map(attribute='key') }}"
+    # Once 'meta_orchestrator' is bootstrapped, it will perform these tasks
     - name: Add Enriched Roles Specifications from the Meta Collection to Bootstrap Workspace Context
       tags: ['always']
       vars:
@@ -139,6 +140,7 @@
           ansible.builtin.set_fact:
             bootstrap_workspace_context: "{{ bootstrap_workspace_context | combine(bootstrap_workspace_context_delta, recursive=True) }}"
                   
+# Once 'meta_template' is bootstrapped it will perform these tasks
 - name: Bootstrap Templates needed for Role Managment Functionality (Generate Templates used by 'meta_role' Role)
   hosts: localhost
   connection: local
@@ -473,7 +475,8 @@
                 path: "{{ temporary_build_directory.path }}"
               when: temporary_build_directory.path is defined
 
-- name: Bootstrap 'meta_role' Role (version 0.8.0)
+# Once 'meta_role' is bootstrapped, it will perform these tasks.
+- name: Bootstrap 'meta_role' Role
   hosts: localhost
   connection: local
   tags: ['bootstrap_meta_role']
@@ -524,4 +527,72 @@
             state: present
             specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
             metadata: "{{ roles_metadata }}"
+
+- name: Bootstrap 'meta_orchestrator' Role with 'meta_role'
+  hosts: localhost
+  connection: local
+  tags: ['bootstrap_meta_orchestrator']
+  vars:
+    meta_role:
+      specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_orchestrator']) }}"
+      state: present
+      metadata: |-
+        {{ 
+          'roles_specifications'
+          | extract(specifications_context, morekeys=['metadata'])
+          | combine(
+              { 'version': ('specifications_version' | extract(bootstrap_workspace_context)) }
+            )
+        }}
+  tasks:
+    - name: Generate 'meta_orchestrator' using the 'meta_role' role
+      ansible.builtin.include_role:
+        name: "meta_role"
+
+- name: Bootstrap 'meta_template' Role with 'meta_orchestrator'
+  hosts: localhost
+  connection: local
+  tags: ['bootstrap_meta_template']
+  vars:
+    meta_orchestrator:
+      specifications_path: "{{ 'specifications_path' | extract(bootstrap_workspace_context) }}"
+      specifications_version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
+      state: present
+      scope: schema
+      operations:
+        - process_roles
+      schema:
+        roles:
+          Meta:
+            meta_template: {}
+  tasks:
+    - name: Execute 'meta_orchestrator' to build the 'meta_template' role from the specifications
+      ansible.builtin.include_role:
+        name: meta_orchestrator
+
+- name: Bootstrap 'meta_playbook' with 'meta_orchestrator'
+  hosts: localhost
+  connection: local
+  tags: ['bootstrap_meta_playbook']
+  vars:
+    meta_orchestrator:
+      specifications_path: "{{ 'specifications_path' | extract(bootstrap_workspace_context) }}"
+      specifications_version: "{{ 'specifications_version' | extract(bootstrap_workspace_context) }}"
+      state: present
+      scope: schema      
+      schema:
+        templates:
+          Roles:
+            meta_playbook: {}              
+          Playbooks:
+            base_playbook: {}
+            meta_playbook: {}
+        roles:
+          Meta:
+            meta_playbook: {}
+  tasks:
+    - name: Execute 'meta_orchestrator' to build the 'meta_playbook' role from the specifications
+      ansible.builtin.include_role:
+        name: meta_orchestrator
+
 

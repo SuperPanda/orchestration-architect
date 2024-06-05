@@ -2,18 +2,19 @@
 ---
 - name: Setup Playbook Variables
   tags: ['always', 'configure']
+  hosts: localhost
   connection: local
   vars:
     version_to_bootstrap: '0.8.0'
     seed_type: 'fixtures' # Options: 'git' or 'fixtures'
     repo: /srv/git/orchestration_architect.git
-    fixtures_path: ~/orchestration_architect/fixtures
-    bootstrap_workspace_path: /tmp/orchestration_architect
+    fixtures_path: ~/orchestration_architect/fixtures/{{ version_to_bootstrap }}/
+    bootstrap_workspace_path: /tmp/orchestration_architect/0.8.0/bootstrap_workspace
     bootstrap_playbook: playbooks/Meta/Bootstrap_Workspace.yml
   tasks:
     - name: Create Trigger Bootstrap Context
       vars:
-        bootstrap_playbook_path: "{{ [bootstrap_playbook, bootstrap_playbook] | path_join }}"
+        bootstrap_playbook_path: "{{ [bootstrap_workspace_path, bootstrap_playbook] | path_join }}"
       ansible.builtin.set_fact:
         trigger_bootstrap_context:
           version_to_bootstrap: "{{ version_to_bootstrap }}"
@@ -26,10 +27,12 @@
               branch: "{{ version_to_bootstrap }}-seed"
           fixtures_seed_source:
             configuration:
-              path: "{{ fixtures_path }}/{{ version_to_bootstrap }}"
+              path: "{{ fixtures_path }}"
 
 - name: Prepare Bootstrap Environment
   tags: ['prepare']
+  connection: local
+  hosts: localhost
   tasks:
     - name: Clean Bootstrap Workspace if 'clean_build' is provided
       ansible.builtin.file:
@@ -44,7 +47,8 @@
 
 - name: Seed Bootstrap Environment with Git
   tags: ['seed']
-  gather_facts: true
+  connection: local
+  hosts: localhost
   tasks:
     - name: Clone {{ trigger_bootstrap_context.version_to_bootstrap }}-seed into Bootstrap Environment
       when:
@@ -65,4 +69,10 @@
 
 - name: Trigger Bootstrap Execution Playbook
   tags: ['execute']
-  ansible.builtin.import_playbook: "{{ 'bootstrap_playbook_path' | extract(trigger_bootstrap_context) }}"
+  hosts: localhost
+  tasks:
+    - name: Execute Playbook
+      ansible.builtin.command: "ansible-playbook {{ 'bootstrap_playbook_path' | extract(trigger_bootstrap_context) }}"
+      args:
+        chdir: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+
