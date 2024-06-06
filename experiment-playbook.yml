@@ -1,0 +1,16 @@
+- name: Test Zip Label
+  hosts: localhost
+  connection: local
+  vars:
+    values:
+      - - cat
+        - 12
+      - - dog
+        - 13
+  tasks:
+    - name: Try mapping a dict
+      vars:
+        output: "{{ values | map('zip', ['animal','age']) | map('map','reverse') | map('community.general.dict') }}"
+      ansible.builtin.debug:
+        var: output
+
