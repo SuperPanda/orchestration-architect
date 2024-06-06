@@ -20,7 +20,7 @@ meta_orchestrator_specifications_version: "latest"
 meta_orchestrator_scope: "all"
 meta_orchestrator_specifications_map: "{'metadata': 'metadata', 'roles_specifications': 'roles', 'playbooks_specifications': 'playbooks', 'templates_specifications': 'templates', 'tests_specifications': 'tests'}"
 meta_orchestrator_schema: "{'metadata': {}, 'roles': {'metadata': {}, 'Base': {}, 'Meta': {}, 'Default': {}}, 'playbooks': {'metadata': {}, 'Meta': {}, 'Default': {}}, 'templates': {'metadata': {}, 'Base': {}, 'Roles': {}, 'Playbooks': {}}, 'tests': {'metadata': {}, 'Base': {}}}"
-meta_orchestrator_operations: "['process_specifications', 'process_templates', 'process_roles', 'process_playbooks']"
+meta_orchestrator_operations: "['process_templates', 'process_roles', 'process_playbooks']"
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 
 ### 03_Content ORCHESTRATION ARCHITECT REGION ###

@@ -8,7 +8,7 @@
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 - name: Ensure the presence of the {{ meta_role_params.specification.role_name }}
   vars:
-    meta_execution_context: 
+    meta_execution_context:
       work_base_path: "/tmp/orchestration_architect/0.8.0/work/default"
     specification: "{{ meta_role_params.specification }}"
     metadata: "{{ meta_role_params.metadata }}"

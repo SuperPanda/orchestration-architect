@@ -1,4 +1,59 @@
+# vars/specifications/0.8.0/playbooks.yml
+---
 playbooks_specifications:
+  # Start Metadata
+  metadata:
+    non_collection_keys: ['Base', 'metadata']
+    collections:
+      Meta:
+        collection_name: Meta
+        path: playbooks/Meta
+        template_path: playbooks/meta.yml.j2
+        description: |
+          A collection of playbooks build, modify and extend Orchestration
+          Architect, ensuring that the design of the system is consistent, managable,
+          adheres to the underlying design principles and ensures compatability with
+          different components and dynamically updating the interactions between components
+          when designs change. Manages specifications, migrations, playbooks and roles.
+      OA001_Provision_LiveUSB:
+        collection_name: OA001_Provision_LiveUSB
+        path: playbooks/OA001_Provision_LiveUSB
+        files:
+          - playbooks/OA001_Provision_LiveUSB/vars.yml
+        description: |
+          A collection of playbooks to build the portable management node
+          of Orchestration Architect. Depends only on ansible and pacman as its dependency.
+          If USB not available use a loop device. This collection can provision a LiveUSB
+          environment with full disk encryption and persistence, open and mount LiveUSB,
+          customize, modify and recover existing installations, and safely prepare device
+          for ejection.
+          Also allows for rekeying luks and root accounts (requires specification
+          of a development luks keyfile or entering luks passphrase). Tested under default
+          Arch Linux Installation Live Install media.
+      OA001_LiveUSB:
+        collection_name: OA001_LiveUSB
+        description: 
+          Contains playbooks to configure startup operations, customize
+          the system, create snapshots and remote backups. Update subvolume or bind
+          mounts, add/remove service accounts. It also includes the generation of the
+          image fora live operating system of OA002_Hypervisor and deployment over PXE,
+          which has a default auto login guest account, desktop environment, with baked
+          SSH access for the OA001 root user and OA001_service worker, to allow instant
+          access to deployed system.
+        path: playbooks/OA001_LiveUSB
+      OA002_Hypervisor:
+        collection_name: OA002_Hypervisor
+        path: playbooks/OA002_Hypervisor
+        description: |
+          Playbooks to remotely manage a bare metal nested hypervisor. Allows
+          for instant reconfiguration from fresh boot of the live environment booted
+          from the PXE service, and configuration of a running system that is persisted
+          due to configuration running from playbook. Connects via SSH using credentials
+          baked in.
+      Default:
+        collection_name: Default
+        description: Playbooks not in a collection.
+        path: playbooks/Default
   Base:
     playbook_vars_files:
       - ../../vars/environment.yml
@@ -8,141 +63,92 @@ playbooks_specifications:
       - 50_content_region_message
       - 90_managed_block_after_content
   Meta:
-    Bootstrap_Pipeline:
-      metadata:
-        pre_run_playbooks:
-          - Setup_Environment.yml
-      playbook_description: "Execute Tasks required to bootstrap Orchestration Architect
-        minimal set of files to generate,\nso the Meta Components are able to bootstrap
-        itself such that each component is fully functional.\n"
-      playbook_name: Execute Bootstrap Pipeline
-      playbook_path: Bootstrap_Pipeline.yml
+    Generate_Playbooks_From_Specs:
+      playbook_name: Generate Playbooks From Specifications
+      playbook_path: Generate_Playbooks_From_Specs.yml
+      playbook_description: |
+        Reads the playbook specification and runs the orchestration process to
+        generate, update or remove playbooks.
       state: updated
+      playbook_tasks:
+        - play_id: Execute Template Operations for Playbooks with Meta Orchestrator
+          trigger_role:
+            name: meta_orchestrator
+            tags: ['templates']
+            state: present
+            specifications_version: "0.8.0"
+            specifications_path: "vars/specifications"
+            operations: ['process_templates']
+            scope: schema
+            schema:
+              templates:
+                Playbooks: {}
+        - play_id: Execute Playbook Operations with Meta Orchestrator
+          trigger_role:
+            name: meta_orchestrator
+            tags: ['playbooks']
+            state: present
+            specifications_version: "0.8.0"
+            specifications_path: "vars/specifications"
+            operations: ['process_playbooks']
+            scope: all
+
+        - play_id: 
     Execute_Development_Pipeline:
-      playbook_description: "Generates or Updates the Pristine Branch by Bootstrapping
-        Seed Branch.\nThe use of the seed to bootstrap the pristine state, allows
-        for\na patch to be generated to apply to the pristine branch, to allow\nfor
-        rebase operations from a known initial state.\n"
       playbook_name: Execute Pristine Pipeline
       playbook_path: Execute_Development_Pipeline.yml
+      playbook_description: |
+        Generates or Updates the Pristine Branch by Bootstrapping Seed Branch.
+        The use of the seed to bootstrap the pristine state, allows for
+        a patch to be generated to apply to the pristine branch, to allow
+        for rebase operations from a known initial state.
+      state: updated
       playbook_tasks:
         - play_id: Setup Development Pipeline Variables
           play_vars:
             pipeline_context:
-              bootstrap_workspace_path: /tmp/orchestration_architect/0.8.0/bootstrap_workspace
-              development_branch: 0.8.0-dev
-              development_workspace_path: ~/orchestration_architect/dev
-              pristine_branch: 0.8.0-pristine
-              repo_path: file://srv/git/orchestration_architect.git
-              seed_branch: 0.8.0-seed
-              seed_workspace_path: ~/orchestration_architect/fixtures/0.8.0
+              repo_path: 'file://srv/git/orchestration_architect.git'
+              seed_branch: '0.8.0-seed'
+              pristine_branch: '0.8.0-pristine'
+              development_branch: '0.8.0-dev'
+              bootstrap_workspace_path: '/tmp/orchestration_architect/0.8.0/bootstrap_workspace'
+              development_workspace_path: '~/orchestration_architect/dev'
+              seed_workspace_path: '~/orchestration_architect/fixtures/0.8.0'
         - play_id: Prepare Bootstrap Workspace
         - play_id: Seed Bootstrap Workspace
         - play_id: Bootstrap Pristine Environment from Seed
         - play_id: Generate Patch for Pristine Branch
         - play_id: Apply Patch to Pristine Branch
         - play_id: Rebase Develop Branch onto Pristine Branch
+
+    Bootstrap_Pipeline:
+      playbook_name: Execute Bootstrap Pipeline
+      playbook_path: Bootstrap_Pipeline.yml
+      playbook_description: |
+        Execute Tasks required to bootstrap Orchestration Architect minimal set of files to generate,
+        so the Meta Components are able to bootstrap itself such that each component is fully functional.
       state: updated
-    Execute_Orchestrator:
       metadata:
         pre_run_playbooks:
           - Setup_Environment.yml
+
+    Setup_Environment:
+      playbook_name: Setup Environment
+      playbook_path: Setup_Environment.yml
+      playbook_description: Ensures environment variables file exists and populated correctly
+      state: updated
+
+    Execute_Orchestrator:
+      state: pristine
       playbook_name: Execute Meta Orchestrator to Process All Specifications
       playbook_path: Execute_Orchestrator.yml
+      metadata:
+        pre_run_playbooks:
+          - Setup_Environment.yml
       playbook_tasks:
         - play_id: Execute Orchestrator
           trigger_role:
             name: meta_orchestrator
-            specifications_path: vars/specifications
-            specifications_version: 0.8.0
             state: present
-      state: pristine
-    Generate_Playbooks_From_Specs:
-      playbook_description: "Reads the playbook specification and runs the orchestration
-        process to\ngenerate, update or remove playbooks.\n"
-      playbook_name: Generate Playbooks From Specifications
-      playbook_path: Generate_Playbooks_From_Specs.yml
-      playbook_tasks:
-        - play_id: Execute Template Operations for Playbooks with Meta Orchestrator
-          trigger_role:
-            name: meta_orchestrator
-            operations:
-              - process_templates
-            schema:
-              templates:
-                Playbooks: {}
-            scope: schema
-            specifications_path: vars/specifications
-            specifications_version: 0.8.0
-            state: present
-            tags:
-              - templates
-        - play_id: Execute Playbook Operations with Meta Orchestrator
-          trigger_role:
-            name: meta_orchestrator
-            operations:
-              - process_playbooks
-            scope: all
-            specifications_path: vars/specifications
-            specifications_version: 0.8.0
-            state: present
-            tags:
-              - playbooks
-        - play_id:
-      state: updated
-    Setup_Environment:
-      playbook_description: Ensures environment variables file exists and populated
-        correctly
-      playbook_name: Setup Environment
-      playbook_path: Setup_Environment.yml
-      state: updated
-  metadata:
-    collections:
-      Default:
-        collection_name: Default
-        description: Playbooks not in a collection.
-        path: playbooks/Default
-      Meta:
-        collection_name: Meta
-        description: "A collection of playbooks build, modify and extend Orchestration\n
-          Architect, ensuring that the design of the system is consistent, managable,\n
-          adheres to the underlying design principles and ensures compatability with\n
-          different components and dynamically updating the interactions between components\n
-          when designs change. Manages specifications, migrations, playbooks and roles.\n"
-        path: playbooks/Meta
-        template_path: playbooks/meta.yml.j2
-      OA001_LiveUSB:
-        collection_name: OA001_LiveUSB
-        description: Contains playbooks to configure startup operations, customize
-          the system, create snapshots and remote backups. Update subvolume or bind
-          mounts, add/remove service accounts. It also includes the generation of
-          the image fora live operating system of OA002_Hypervisor and deployment
-          over PXE, which has a default auto login guest account, desktop environment,
-          with baked SSH access for the OA001 root user and OA001_service worker,
-          to allow instant access to deployed system.
-        path: playbooks/OA001_LiveUSB
-      OA001_Provision_LiveUSB:
-        collection_name: OA001_Provision_LiveUSB
-        description: "A collection of playbooks to build the portable management node\n
-          of Orchestration Architect. Depends only on ansible and pacman as its dependency.\n
-          If USB not available use a loop device. This collection can provision a
-          LiveUSB\nenvironment with full disk encryption and persistence, open and
-          mount LiveUSB,\ncustomize, modify and recover existing installations, and
-          safely prepare device\nfor ejection.\nAlso allows for rekeying luks and
-          root accounts (requires specification\nof a development luks keyfile or
-          entering luks passphrase). Tested under default\nArch Linux Installation
-          Live Install media.\n"
-        files:
-          - playbooks/OA001_Provision_LiveUSB/vars.yml
-        path: playbooks/OA001_Provision_LiveUSB
-      OA002_Hypervisor:
-        collection_name: OA002_Hypervisor
-        description: "Playbooks to remotely manage a bare metal nested hypervisor.
-          Allows\nfor instant reconfiguration from fresh boot of the live environment
-          booted\nfrom the PXE service, and configuration of a running system that
-          is persisted\ndue to configuration running from playbook. Connects via SSH
-          using credentials\nbaked in.\n"
-        path: playbooks/OA002_Hypervisor
-    non_collection_keys:
-      - Base
-      - metadata
+            specifications_version: "0.8.0"
+            specifications_path: "vars/specifications"

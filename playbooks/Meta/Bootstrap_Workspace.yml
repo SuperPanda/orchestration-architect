@@ -19,7 +19,7 @@
         - name: Create Bootstrap and Specifications Context
           ansible.builtin.set_fact:
             plugins_context:
-                embed_template_fragments: "{{ [base_path, embed_template_fragments_script] | path_join }}"
+              embed_template_fragments: "{{ [base_path, embed_template_fragments_script] | path_join }}"
             bootstrap_workspace_context:
               specifications_version: "{{ bootstrap_version }}"
               specifications_path: "{{ [base_path, path_to_specifications] | path_join }}"
@@ -492,41 +492,41 @@
           )
       }}
   tasks:
-      - name: Create 'meta_role' directories
-        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta','meta_role', 'directories']) }}"
-        loop_control:
-          loop_var: directory
-        vars:
-          role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
-          directory_path: "{{ directory.path }}"
-        ansible.builtin.file:
-          state: directory
-          path: "{{ [base_path, role_path, directory_path] | path_join }}"
-          mode: "{{ directory_mode }}"
-      - name:  Process 'meta_role' Files If Missing or if File is Configured to Always Regenerate (The file's state is set to Pristine in the Specification)
-        loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'files']) }}"
-        loop_control:
-          loop_var: file
-        vars:
+    - name: Create 'meta_role' directories
+      loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'directories']) }}"
+      loop_control:
+        loop_var: directory
+      vars:
+        role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
+        directory_path: "{{ directory.path }}"
+      ansible.builtin.file:
+        state: directory
+        path: "{{ [base_path, role_path, directory_path] | path_join }}"
+        mode: "{{ directory_mode }}"
+    - name: Process 'meta_role' Files If Missing or if File is Configured to Always Regenerate (The file's state is set to Pristine in the Specification)
+      loop: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'files']) }}"
+      loop_control:
+        loop_var: file
+      vars:
+        specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
+        metadata: "{{ roles_metadata }}"
+        role_path: "{{ 'role_path' | extract(specification) }}"
+        template_path: "templates/{{ 'template' | extract(file) }}"
+        file_path: "{{ 'path' | extract(file) }}"
+      ansible.builtin.template:
+        src: "{{ [base_path, role_path, template_path] | path_join }}"
+        dest: "{{ [base_path, role_path, file_path] | path_join }}"
+        mode: "{{ file.mode | default(file_mode) }}"
+        force: '{{ file.state is defined and file.state == "pristine" }}'
+      when: file.template is defined
+    - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
+      ansible.builtin.include_role:
+        name: meta_role
+      vars:
+        meta_role:
+          state: present
           specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
           metadata: "{{ roles_metadata }}"
-          role_path: "{{ 'role_path' | extract(specification) }}"
-          template_path: "templates/{{ 'template' | extract(file) }}"
-          file_path: "{{ 'path' | extract(file) }}"
-        ansible.builtin.template:
-          src: "{{ [base_path, role_path, template_path] | path_join }}"
-          dest: "{{ [base_path, role_path, file_path] | path_join }}"
-          mode: "{{ file.mode | default(file_mode) }}"
-          force: '{{ file.state is defined and file.state == "pristine" }}'
-        when: file.template is defined
-      - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
-        ansible.builtin.include_role:
-          name: meta_role
-        vars:
-          meta_role:
-            state: present
-            specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
-            metadata: "{{ roles_metadata }}"
 
 - name: Bootstrap 'meta_orchestrator' Role with 'meta_role'
   hosts: localhost
@@ -594,5 +594,3 @@
     - name: Execute 'meta_orchestrator' to build the 'meta_playbook' role from the specifications
       ansible.builtin.include_role:
         name: meta_orchestrator
-
-
