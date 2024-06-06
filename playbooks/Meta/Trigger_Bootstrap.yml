@@ -59,6 +59,7 @@
         dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
         version: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'branch']) }}"
         depth: 1
+        force: true
 
     - name: Synchronize files from {{ trigger_bootstrap_context.fixtures_seed_source.configuration.path }} into Bootstrap Environment
       when:

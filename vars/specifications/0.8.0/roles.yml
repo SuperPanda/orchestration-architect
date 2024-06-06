@@ -143,7 +143,6 @@ roles_specifications:
             metadata: {}
             Base: {}
         meta_orchestrator_operations:
-          - process_specifications
           - process_templates
           - process_roles
           - process_playbooks
