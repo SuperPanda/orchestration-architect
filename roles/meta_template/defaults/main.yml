@@ -7,7 +7,7 @@
 # ========================================================
 # role: meta_template
 # file: roles/meta_template/defaults/main.yml
-# version: latest
+# version: 0.8.0
 ---
 
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###

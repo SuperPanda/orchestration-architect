@@ -1,0 +1,78 @@
+# file: Trigger_Bootstrap.yml
+---
+- name: Setup Playbook Variables
+  tags: ['always', 'configure']
+  hosts: localhost
+  connection: local
+  vars:
+    version_to_bootstrap: '0.8.0'
+    seed_type: 'fixtures' # Options: 'git' or 'fixtures'
+    repo: /srv/git/orchestration_architect.git
+    fixtures_path: ~/orchestration_architect/fixtures/{{ version_to_bootstrap }}/
+    bootstrap_workspace_path: /tmp/orchestration_architect/0.8.0/bootstrap_workspace
+    bootstrap_playbook: playbooks/Meta/Bootstrap_Workspace.yml
+  tasks:
+    - name: Create Trigger Bootstrap Context
+      vars:
+        bootstrap_playbook_path: "{{ [bootstrap_workspace_path, bootstrap_playbook] | path_join }}"
+      ansible.builtin.set_fact:
+        trigger_bootstrap_context:
+          version_to_bootstrap: "{{ version_to_bootstrap }}"
+          bootstrap_workspace_path: "{{ bootstrap_workspace_path }}"
+          bootstrap_playbook_path: "{{ bootstrap_playbook_path }}"
+          seed_type: "{{ seed_type }}"
+          git_seed_source:
+            configuration:
+              repo: "{{ repo }}"
+              branch: "{{ version_to_bootstrap }}-seed"
+          fixtures_seed_source:
+            configuration:
+              path: "{{ fixtures_path }}"
+
+- name: Prepare Bootstrap Environment
+  tags: ['prepare']
+  connection: local
+  hosts: localhost
+  tasks:
+    - name: Clean Bootstrap Workspace if 'clean_build' is provided
+      ansible.builtin.file:
+        path: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+        state: absent
+      when: "'clean_build' in ansible_run_tags"
+
+    - name: Ensure Bootstrap Workspace is present
+      ansible.builtin.file:
+        path: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+        state: directory
+
+- name: Seed Bootstrap Environment with Git
+  tags: ['seed']
+  connection: local
+  hosts: localhost
+  tasks:
+    - name: Clone {{ trigger_bootstrap_context.version_to_bootstrap }}-seed into Bootstrap Environment
+      when:
+        - "trigger_bootstrap_context.seed_type == 'git'"
+      ansible.builtin.git:
+        repo: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'repo']) }}"
+        dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+        version: "{{ 'git_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'branch']) }}"
+        depth: 1
+
+    - name: Synchronize files from {{ trigger_bootstrap_context.fixtures_seed_source.configuration.path }} into Bootstrap Environment
+      when:
+        - "trigger_bootstrap_context.seed_type == 'fixtures'"
+      ansible.posix.synchronize:
+        src: "{{ 'fixtures_seed_source' | extract(trigger_bootstrap_context, morekeys=['configuration', 'path']) }}"
+        dest: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+        recursive: true
+
+- name: Trigger Bootstrap Execution Playbook
+  tags: ['execute']
+  hosts: localhost
+  tasks:
+    - name: Execute Playbook
+      ansible.builtin.command: "ansible-playbook {{ 'bootstrap_playbook_path' | extract(trigger_bootstrap_context) }}"
+      args:
+        chdir: "{{ 'bootstrap_workspace_path' | extract(trigger_bootstrap_context) }}"
+

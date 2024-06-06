@@ -79,29 +79,29 @@
   # Determines the version of the specifications to be used, especially handling the case where 'latest' is specified (will be implemented as a symlink if latest is specified).
   when: meta_orchestrator_params.specifications_version == 'latest'
   block:
-    - name: Check if 'latest' directory exists
-      ansible.builtin.stat:
-        path: "{{ meta_orchestrator_context.specifications_path }}/latest"
-      register: latest_dir
+    # - name: Check if 'latest' directory exists
+    #   ansible.builtin.stat:
+    #     path: "{{ meta_orchestrator_context.specifications_path }}/latest"
+    #   register: latest_dir
 
-    - name: Set 'latest' if the directory exists
-      ansible.builtin.set_fact:
-        meta_orchestrator_context: "{{ meta_orchestrator_context
-          | combine({'specifications_version': 'latest'}, recursive=True) }}"
-      when: latest_dir.stat.exists
+    # - name: Set 'latest' if the directory exists
+    #   ansible.builtin.set_fact:
+    #     meta_orchestrator_context: "{{ meta_orchestrator_context
+    #       | combine({'specifications_version': 'latest'}, recursive=True) }}"
+    #   when: latest_dir.stat.exists
     - name: Find highest version if 'latest' directory does not exist
       ansible.builtin.find:
         paths: "{{ meta_orchestrator_context.specifications_path }}"
         file_type: directory
       register: spec_dirs
-      when: not latest_dir.stat.exists
+      # when: not latest_dir.stat.exists
 
     - name: Extract versions and set the highest
       ansible.builtin.set_fact:
         meta_orchestrator_context: "{{ meta_orchestrator_context | combine({
           'specifications_version': spec_dirs.files | map(attribute='path') | map('regex_replace', '^.*\/([^\/]+)$', '\\1') | list | sort | last }, recursive=True) }}"
       when:
-        - not latest_dir.stat.exists
+        # - not latest_dir.stat.exists
         - spec_dirs.files | length > 0
 
 
@@ -110,7 +110,8 @@
 - name: Configure and Load Specifications
   vars:
     context: "{{ meta_orchestrator_context }}"
-    specifications_path: "{{ [context.specifications_path, context.specifications_version] | path_join }}"
+    specifications_path: "{{ 'specifications_path' | extract(meta_orchestrator_context) }}"
+    # specifications_path: "{{ [context.specifications_path, context.specifications_version] | path_join }}"
   block:
     - name: Show specification path (Debug)
       when: debug_mode
@@ -170,19 +171,19 @@
               # NOTE: This assumes lexical comparison is sufficient and may not work for all semantic versioning cases.
               failed_when: (last_item >= spec_version) and (item >= spec_version)
 
-        - name: Debug - Show version to clone
-          ansible.builtin.debug:
-            msg: "The target version before specified: {{ clone_version }}"
-          when: clone_version != '' and debug_mode
+        # - name: Debug - Show version to clone
+        #   ansible.builtin.debug:
+        #     msg: "The target version before specified: {{ clone_version }}"
+        #   when: clone_version is defined and clone_version != '' and debug_mode
 
-        - name: Copy configuration files from the target version if directory is empty and a target version is identified
-          ansible.builtin.copy:
-            src: "{{ meta_orchestrator_context.specifications_path }}/{{ clone_version }}/"
-            dest: "{{ specifications_path }}"
-            remote_src: true
-            mode: "0660"
-          when:
-            - clone_version is defined and clone_version != ''
+        # - name: Copy configuration files from the target version if directory is empty and a target version is identified
+        #   ansible.builtin.copy:
+        #     src: "{{ meta_orchestrator_context.specifications_path }}/{{ clone_version }}/"
+        #     dest: "{{ specifications_path }}"
+        #     remote_src: true
+        #     mode: "0660"
+        #   when:
+        #     - clone_version is defined and clone_version != ''
 
     - name: Imports the specifications YAML from the designated directory
       ansible.builtin.include_vars:
@@ -356,7 +357,11 @@
       ansible.builtin.command: "python {{ environment_base_path }}/plugins/scripts/format_yaml.py '{{ file_path }}' '{{ file_path }}'"
       loop: "{{ specifications | dict2items }}"
 
-
+# (@doc=roles.meta_orchestrator.scope) Usage of Scope for Configurable Operations
+# Notes: The scope is used to construct a lens into the specification, such that operations
+#        are applied to particular slices of the system.
+#        Changes to the parameter names are expected in the near future to better reflect this.
+#
 # SCOPE CUSTOMIZATION
 # all - will set schema to whatever is in specifications
 # params - will use params to use schema to determine what to generate in specifications
@@ -610,7 +615,7 @@
           ansible.builtin.set_fact:
             enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
 
-
+# (@doc=roles.meta_orchestrator.operations.process_templates) Enrichment of Template Specifications
 # The section on processing templates embodies the application of category theory to system configuration,
 # specifically focusing on the enrichment of template specifications. This step is crucial for ensuring that
 # template structures are dynamically adaptable to the current system's specifications, reflecting changes
@@ -625,7 +630,10 @@
   when:
     - "'process_templates' in meta_orchestrator_params.operations"
   block:
-    # Template Enrichment Context:
+    # (@doc=roles.meta_orchestrator.context.template_enrichment) Template Enrichment Context
+    #
+    # Template Enrichment Context
+    # ---------------------------
     #   This context holds all data necessary for enriching template specifications, structured as follows:
     #
     #   - template_enrichment_queue:
@@ -904,6 +912,7 @@
 #           - ansible.builtin.debug:
 #               var: template_enrichment_context
 
+# (@doc=roles.meta_orchestrator.operations.process_roles) Enrichment of Roles Specifications
 # Process Roles
 # This step involves enriching role specifications and preparing them for execution.
 # It demonstrates the system's adaptability and modularity by dynamically configuring roles based on the current specifications.

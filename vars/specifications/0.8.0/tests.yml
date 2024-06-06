@@ -1,11 +1,9 @@
-# vars/specifications/0.8.0/tests.yml
----
 tests_specifications:
   metadata:
-    roles_unit_tests_path: tests/unit/roles
-    playbooks_unit_test_path: tests/unit/playbooks
-    integration_tests_path: tests/integration
     fixture_path: tests/fixtures
+    integration_tests_path: tests/integration
+    playbooks_unit_test_path: tests/unit/playbooks
+    roles_unit_tests_path: tests/unit/roles
   test_suites:
     Meta:
       description: Tests focused on ensuring the functionality and integration of
@@ -14,25 +12,82 @@ tests_specifications:
       fixtures:
         sanity_template:
           description: Checks template rendering correctness.
-          src: tests/fixtures/meta_template/sanity_template.yml.j2
           expected_output: tests/fixtures/meta_template/expected_sanity_output.yml
+          src: tests/fixtures/meta_template/sanity_template.yml.j2
+      integration:
+        - description: Integration test sequence for bootstrapping the meta collection,
+            establishing the foundational setup and operational integrity
+          name: bootstrap_meta_collection
+          tasks:
+            - Generate Skeleton Templates Test:
+                description: Validates that skeleton templates are correctly generated
+                  from the specified specifications, including all defined regions
+                  and fragment blocks, without incorporating the actual fragment contents.
+                expected_output: tests/fixtures/meta_template/expected_skeleton_templates/
+                input: tests/fixtures/meta_template/default_skeleton_specification.yml
+                steps:
+                  - Use the default_skeleton_specification to generate skeleton templates.
+                  - Verify that the generated templates match expected skeletons defined
+                    in the fixtures.
+            - Generate Fragment Templates Test:
+                description: Tests the generation of all specified fragment templates,
+                  ensuring they are created with accurate file paths and adhere to
+                  their specified template structure.
+                expected_output: tests/fixtures/meta_template/expected_fragments/
+                input: tests/fixtures/meta_template/template_fragments_specification.yml
+                steps:
+                  - Generate fragment templates based on the template_fragments specification.
+                  - Ensure each fragment template is correctly created and matches
+                    its expected structure.
+            - Integrate Fragments into Skeleton Test:
+                description: Validates the integration process of fragment templates
+                  into the skeleton templates, producing ready-to-use templates that
+                  maintain the intended structure and content placeholders.
+                expected_output: tests/fixtures/meta_template/expected_final_templates/
+                input: tests/fixtures/meta_template/expected_skeleton_templates/,
+                  tests/fixtures/meta_template/expected_fragments/
+                steps:
+                  - Integrate generated fragment templates into the corresponding
+                    skeleton templates.
+                  - Verify the final templates maintain structure, with fragment placeholders
+                    correctly replaced.
+            - Comprehensive System Configuration Validation Test:
+                description: Ensures the entire meta collection is bootstrapped correctly,
+                  including the generation of roles, playbooks, and other configurations
+                  based on the newly integrated templates.
+                expected_output: tests/integration/expected_system_configuration/
+                input: tests/fixtures/meta_template/expected_final_templates/
+                steps:
+                  - Execute the meta collection bootstrap process, incorporating all
+                    generated templates.
+                  - Validate the resulting system configuration against expected outcomes,
+                    ensuring operational integrity and alignment with specifications.
+            - Generates meta_role templates from skeleton files using meta_template
+            - Creates the meta_orchestrator role using the newly generated meta_role
+            - Produces the meta_specifications file to outline system configurations
+            - Merges proposed meta_specifications with existing configurations
+            - Builds the meta_playbook role to manage playbook operations
+            - Develops a playbook that incorporates meta_test for comprehensive validation
       unit_tests:
         roles:
-          - role_name: meta_template
-            description: Verifies the functionality of the meta_template role for
+          - description: Verifies the functionality of the meta_template role for
               dynamic template creation and management.
+            role_name: meta_template
             tests:
               - Sanity Test:
-                  description: A file to add all my assumptions and edge cases, and ensure it generates
-                    what I expect.
+                  description: A file to add all my assumptions and edge cases, and
+                    ensure it generates what I expect.
               - Skeleton Template Generation Test:
-                  description: Validate the generation of a skeleton file that accurately holds all specified regions and fragment blocks without including the actual content of the fragments.
-                  input: tests/fixtures/meta_template/default_skeleton_specification.yml
+                  description: Validate the generation of a skeleton file that accurately
+                    holds all specified regions and fragment blocks without including
+                    the actual content of the fragments.
                   expected_output: tests/fixtures/meta_template/expected_skeleton_main.yml.j2
+                  input: tests/fixtures/meta_template/default_skeleton_specification.yml
               - Fragment Template Generation Test:
-                  description: Test the generation of fragment templates based on the template_fragments specification.
-                  input: tests/fixtures/meta_template/template_fragments_specification.yml
+                  description: Test the generation of fragment templates based on
+                    the template_fragments specification.
                   expected_output: tests/fixtures/meta_template/expected_fragments/
+                  input: tests/fixtures/meta_template/template_fragments_specification.yml
               - Check that the skeleton is read correctly
               - Check that specifications are read correctly
               - Creates fragments with accurate file paths
@@ -41,26 +96,26 @@ tests_specifications:
               - Compiles templates from skeleton files by embedding specified fragments
               - Integrates fragments into templates, maintaining template structure
                 and content
-          - role_name: meta_orchestrator
-            description: Ensures the meta_orchestrator role effectively manages configuration
+          - description: Ensures the meta_orchestrator role effectively manages configuration
               and operational workflows
+            role_name: meta_orchestrator
             tests:
               - Generates configuration
-              - Appends to existing configuration for playbook, roles, meta_roles, and
-                meta_playbooks as needed
+              - Appends to existing configuration for playbook, roles, meta_roles,
+                and meta_playbooks as needed
               - Removes configurations from playbook, roles, meta_roles, meta_playbooks
                 upon specification
               - Processes only the provided configuration when specified
-              - Invokes meta_template for role and playbook template specification before
-                executing respective meta roles
+              - Invokes meta_template for role and playbook template specification
+                before executing respective meta roles
               - Executes specified operations only, ensuring targeted action
               - Merges base specifications for playbooks and roles to ensure foundational
                 integrity
               - Processes all roles upon modification of meta_roles or base_role
               - Processes all playbooks upon modification of meta_playbook or base_playbook
-          - role_name: meta_role
-            description: Tests the meta_role's capability to generate and manage
-              executable roles
+          - description: Tests the meta_role's capability to generate and manage executable
+              roles
+            role_name: meta_role
             tests:
               - Generates an executable role according to specification
               - Regenerates files marked as pristine
@@ -70,59 +125,10 @@ tests_specifications:
               - Creates files marked as present without modification to existing files
               - Generates info tasks that process input variables accurately
               - Ensures main task routes to the task file named after the state
-          - role_name: meta_playbook
-            description: Validates the generation and update capabilities of the
-              meta_playbook role
+          - description: Validates the generation and update capabilities of the meta_playbook
+              role
+            role_name: meta_playbook
             tests:
               - Generates playbooks according to provided specifications
               - Updates pre_run_playbooks and other specified sections efficiently
               - Integrates new sections into playbooks as needed
-      integration:
-        - name: bootstrap_meta_collection
-          description: Integration test sequence for bootstrapping the meta collection,
-            establishing the foundational setup and operational integrity
-          tasks:
-            - Generate Skeleton Templates Test:
-                description: Validates that skeleton templates are correctly generated from the
-                  specified specifications, including all defined regions and fragment blocks,
-                  without incorporating the actual fragment contents.
-                steps:
-                  - Use the default_skeleton_specification to generate skeleton templates.
-                  - Verify that the generated templates match expected skeletons defined in the fixtures.
-                input: tests/fixtures/meta_template/default_skeleton_specification.yml
-                expected_output: tests/fixtures/meta_template/expected_skeleton_templates/
-            - Generate Fragment Templates Test:
-                description: Tests the generation of all specified fragment templates, ensuring
-                  they are created with accurate file paths and adhere to their specified template
-                  structure.
-                steps:
-                  - Generate fragment templates based on the template_fragments specification.
-                  - Ensure each fragment template is correctly created and matches its expected structure.
-                input: tests/fixtures/meta_template/template_fragments_specification.yml
-                expected_output: tests/fixtures/meta_template/expected_fragments/
-            - Integrate Fragments into Skeleton Test:
-                description: Validates the integration process of fragment templates into the
-                  skeleton templates, producing ready-to-use templates that maintain the intended
-                  structure and content placeholders.
-                steps:
-                  - Integrate generated fragment templates into the corresponding skeleton templates.
-                  - Verify the final templates maintain structure, with fragment placeholders correctly replaced.
-                input: tests/fixtures/meta_template/expected_skeleton_templates/,
-                       tests/fixtures/meta_template/expected_fragments/
-                expected_output: tests/fixtures/meta_template/expected_final_templates/
-            - Comprehensive System Configuration Validation Test:
-                description: Ensures the entire meta collection is bootstrapped correctly, including
-                  the generation of roles, playbooks, and other configurations based on the newly
-                  integrated templates.
-                steps:
-                  - Execute the meta collection bootstrap process, incorporating all generated templates.
-                  - Validate the resulting system configuration against expected outcomes, ensuring
-                    operational integrity and alignment with specifications.
-                input: tests/fixtures/meta_template/expected_final_templates/
-                expected_output: tests/integration/expected_system_configuration/
-            - Generates meta_role templates from skeleton files using meta_template
-            - Creates the meta_orchestrator role using the newly generated meta_role
-            - Produces the meta_specifications file to outline system configurations
-            - Merges proposed meta_specifications with existing configurations
-            - Builds the meta_playbook role to manage playbook operations
-            - Develops a playbook that incorporates meta_test for comprehensive validation

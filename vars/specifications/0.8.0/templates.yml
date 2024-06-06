@@ -1,15 +1,24 @@
-# vars/specification/0.8.0/templates.yml
----
 templates_specifications:
-  metadata:
-    version: '0.8.0'
   Base:
     fields:
       customization_message:
-        state: present
-        label: 'customization_msg'
-        content: 'Customize Skeleton Here'
         after_fragment: 50_content_region_message
+        content: Customize Skeleton Here
+        label: customization_msg
+        state: present
+    skeleton_specification:
+      00_Template_Header:
+        - 00_template_file_header
+        - 10_template_vars
+        - 11_common_template_macros
+      01_Header:
+        - 20_file_header
+      02_Managed_Region_Before_Content:
+        - 30_managed_block_before_content
+      03_Content_Region:
+        - 50_content_region_message
+      04_Managed_Region_After_Content:
+        - 90_managed_block_after_content
     template_fragments:
       00_template_file_header:
         path: 00_template_file_header.j2
@@ -25,31 +34,34 @@ templates_specifications:
         path: 50_content_region_message.j2
       90_managed_block_after_content:
         path: 90_managed_block_after_content.j2
-    skeleton_specification:
-      00_Template_Header:
-        - 00_template_file_header
-        - 10_template_vars
-        - 11_common_template_macros
-      01_Header:
-        - 20_file_header
-      02_Managed_Region_Before_Content:
-        - 30_managed_block_before_content
-      03_Content_Region:
-        - 50_content_region_message
-      04_Managed_Region_After_Content:
-        - 90_managed_block_after_content
+  Playbooks:
+    base_playbook: {}
+    fragments_path: roles/meta_playbook/templates/fragments
+    meta_playbook: {}
+    templates:
+      base_playbook:
+        fields:
+          - customization_message
+        path: playbooks/base.yml.j2
+        skeleton_path: playbooks/base.yml.j2.skel
+      meta_playbook:
+        fields:
+          - customization_message
+        path: playbooks/meta.yml.j2
+        skeleton_path: playbooks/meta.yml.j2.skel
+    templates_path: roles/meta_playbook/templates
   Roles:
-    templates_path: roles/meta_role/templates
     fragments_path: roles/meta_role/templates/fragments
+    meta_playbook: {}
+    template_fragments:
+      31_managed_defaults:
+        path: 31_managed_defaults.j2
     templates:
       base_task:
-        fields: ['customization_message']
+        fields:
+          - customization_message
         path: tasks/base.yml.j2
         skeleton_path: tasks/base.yml.j2.skel
-      main_task:
-        fields: ['customization_message']
-        path: tasks/main.yml.j2
-        skeleton_path: tasks/main.yml.j2.skel
       info_task_managed_include:
         path: tasks/info.pre.yml.j2
         skeleton_path: tasks/info.pre.yml.j2.skel
@@ -66,18 +78,11 @@ templates_specifications:
             - 31_managed_defaults
           03_Content: []
           04_Managed_Region_Before_Content: []
-    template_fragments:
-      31_managed_defaults:
-        path: 31_managed_defaults.j2
-  Playbooks:
-    templates_path: roles/meta_playbook/templates
-    fragments_path: roles/meta_playbook/templates/fragments
-    templates:
-      base_playbook:
-        fields: ['customization_message']
-        path: playbooks/base.yml.j2
-        skeleton_path: playbooks/base.yml.j2.skel
-      meta_playbook:
-        fields: ['customization_message']
-        path: playbooks/meta.yml.j2
-        skeleton_path: playbooks/meta.yml.j2.skel
+      main_task:
+        fields:
+          - customization_message
+        path: tasks/main.yml.j2
+        skeleton_path: tasks/main.yml.j2.skel
+    templates_path: roles/meta_role/templates
+  metadata:
+    version: 0.8.0
