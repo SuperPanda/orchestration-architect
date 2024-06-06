@@ -115,6 +115,7 @@ UserSpeak() {
   echo "$user_speech"
 }
 
+
 GPTSpeak() {
   local prompt=$1
   local gpt_speech
@@ -141,6 +142,8 @@ GPTSpeak() {
     if [ "$VERBOSE" -eq 1 ]; then
       gpt_speech="$response"
     else
+      metadata=$(ExtractMetadata "$response")     
+      echo "$metadata"
       gpt_speech=$(echo "$response" | jq -r '.choices[0].message.content')
     fi
   fi
@@ -148,6 +151,26 @@ GPTSpeak() {
 }
 
 
+ExtractMetadata() {
+  local response="$1"
+  
+  # Using jq to extract the required fields from the JSON response
+  local total_tokens
+  local prompt_tokens
+  local completion_tokens
+  local conversation_id
+  
+  total_tokens=$(echo "$response" | jq -r '.usage.total_tokens')
+  prompt_tokens=$(echo "$response" | jq -r '.usage.prompt_tokens')
+  completion_tokens=$(echo "$response" | jq -r '.usage.completion_tokens')
+  conversation_id=$(echo "$response" | jq -r '.id')
+
+  # Outputting the extracted metadata
+  echo "\`\`\`"
+  echo "# (@usage=${total_tokens}) prompt_tokens=${prompt_tokens} completion_tokens=${completion_tokens}"
+  echo "# (@conversation_id=${conversation_id})"
+  echo "\`\`\`"
+}
 
 Main() {
   if [ "$DRY_RUN" -eq 0 ]; then

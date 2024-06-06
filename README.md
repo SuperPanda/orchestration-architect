@@ -1,5 +1,22 @@
 
 # Tools and Utilities
+## VimScripts
+```
+# (@TODO) Document VimScripts
+```
+### Fold By Name (Ansible YAML)
+Folds based on identation.
+
+```
+# (@theory=OA.Theory.ACT
+```
+## Information Management
+### Tags
+### Outlines
+### Operations
+### Explore
+### Composition
+
 ## Terminal AI Usage
 ### Step 1. Load Terminal AI Shell Environment
 Load a shell to configure the environment variables used by Terminal AI:
@@ -21,9 +38,7 @@ Used to run a loop to send low-cost messages to GPT 4-omni.
 ####  Contextual Conversation (WIP)
 The goal is to manage conversations in an efficient manner. Experiments ongoing.
 #### Copy User or GPT Response to Clipboard
-```
-
-```
+Use **```terminal-ai-extract```**. See ```--help``` for additional arguments, other it provides the last demarcated section.
 #### Monitor Conversations
 Run (replace path if using custom --output-dir or --outpute-path):
 ```
