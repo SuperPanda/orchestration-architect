@@ -498,7 +498,7 @@
         loop_var: directory
       vars:
         role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
-        directory_path: "{{ directory.path }}"
+        directory_path: "{{ 'path' | extract(directory) }}"
       ansible.builtin.file:
         state: directory
         path: "{{ [base_path, role_path, directory_path] | path_join }}"
@@ -512,6 +512,7 @@
           specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
           metadata: "{{ roles_metadata }}"
           file: "{{ file }}"
+        specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
         role_path: "{{ 'role_path' | extract(specification) }}"
         template_path: "templates/{{ 'template' | extract(file) }}"
         file_path: "{{ 'path' | extract(file) }}"
