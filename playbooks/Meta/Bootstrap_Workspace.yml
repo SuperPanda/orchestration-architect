@@ -508,7 +508,7 @@
       loop_control:
         loop_var: file
       vars:
-        template_vars:
+        template_variables:
           specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
           metadata: "{{ roles_metadata }}"
           file: "{{ file }}"
