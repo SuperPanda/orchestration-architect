@@ -35,8 +35,11 @@
       name: "{{ 'specification' | extract(meta_role_context, morekeys=['role_name']) }}"
       path: "{{ 'specification' | extract(meta_role_context, morekeys=['role_path']) }}"
       template_path: "{{ 'metadata' | extract(meta_role_context, morekeys=['role_template_path']) }}"
-      default_sections: "{{ 'metadata_context' | extract(meta_role_context, morekeys=['defaults_sections']) }}"
+      default_sections: "{{ 'metadata' | extract(meta_role_context, morekeys=['defaults_sections']) }}"
   block:
+    - name: Display Role Info
+      ansible.builtin.debug:
+        var: role_info
     - name: Create Directories Listed in the Role Specification
       loop: "{{ 'directories_list' | extract(meta_role_context) }}"
       loop_control:
