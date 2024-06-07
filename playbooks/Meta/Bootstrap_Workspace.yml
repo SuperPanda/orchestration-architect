@@ -518,7 +518,7 @@
       ansible.builtin.template:
         src: "{{ [base_path, role_path, template_path] | path_join }}"
         dest: "{{ [base_path, role_path, file_path] | path_join }}"
-        mode: "{{ file.mode | default(file_mode) }}"
+        mode: "{{ 'mode' | extract(file) | default(file_mode) }}"
         force: '{{ file.state is defined and file.state == "pristine" }}'
       when: file.template is defined
     - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
