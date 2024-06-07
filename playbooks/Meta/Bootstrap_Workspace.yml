@@ -508,8 +508,10 @@
       loop_control:
         loop_var: file
       vars:
-        specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
-        metadata: "{{ roles_metadata }}"
+        template_vars:
+          specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
+          metadata: "{{ roles_metadata }}"
+          file: "{{ file }}"
         role_path: "{{ 'role_path' | extract(specification) }}"
         template_path: "templates/{{ 'template' | extract(file) }}"
         file_path: "{{ 'path' | extract(file) }}"
