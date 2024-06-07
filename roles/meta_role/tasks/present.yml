@@ -137,6 +137,8 @@
       block:
         - name: Create Build Directories to Render Pristine Reference Files
           loop: "{{ work_directory_paths }}"
+          loop_control:
+            loop_var: reference_build_path
           ansible.builtin.file:
             state: directory
             mode: "{{ directory_mode }}"
