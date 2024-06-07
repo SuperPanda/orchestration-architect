@@ -145,7 +145,7 @@
             path: "{{ reference_build_path }}"
         - name: Display Update Target
           ansible.builtin.debug:
-            msg: "Processing section updates for {{ role_info.name }} in {{ work_directory }}"
+            msg: "Processing section updates for {{ role_info.name }} in {{ work_directory.path }}"
         - name: Render Reference Files
           loop: "{{ 'section_update_queue' | extract(meta_role_context) | map(attribute='file_item') | unique }}"
           loop_control:
@@ -157,7 +157,7 @@
               file: "{{ file_item }}"
           ansible.builtin.template:
             src: "{{ [base_path, role_info.template_path, file_item.template] | path_join }}"
-            dest: "{{ [work_directory, role_info.path, file_item.path] | path_join }}"
+            dest: "{{ [work_directory.path, role_info.path, file_item.path] | path_join }}"
             mode: "{{ file_item.mode | default(file_mode) }}"
         - name: Process Section Update Queue
           loop: "{{ 'section_update_queue' | extract(meta_role_context) }}"
@@ -166,7 +166,7 @@
           vars:
             file_item: "{{ 'file_item' | extract(section_update_item) }}"
             section_name: "{{ 'section' | extract(section_update_item) }}"
-            reference_file: "{{ [work_directory, role_info.path, file_item.path] | path_join }}"
+            reference_file: "{{ [work_directory.path, role_info.path, file_item.path] | path_join }}"
             file_to_update: "{{ [base_path, role_info.path, file_item.path] | path_join }}"
           ansible.builtin.command: "{{ 'update_rendered_section' | plugins_context }} {{ file_to_update }} {{ reference_file }} {{ section_name }}"
           register: update_section_result
