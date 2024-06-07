@@ -7,7 +7,7 @@
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 - name: Initialize meta_role_context
-  ansible.builtin.set_facts:
+  ansible.builtin.set_fact:
     meta_role_context:
       specification: "{{ 'specification' | extract(meta_role_params) }}"
       metadata: "{{ 'metadata' | extract(meta_role_params) }}"
