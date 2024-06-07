@@ -168,7 +168,7 @@
             section_name: "{{ 'section' | extract(section_update_item) }}"
             reference_file: "{{ [work_directory.path, role_info.path, file_item.path] | path_join }}"
             file_to_update: "{{ [base_path, role_info.path, file_item.path] | path_join }}"
-          ansible.builtin.command: "{{ 'update_rendered_section' | plugins_context }} {{ file_to_update }} {{ reference_file }} {{ section_name }}"
+          ansible.builtin.command: "{{ 'update_rendered_section' | extract(plugins_context) }} {{ file_to_update }} {{ reference_file }} {{ section_name }}"
           register: update_section_result
           changed_when: "'Section updated successfully' in update_section_result.stdout"
           failed_when: "'Error:' in update_section_result.stderr or update_section_result.rc != 0"
