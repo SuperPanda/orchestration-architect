@@ -28,7 +28,9 @@
       "Meta expects the following arguments: metadata, role_name, role_path and specification"
     success_msg: |
       Role Information Found for: '{{ meta_role_context.specification.role_name }}'
-
+- name: Debug Meta Role Context
+  ansible.builtin.debug:
+    var: meta_role_context
 - name: Ensure Role Provided In Specification Exists
   vars:
     role_info:
