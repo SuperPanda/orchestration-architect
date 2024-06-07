@@ -98,7 +98,7 @@
         - file_item.state == 'updated'
       vars:
         file_metadata: "{{ 'metadata' | extract(file_item) | default({}) }}"
-        sections: "{{ 'section' | extract(file_metadata) | default(role_info.defaults_sections) }}"
+        sections: "{{ 'section' | extract(file_metadata) | default(role_info.default_sections) }}"
         meta_role_context_delta:
           section_update_queue: >-
             {{
