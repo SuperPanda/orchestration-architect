@@ -14,3 +14,15 @@
       ansible.builtin.debug:
         var: output
 
+
+    - name: Try this
+      vars:
+        file:
+          a: 1
+          b: 2
+        sections: ['a','b','c']
+        section_update_queue: "{{ sections | product([file]) | map('zip',['section', 'file']) | map('map','reverse') | map('community.general.dict') }}"
+      ansible.builtin.debug:
+        var: section_update_queue
+
+#### 
