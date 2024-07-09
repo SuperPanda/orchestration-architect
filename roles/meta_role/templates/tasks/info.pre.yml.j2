@@ -5,7 +5,7 @@
  # file: roles/meta_role/templates/tasks/info.pre.yml.j2
  # skeleton file: roles/meta_role/templates/tasks/info.pre.yml.j2.skel
  # version: 0.8.0
- # generatation timestamp (UTC): 20240606T104625Z
+ # generatation timestamp (UTC): 20240709T190826Z
  #
  # WARNING: Auto-Generated From Skeleton File
  #          ALL CHANGES WILL BE LOST!
@@ -17,8 +17,10 @@
  #}
 {# END ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 10_template_vars #}
-{# fragment: roles/meta_role/templates/fragments/10_template_vars.j2 #}
-{% set metadata = metadata %}
+{# fragment: roles/meta_role/templates/fragments/10_template_variables.j2 #}
+{% set metadata = template_variables.metadata %}
+{% set specification = template_variables.specification %}
+{% set file = template_variables.file %}
 {% set role_specification = specification %}
 {% set role_name = specification.role_name %}
 {% set role_path = specification.role_path  %}

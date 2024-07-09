@@ -1,0 +1,3 @@
+repositories:
+  orchestration_architect:
+    bare_repo_path: /srv/git/orchestration_architect.git

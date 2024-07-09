@@ -498,7 +498,7 @@
         loop_var: directory
       vars:
         role_path: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role', 'role_path']) }}"
-        directory_path: "{{ directory.path }}"
+        directory_path: "{{ 'path' | extract(directory) }}"
       ansible.builtin.file:
         state: directory
         path: "{{ [base_path, role_path, directory_path] | path_join }}"
@@ -508,15 +508,18 @@
       loop_control:
         loop_var: file
       vars:
+        template_variables:
+          specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
+          metadata: "{{ roles_metadata }}"
+          file: "{{ file }}"
         specification: "{{ 'enriched_specifications' | extract(bootstrap_workspace_context, morekeys=['roles', 'Meta', 'meta_role']) }}"
-        metadata: "{{ roles_metadata }}"
         role_path: "{{ 'role_path' | extract(specification) }}"
         template_path: "templates/{{ 'template' | extract(file) }}"
         file_path: "{{ 'path' | extract(file) }}"
       ansible.builtin.template:
         src: "{{ [base_path, role_path, template_path] | path_join }}"
         dest: "{{ [base_path, role_path, file_path] | path_join }}"
-        mode: "{{ file.mode | default(file_mode) }}"
+        mode: "{{ 'mode' | extract(file) | default(file_mode) }}"
         force: '{{ file.state is defined and file.state == "pristine" }}'
       when: file.template is defined
     - name: Trigger 'meta_role' to process the 'meta_role' specification (Initiate Self-Bootstrap)
