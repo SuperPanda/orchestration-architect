@@ -47,7 +47,7 @@
         directory_path: "{{ 'path' | extract(directory_item) }}"
       ansible.builtin.file:
         state: directory
-        path: "{{ [base_path, role_info.template_path, directory_path] | path_join }}"
+        path: "{{ [base_path, role_info.path, directory_path] | path_join }}"
         mode: "{{ directory_mode }}"
 
     - name: Render files from templates specified or missing
@@ -76,6 +76,7 @@
         mode: "{{ file_item.mode | default(file_mode) }}"
       when:
         - file_item is defined
+        - file_item.state is defined
         - file_item.state == 'touch'
 
     - name: Apply remove operation on files with state absent
@@ -118,12 +119,12 @@
         prefix: orchestration_architect_workdir_
         suffix: _role_update
       register: work_directory
-    - name: Ensure Directories Exist for Temporary Build Directory
+    - name: Ensure Directories Exist for Temporary Build and Destination Directory
       when: "'section_update_queue' in meta_role_context"
       vars:
-        work_directory_paths: >-
+        directory_paths: >-
           {{
-            [[ work_directory.path, role_info.path ]]
+            [[base_path, role_info.path], [ work_directory.path, role_info.path ]]
             | product(
                 'section_update_queue'
                 | extract(meta_role_context)
@@ -135,14 +136,14 @@
             | unique
           }}
       block:
-        - name: Create Build Directories to Render Pristine Reference Files
-          loop: "{{ work_directory_paths }}"
+        - name: Create Build Directories to Render Pristine Reference Files and Destination Directories
+          loop: "{{ directory_paths }}"
           loop_control:
-            loop_var: reference_build_path
+            loop_var: directory_path
           ansible.builtin.file:
             state: directory
             mode: "{{ directory_mode }}"
-            path: "{{ reference_build_path }}"
+            path: "{{ directory_path }}"
         - name: Display Update Target
           ansible.builtin.debug:
             msg: "Processing section updates for {{ role_info.name }} in {{ work_directory.path }}"
