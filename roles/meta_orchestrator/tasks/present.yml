@@ -1,6 +1,6 @@
 # role: meta_orchestrator
 # file: roles/meta_orchestrator/tasks/present.yml
-# version: 0.8.0
+# version: 0.8.1
 ---
 
 ### 02_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
@@ -1054,42 +1054,6 @@
       ansible.builtin.set_fact:
         meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta, recursive=True) }}"
 
-     # Enrich Playbooks Specifications
-     # Combines base playbook specifications with specific modifications,
-     # aligning playbooks with current system requirements.
- ##     - name: Enrich playbooks specifications
- ##       block:
- ##         # Handle Non-Collection Playbook Specifications
- ##         # Ensures playbooks not part of any collection are processed individually.
- ##         - name: Copy non-collection playbook specifications
- ##           when: item.playbook_name not in collections
- ##           ansible.builtin.set_fact:
- ##             meta_orchestrator_context:
- ##               enriched_specifications:
- ##                 playbooks: "{{
- ##                   meta_orchestrator_context.enriched_specifications.playbooks | combine({
- ##                     item.playbook_name: item.specification
- ##                   }, recursive=True)
- ##                 }}"
- ##           loop: "{{ playbooks_specifications | dict2items(key_name='playbook_name', value_name='specification') }}"
-
- ##         # Process Collection Playbooks
- ##         # Ensures playbooks within collections are processed with their collection context,
- ##         # maintaining the integrity and logical grouping.
- ##         - name: Copy playbook collections
- ##           ansible.builtin.set_fact:
- ##             meta_orchestrator_context:
- ##               enriched_specifications:
- ##                 playbooks: "{{
- ##                   meta_orchestrator_context.enriched_specifications.playbooks | combine({
- ##                     item.collection_id: {
- ##                       item.playbook_name: (base_spec | combine(item.playbook_spec, recursive=True))
- ##                     }
- ##                   }, recursive=True, list_merge='append_rp')
- ##                 }}"
- ##           loop: "{{ playbooks_with_collection }}"
-
-
 # # 3. Execute templates, roles, playbooks, tests, documentation based on the updated configuration
 # (@tags=execution_update)
 - name: Dispatch Template Processing to meta_template
@@ -1141,7 +1105,6 @@
 
 # (@tags=meta_playbook)
 - name: Dispatch Playbook Processing to meta_playbook
-
   when:
     - "'process_playbooks' in meta_orchestrator_params.operations"
     - not meta_orchestrator_skip_create
@@ -1150,9 +1113,9 @@
     metadata_base:
       version: "{{ meta_orchestrator_context.specifications_version }}"
   block:
-#       - name: Debug Playbook Context
-#         ansible.builtin.debug:
-#           var: meta_orchestrator_context
+    #       - name: Debug Playbook Context
+    #         ansible.builtin.debug:
+    #           var: meta_orchestrator_context
     - name: Debug Playbook Input
       ansible.builtin.debug:
         var: meta_orchestrator_process_queues
@@ -1203,71 +1166,5 @@
           }}
         meta_playbook_state: present
         role_path_meta_playbook: "{{ [environment_base_path, 'roles/meta_playbook'] | path_join }}"
-#   process_configuration - process all items
-#   process_configuration wasn't provided and params specifications was provided:
-#   # NEED TO COMPARE meta_orchestrator_params.specifications and only select those from meta_orchestrator_context.enriched_specifications
-#     execute only items that match the parameter
-#   (which actual configurations that will run depend on whether (process_{specifications,roles,templates,tests})
-  # Dynamically Execute Configurations Based on Enriched Specifications
-#   - name: Dynamically execute configurations based on enriched specifications
-#     vars:
-#       context: "{{ meta_orchestrator_context }}"
-#       operations: "{{ meta_orchestrator_params.operations }}"
-#     block:
-#       # Execute Meta Roles
-#       - name: Execute meta roles based on enriched specifications
-#         when: "'process_roles' in operations"
-#         block:
-#           - name: Determine roles to be processed
-#             vars:
-#               update_all: "{{ 'process_specifications' in operations or ('process_specifications' not in operations and meta_orchestrator_params.specifications==omit }}"
-#                 #  'process_specifications' not in operations and )
-#             set_fact:
-#               roles_to_process: "{{ context.enriched_specifications.roles | dict2items | selectattr('key', 'in', operations) | list }}"
-#           - name: Execute each role
-#             include_role:
-#               name: "{{ role_spec.value.path }}" # Assuming path to role is specified
-#             loop: "{{ roles_to_process }}"
-#             loop_control:
-#               loop_var: role_spec
-
-#       # Execute Playbooks
-#       - name: Execute playbooks based on enriched specifications
-#         when: "'process_playbooks' in operations"
-#         block:
-#           - name: Determine playbooks to be processed
-#             set_fact:
-#               playbooks_to_process: "{{ context.enriched_specifications.playbooks | dict2items | selectattr('key', 'in', operations) | list }}"
-#           - name: Execute each playbook
-#             include_tasks: "{{ playbook_spec.value.path }}" # Assuming path to playbook tasks is specified
-#             loop: "{{ playbooks_to_process }}"
-#             loop_control:
-#               loop_var: playbook_spec
-
-    # Extend this block to include additional processes such as tests, documentation, etc.,
-    # following a similar pattern of dynamic selection and execution.
-
-
-# HERE WHAT IT USED TO DO
-# - name: Process Meta Roles based on enriched specifications
-#   loop: "{{ meta_orchestrator_context.enriched_specifications.roles | dict2items(value_name='specification') | select('spec') }}"
-#   loop_control:
-#     loop_var: meta_role_specificaton
-#   ansible.builtin.include_role:
-#     name: "meta_role"
-#   vars:
-#     meta_role_state: present
-#     meta_role_metadata: "{{ meta_orchestrator_context.specifications.<'roles' from the specifications map>.metadata }}"
-
-# - name: Process Playbooks based on enriched specifications
-#   loop: "{{ [meta_playbooks, playbooks] | flatten }}"
-#   loop_control:
-#     loop_var: playbook_spec
-#   ansible.builtin.include_role:
-#     name: "meta_playbook"
-#   vars:
-#     meta_playbook_spec: "{{ playbook_spec }}"
-#     meta_playbook_metadata: "{{ meta_specifications[active_meta_specifications_version]['metadata'] }}"
-#     meta_playbook_state: present
 
 # ### 04_Region_After_Content ORCHESTRATION ARCHITECT REGION ###

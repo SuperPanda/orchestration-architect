@@ -1,14 +1,16 @@
-# role: meta_role
-# file: roles/meta_role/tasks/absent.yml
-# version: 0.8.1
+
+# playbook: Generate Playbooks From Specifications
+# file: playbooks/Meta/Generate_Playbooks_From_Specs.yml
+# version: 0.8.0
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
-
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # NOTE: Manual changes should occur in this region, below the managed block

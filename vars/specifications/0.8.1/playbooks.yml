@@ -1,0 +1,127 @@
+# vars/specifications/0.8.0/playbooks.yml
+---
+
+orchestration_role: &orchestration_role
+  name: "meta_orchestrator"
+  state: present
+  specifications_version: "0.8.1"
+  specifications_path: "vars/specifications"
+  scope: schema
+
+play_params: &default_params
+  hosts: localhost
+  connection: local
+
+playbooks_specifications:
+  # Start Metadata
+  metadata:
+    non_collection_keys: ['Base', 'metadata']
+    collections:
+      Meta:
+        collection_name: Meta
+        path: playbooks/Meta
+        template_path: playbooks/meta.yml.j2
+        description: |
+          A collection of playbooks build, modify and extend Orchestration
+          Architect, ensuring that the design of the system is consistent, managable,
+          adheres to the underlying design principles and ensures compatability with
+          different components and dynamically updating the interactions between components
+          when designs change. Manages specifications, migrations, playbooks and roles.
+      OA001_LiveUSB:
+        collection_name: OA001_LiveUSB
+        path: playbooks/OA001_LiveUSB
+        template_path: playbooks/base.yml
+        description: |
+          Contains playbooks to configure startup operations, customize
+          the system, create snapshots and remote backups. Update subvolume or bind
+          mounts, add/remove service accounts. It also includes the generation of the
+          image fora live operating system of OA002_Hypervisor and deployment over PXE,
+          which has a default auto login guest account, desktop environment, with baked
+          SSH access for the OA001 root user and OA001_service worker, to allow instant
+          access to deployed system.
+      OA002_Hypervisor:
+        collection_name: OA002_Hypervisor
+        path: playbooks/OA002_Hypervisor
+        template_path: playbooks/base.yml
+        description: |
+          Playbooks to remotely manage a bare metal nested hypervisor. Allows
+          for instant reconfiguration from fresh boot of the live environment booted
+          from the PXE service, and configuration of a running system that is persisted
+          due to configuration running from playbook. Connects via SSH using credentials
+          baked in.
+      Default:
+        collection_name: Default
+        path: playbooks/Default
+        template_path: playbooks/base.yml
+        description: Playbooks not in a collection.
+  Base:
+    playbook_vars_files:
+      - ../../vars/environment.yml
+    sections:
+      - 20_file_header
+      - 30_managed_block_before_content
+      - 50_content_region_message
+      - 90_managed_block_after_content
+  Meta:
+    Generate_Playbooks:
+      playbook_name: Generate Playbooks From Specifications
+      playbook_path: Generate_Playbooks.yml
+      playbook_description: |
+        Reads the playbook specification and runs the orchestration process to
+        generate, update or remove playbooks.
+      state: pristine
+      playbook_content:
+        - play_id: Generate Playbooks
+          <<: *default_params
+          tasks:                
+            - trigger_role:
+              <<: *orchestration_role
+              state: present
+              operations: ['process_templates', 'process_playbooks']
+              schema:
+                templates:
+                  Playbooks: {}
+                playbooks: {}
+
+    Generate_Roles:
+      playbook_name: Generate Roles From Specifications
+      playbook_path: Generate_Roles.yml
+      state: pristine
+      playbook_content:
+        - play_id: Generate Roles        
+          <<: *default_params
+          tasks:
+            - trigger_role:
+                <<: *orchestration_role
+                state: present
+                operations: ['process_templates', 'process_roles']
+                schema:
+                  templates:
+                    Roles: {}
+                  roles: {}
+
+    Setup_Environment:
+      playbook_name: Setup Environment
+      playbook_path: Setup_Environment.yml
+      playbook_description: Ensures environment variables file exists and populated correctly
+      state: updated
+
+    Execute_Orchestrator:
+      state: pristine
+      playbook_name: Execute Orchestrator
+      playbook_description: |
+        Triggers the Meta Orchestrator system to apply configurations
+        defined in the specification files. The other versions can be 
+        referenced by adding
+        '-e meta_orchestrator_specifications_version=<version>'.
+      playbook_path: Execute_Orchestrator.yml
+      metadata:
+        pre_run_playbooks:
+          - Setup_Environment.yml
+      playbook_content:
+        - play_id: Execute Orchestrator
+          <<: *default_params
+          tasks:
+            - trigger_role:
+                <<: *orchestration_role
+                scope: all

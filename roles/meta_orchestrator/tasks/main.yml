@@ -5,7 +5,7 @@
 # ========================================================
 # role: meta_orchestrator
 # file: roles/meta_orchestrator/tasks/main.yml
-# version: 0.8.0
+# version: 0.8.1
 ---
 
 

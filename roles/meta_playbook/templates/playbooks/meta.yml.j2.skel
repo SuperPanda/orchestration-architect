@@ -23,6 +23,10 @@
 {# END ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
 {# (@customization_msg) Customize Skeleton Here #}
 
+
+{# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}
+{# END ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}
+
 {# 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION #}
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

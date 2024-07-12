@@ -1,20 +1,20 @@
 {# fragment: roles/meta_playbook/templates/fragments/10_template_vars.j2 #}
-{% set collection_metadata = collection_metadata %}
-{% set playbook_spec = specification %}
-{% set playbook_name = playbook_name %}
-{% set playbook_path = playbook_path %}
-{% set playbook_description = specification.description %}
-{% set metadata = metadata %}
-{% set playbook_metadata = specification.metadata %}
-{% if specification.playbook_tasks is not defined %}
-  {%- set playbook_tasks = [{ 'name': "Placeholder Task Name"}] %}
-{% else %}
-  {%- set playbook_tasks = specification.playbook_tasks %}
+{% set metadata = template_variables.metadata %}
+{% set current_build_version = metadata.version %}
+
+{% set playbook_collection_name = template_variables.collection_name %}
+{% set playbook_spec = template_variables.specification %}
+{% set playbook_name = template_variables.playbook_name %}
+{% set playbook_path = template_variables.playbook_path %}
+{% set playbook_metadata = template_variables.playbook_metadata %}
+
+{% set playbook_description = playbook_spec.get('playbook_description', None) %}
+{% set playbook_content = playbook_spec.get('playbook_content', None) %}
+
+{% if playbook_content is defined and not playbook_content %}
+  {%- set playbook_content = [] %}
 {% endif %}
-{% if specification.metadata is not defined %}
-  {%- set playbook_metadata = {} %}
-{% else %}
-  {%- set playbook_metadata = specification.metadata %}
-{% endif %}
+
+{% set auto_generated = playbook_metadata.get('auto_generated', false) %}
 {% set pre_run_playbooks = playbook_metadata.get('pre_run_playbooks', []) %}
 {% set post_run_playbooks = playbook_metadata.get('post_run_playbooks', []) %}

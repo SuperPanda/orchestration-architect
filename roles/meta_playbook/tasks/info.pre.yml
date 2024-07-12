@@ -5,7 +5,7 @@
 # ========================================================
 # role: meta_playbook
 # file: roles/meta_playbook/tasks/info.pre.yml
-# version: 0.8.0
+# version: 0.8.1
 ---
 
 

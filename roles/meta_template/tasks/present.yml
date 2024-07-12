@@ -1,6 +1,6 @@
 # role: meta_template
 # file: roles/meta_template/tasks/present.yml
-# version: 0.8.0
+# version: 0.8.1
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 

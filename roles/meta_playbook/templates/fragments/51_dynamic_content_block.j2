@@ -1,0 +1,15 @@
+{# fragment: roles/meta_playbook/templates/fragments/51_dynamic_content_block.j2 #}
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block
+{% if playbook_content %}
+## Generated from playbooks specifications 'playbook_content'
+{% for play in  playbook_content %}
+- name: {{ play.play_id }}
+  hosts: {{ play.hosts }}
+  connection: {{ play.connection }}
+  tasks:
+    {% for task in play.tasks %}
+{{- render_task(task) }}
+    {% endfor %}
+{% endfor %}
+{% endif %}
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block

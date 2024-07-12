@@ -1,6 +1,6 @@
 {# fragment: roles/meta_playbook/templates/fragments/50_content_region_message.j2 #}
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-{% if not playbook_spec.get('metadata',{}).get('auto_generated', false) %}
+{% if auto_generated %}
 # NOTE: Manual changes should occur in this region, below the managed block
 {% endif %}
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
