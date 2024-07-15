@@ -74,14 +74,15 @@ playbooks_specifications:
         - play_id: Generate Playbooks
           <<: *default_params
           tasks:                
-            - trigger_role:
-              <<: *orchestration_role
-              state: present
-              operations: ['process_templates', 'process_playbooks']
-              schema:
-                templates:
-                  Playbooks: {}
-                playbooks: {}
+            - name: Trigger Orchestration of Playbooks
+              trigger_role:
+                <<: *orchestration_role
+                state: present
+                operations: ['process_templates', 'process_playbooks']
+                schema:
+                  templates:
+                    Playbooks: {}
+                  playbooks: {}
 
     Generate_Roles:
       playbook_name: Generate Roles From Specifications
@@ -91,7 +92,8 @@ playbooks_specifications:
         - play_id: Generate Roles        
           <<: *default_params
           tasks:
-            - trigger_role:
+            - name: Trigger Orchestration of Roles
+              trigger_role:
                 <<: *orchestration_role
                 state: present
                 operations: ['process_templates', 'process_roles']
@@ -122,6 +124,7 @@ playbooks_specifications:
         - play_id: Execute Orchestrator
           <<: *default_params
           tasks:
-            - trigger_role:
+            - name: Execute Orchestratation of All Specifications
+              trigger_role:
                 <<: *orchestration_role
                 scope: all

@@ -1,3 +1,4 @@
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 {# fragment: roles/meta_playbook/templates/fragments/90_managed_block_after_content.j2 #}
 {% if post_run_playbooks %}
 ## Generated from playbook specifications metadata field 'post_run_playbooks'
@@ -5,3 +6,4 @@
 - ansible.builtin.import_playbook: "{{ playbook }}"
 {% endfor %}
 {% endif %}
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

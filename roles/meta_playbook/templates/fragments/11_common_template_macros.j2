@@ -9,12 +9,10 @@
 {% endif %}
 {% endfor %}
 {%- endmacro %}
-
 {%- macro placeholder_task() %}
       ansible.builtin.debug:
         msg: "Placeholder task executed."
 {%- endmacro %}
-
 {%- macro render_task(task) %}
 - name: {{ task.name }}
 {% if task.get('trigger_role',false) %}

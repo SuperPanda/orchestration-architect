@@ -21,6 +21,7 @@
       specification: "{{ 'specification' | extract(meta_playbook_params) }}"
       collection_metadata: "{{ 'collection_metadata' | extract(meta_playbook_params) }}"
       metadata: "{{ 'metadata' | extract(meta_playbook_params) }}"
+      state: "{{ 'specification' | extract(meta_playbook_params, morekeys=['state']) | default('present') }}"
       # From meta_playbook params (defined in roles specifications)
       # Base specification from playbook specifications adds sections and playbook_vars_files
       # Use template path from specification or collection
@@ -87,6 +88,9 @@
     - name: Enrich context required for specification processing
       ansible.builtin.set_fact:
         meta_playbook_context: "{{ meta_playbook_context | combine(meta_playbook_context_delta, recursive=True, list_merge='append_rp') }}"
+    - name: Debug meta_playbook_context
+      debug:
+        var: meta_playbook_context
     - name: Assert the specifications are correctly defined needed to supply templates or processing
       ansible.builtin.assert:
         that:
@@ -104,17 +108,20 @@
         state: directory
         path: "{{ playbook_directory_path }}"
         mode: "{{ directory_mode }}"
+    - name: Display Template Variables
+      debug:
+        var: template_variables
     - name: Ensure playbooks exist and regenerated if specified
       vars:
         playbook_template_path: "{{ 'template_path' | extract(meta_playbook_context) }}"
         playbook_file_path: "{{ 'playbook_path' | extract(meta_playbook_context) }}"
         specification: "{{ 'specification' | extract(meta_playbook_context) }}"
+        playbook_state: "{{ 'state' | extract(meta_playbook_context) }}"
       ansible.builtin.template:
         src: "{{ playbook_template_path }}"
         dest: "{{ playbook_file_path  }}"
         mode: "{{ specification.file_mode | default(file_mode, true) }}"
-        force: '{{ specification.state is defined and specification.state == "pristine" }}'
-      when: template_path is defined
+        force: '{{ playbook_state is defined and playbook_state == "pristine" }}'
       register: processed_playbook_info
     - name: Generate pristine playbook from latest template to update specified user-edited files
       vars:

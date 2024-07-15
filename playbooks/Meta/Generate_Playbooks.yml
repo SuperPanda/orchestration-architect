@@ -1,23 +1,43 @@
-
 # playbook: Generate Playbooks From Specifications
 # file: playbooks/Meta/Generate_Playbooks.yml
 # version: 0.8.1
+# description: Reads the playbook specification and runs the orchestration process to
+#   generate, update or remove playbooks.
+
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK pre_run_playbooks 
+## Generated from playbook specifications metadata field 'pre_run_playbooks'
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-# NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block
+## Generated from playbooks specifications 'playbook_content'
+- name: Generate Playbooks
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Trigger Orchestration of Playbooks
+      ansible.builtin.include_role:
+        name: meta_orchestrator
+      vars:
+        meta_orchestrator_state: present
+        meta_orchestrator_specifications_version: 0.8.1
+        meta_orchestrator_specifications_path: vars/specifications
+        meta_orchestrator_scope: schema
+        meta_orchestrator_operations: ['process_templates', 'process_playbooks']
+        meta_orchestrator_schema: {'templates': {'Playbooks': {}}, 'playbooks': {}}
+
+
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-
