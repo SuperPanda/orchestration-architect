@@ -1,5 +1,5 @@
-# role: meta_playbook
 # file: roles/meta_playbook/tasks/present.yml
+# role: meta_playbook
 # version: 0.8.1
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
@@ -125,9 +125,10 @@
       register: processed_playbook_info
     - name: Generate pristine playbook from latest template to update specified user-edited files
       vars:
+        playbook_state: "{{ 'state' | extract(meta_playbook_context) }}"
         playbook_already_processed: "{{ processed_playbook_info.changed | default(false, true) }}"
         specification: "{{ 'specification' | extract(meta_playbook_context) }}"
-        playbook_configured_for_updates: "{{ specification.state is defined and specification.state == 'updated' }}"
+        playbook_configured_for_updates: "{{ playbook_state is defined and playbook_state == 'updated' }}"
       when:
         - not playbook_already_processed
         - playbook_configured_for_updates

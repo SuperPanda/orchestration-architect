@@ -5,7 +5,7 @@
  # file: roles/meta_playbook/templates/playbooks/meta.yml.j2
  # skeleton file: roles/meta_playbook/templates/playbooks/meta.yml.j2.skel
  # version: 0.8.1
- # generatation timestamp (UTC): 20240715T084230Z
+ # generatation timestamp (UTC): 20240715T104940Z
  #
  # WARNING: Auto-Generated From Skeleton File
  #          ALL CHANGES WILL BE LOST!
@@ -20,20 +20,16 @@
 {# fragment: roles/meta_playbook/templates/fragments/10_template_vars.j2 #}
 {% set metadata = template_variables.metadata %}
 {% set current_build_version = metadata.version %}
-
 {% set playbook_collection_name = template_variables.collection_name %}
 {% set playbook_spec = template_variables.specification %}
 {% set playbook_name = template_variables.playbook_name %}
 {% set playbook_path = template_variables.playbook_path %}
 {% set playbook_metadata = template_variables.playbook_metadata %}
-
 {% set playbook_description = playbook_spec.get('playbook_description', None) %}
 {% set playbook_content = playbook_spec.get('playbook_content', None) %}
-
 {% if playbook_content is defined and not playbook_content %}
   {%- set playbook_content = [] %}
 {% endif %}
-
 {% set auto_generated = playbook_metadata.get('auto_generated', false) %}
 {% set pre_run_playbooks = playbook_metadata.get('pre_run_playbooks', []) %}
 {% set post_run_playbooks = playbook_metadata.get('post_run_playbooks', []) %}
@@ -50,12 +46,10 @@
 {% endif %}
 {% endfor %}
 {%- endmacro %}
-
 {%- macro placeholder_task() %}
       ansible.builtin.debug:
         msg: "Placeholder task executed."
 {%- endmacro %}
-
 {%- macro render_task(task) %}
 - name: {{ task.name }}
 {% if task.get('trigger_role',false) %}
@@ -64,11 +58,11 @@
 {{- placeholder_task() }}
 {% endif %}
 {%- endmacro %}
-
 {# END ORCHESTRATION ARCHITECT FRAGMENT 11_common_template_macros #}
 {# 01_Header ORCHESTRATION ARCHITECT REGION #}
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
 {# fragment: roles/meta_playbook/templates/fragments/20_file_header.j2 #}
+# file: {{ playbook_path }}
 {% if auto_generated %}
 # =============================================
 # AUTO-GENERATED FILE - DO NOT EDIT!
@@ -77,10 +71,12 @@
 # =============================================
 {% endif %}
 # playbook: {{ playbook_name }}
-# file: {{ playbook_path }}
 # version: {{ current_build_version }}
-{% if playbook_description is defined %}
-# description: {{ playbook_description }}
+{% if playbook_description %}
+# description:
+{% for line in playbook_description.split('\n') %}
+#     {{ line }}
+{% endfor %}
 {% endif %}
 ---
 {# END ORCHESTRATION ARCHITECT FRAGMENT 20_file_header #}
@@ -112,7 +108,6 @@
 {# END ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
 {# (@customization_msg) Customize Skeleton Here #}
 
-
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}
 {# fragment: roles/meta_playbook/templates/fragments/51_dynamic_content_block.j2 #}
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block
@@ -128,6 +123,7 @@
     {% endfor %}
 {% endfor %}
 {% endif %}
+
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 51_dynamic_content_block
 {# END ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}
 

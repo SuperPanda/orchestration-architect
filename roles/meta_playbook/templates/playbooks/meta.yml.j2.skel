@@ -1,5 +1,5 @@
 {# file: roles/meta_playbook/templates/playbooks/meta.yml.j2.skel #}
-{# version: 0.8.0 #}
+{# version: 0.8.1 #}
 {# 00_Template_Header ORCHESTRATION ARCHITECT REGION #}
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
 {# END ORCHESTRATION ARCHITECT FRAGMENT 00_template_file_header #}
@@ -22,7 +22,6 @@
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
 {# END ORCHESTRATION ARCHITECT FRAGMENT 50_content_region_message #}
 {# (@customization_msg) Customize Skeleton Here #}
-
 
 {# BEGIN ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}
 {# END ORCHESTRATION ARCHITECT FRAGMENT 51_dynamic_content_block #}

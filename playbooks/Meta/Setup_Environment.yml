@@ -1,17 +1,11 @@
-
 # playbook: Setup Environment
 # file: playbooks/Meta/Setup_Environment.yml
 # version: 0.8.0
 ---
-# (@TODO=OA-0.8.1-ALIGN_PATH_TRANSFORMATIONS): Add args based loop, and use it to set the temporary directory
-# (@TODO-OA-0.8.1-ALIGN_PATH_TRANSFORMATIONS): Change Work Directories to use Temp_Files
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 ## Generated from playbook specifications metadata field 'pre_run_playbooks'
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
@@ -44,8 +38,8 @@
       ansible.builtin.debug:
         msg: |
           base_path: {{ base_path }}
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

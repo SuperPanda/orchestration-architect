@@ -1,4 +1,5 @@
 {# fragment: roles/meta_playbook/templates/fragments/20_file_header.j2 #}
+# file: {{ playbook_path }}
 {% if auto_generated %}
 # =============================================
 # AUTO-GENERATED FILE - DO NOT EDIT!
@@ -7,9 +8,8 @@
 # =============================================
 {% endif %}
 # playbook: {{ playbook_name }}
-# file: {{ playbook_path }}
 # version: {{ current_build_version }}
-{% if playbook_description is defined %}
+{% if playbook_description %}
 # description:
 {% for line in playbook_description.split('\n') %}
 #     {{ line }}

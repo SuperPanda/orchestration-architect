@@ -1,6 +1,5 @@
-# vars/specifications/0.8.0/playbooks.yml
+# file: vars/specifications/0.8.1/playbooks.yml
 ---
-
 orchestration_role: &orchestration_role
   name: "meta_orchestrator"
   state: present
@@ -70,6 +69,8 @@ playbooks_specifications:
         Reads the playbook specification and runs the orchestration process to
         generate, update or remove playbooks.
       state: pristine
+      metadata:
+        auto_generated: true
       playbook_content:
         - play_id: Generate Playbooks
           <<: *default_params
@@ -88,6 +89,8 @@ playbooks_specifications:
       playbook_name: Generate Roles From Specifications
       playbook_path: Generate_Roles.yml
       state: pristine
+      metadata:
+        auto_generated: true
       playbook_content:
         - play_id: Generate Roles        
           <<: *default_params
@@ -118,6 +121,7 @@ playbooks_specifications:
         '-e meta_orchestrator_specifications_version=<version>'.
       playbook_path: Execute_Orchestrator.yml
       metadata:
+        auto_generated: true
         pre_run_playbooks:
           - Setup_Environment.yml
       playbook_content:
