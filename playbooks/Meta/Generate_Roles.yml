@@ -11,6 +11,7 @@
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 ## Generated from playbook specifications metadata field 'pre_run_playbooks'
+- ansible.builtin.import_playbook: "Setup_Environment.yml"
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###

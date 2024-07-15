@@ -71,6 +71,9 @@ playbooks_specifications:
       state: pristine
       metadata:
         auto_generated: true
+        pre_run_playbooks:
+          - Setup_Environment.yml
+
       playbook_content:
         - play_id: Generate Playbooks
           <<: *default_params
@@ -91,6 +94,8 @@ playbooks_specifications:
       state: pristine
       metadata:
         auto_generated: true
+        pre_run_playbooks:
+          - Setup_Environment.yml
       playbook_content:
         - play_id: Generate Roles        
           <<: *default_params
