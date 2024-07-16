@@ -26,10 +26,16 @@ playbooks_specifications:
           adheres to the underlying design principles and ensures compatability with
           different components and dynamically updating the interactions between components
           when designs change. Manages specifications, migrations, playbooks and roles.
+      OA000_Recovery:
+        collection_name: OA000_Recovery
+        path: playbooks/OA000_Recovery
+        template_path: playbooks/base.yml.j2
+        description: |
+          Contains the recovery system required to recover the live system.
       OA001_LiveUSB:
         collection_name: OA001_LiveUSB
         path: playbooks/OA001_LiveUSB
-        template_path: playbooks/base.yml
+        template_path: playbooks/base.yml.j2
         description: |
           Contains playbooks to configure startup operations, customize
           the system, create snapshots and remote backups. Update subvolume or bind
@@ -41,17 +47,23 @@ playbooks_specifications:
       OA002_Hypervisor:
         collection_name: OA002_Hypervisor
         path: playbooks/OA002_Hypervisor
-        template_path: playbooks/base.yml
+        template_path: playbooks/base.yml.j2
         description: |
           Playbooks to remotely manage a bare metal nested hypervisor. Allows
           for instant reconfiguration from fresh boot of the live environment booted
           from the PXE service, and configuration of a running system that is persisted
           due to configuration running from playbook. Connects via SSH using credentials
           baked in.
+      OA999_Test:
+        collection_name: OA999_Test
+        path: playbooks/OA999_Test
+        template_path: playbooks/base.yml.j2
+        description: |
+          Test LiveUSB Deployment to seperate device
       Default:
         collection_name: Default
         path: playbooks/Default
-        template_path: playbooks/base.yml
+        template_path: playbooks/base.yml.j2
         description: Playbooks not in a collection.
   Base:
     playbook_vars_files:
@@ -61,6 +73,15 @@ playbooks_specifications:
       - 30_managed_block_before_content
       - 50_content_region_message
       - 90_managed_block_after_content
+  OA999_Test:
+    Build_OA999:
+      playbook_name: Build OA999
+      playbook_path: Build_OA999_Test.yml
+      playbook_description: Provisions a device
+      state: updated
+      metadata:
+        pre_run_playbooks: 
+          - "../Meta/Setup_Environment.yml"
   OA001_LiveUSB:
     Provision:
       playbook_name: Provision OA001 LiveUSB System
@@ -102,7 +123,6 @@ playbooks_specifications:
         auto_generated: true
         pre_run_playbooks:
           - Setup_Environment.yml
-
       playbook_content:
         - play_id: Generate Playbooks
           <<: *default_params
@@ -112,8 +132,7 @@ playbooks_specifications:
                 <<: *orchestration_role
                 state: present
                 operations: ['process_playbooks']
-                schema:
-                  playbooks: {}
+                scope: all
 
     Generate_Templates:      
       playbook_name: Generate Templates From Specifications
@@ -127,7 +146,7 @@ playbooks_specifications:
         - play_id: Generate Templates
           <<: *default_params
           tasks:
-            - name: Trigger Orchestration of Roles
+            - name: Trigger Orchestration of Templates
               trigger_role:
                 <<: *orchestration_role
                 state: present
@@ -157,7 +176,8 @@ playbooks_specifications:
                 state: present
                 operations: ['process_roles']
                 schema:
-                  roles: {}
+                  roles:
+                    Storage: {}
 
 
     Trigger_Bootstrap:

@@ -1,0 +1,139 @@
+OA999_bootstrap_configuration:
+  bootstrap_config:
+    hostname: OA999
+    timezone: Australia/Perth
+    installed_locales:
+      - en_US
+      - en_AU
+    locale: en_AU
+    default_shell: /bin/zsh
+  system_mount_path: /mnt/OA999_System
+  grub_config:
+    enable_cryptodisk: false
+    default_kernel_params: splash cryptdevice=LABEL=OA999_Encrypted_System:OA999_System
+    grub_install_flags: target=x86-efi --efi-directory=/boot --bootloader-id=OA999 --removable --recheck
+    initramfs_config:
+      hooks:
+        - base
+        - udev
+        - keyboard
+        - keymap
+        - block
+        - filesystems
+        - encrypt
+        - modconf
+        - kms
+      modules:
+        - usbhid
+        - xhci_hcd
+OA999_storage_configuration:
+  partition_table:
+    label: gpt
+    table:
+      - name: OA999_BIOS_Boot_Partition
+        number: 1
+        start: 1MiB
+        end: 11MiB
+        flags: ["bios_grub"]
+      - name: OA999_EFI_Partition
+        number: 2
+        start: 12MiB
+        end: 531MiB
+        flags: ["boot", "esp"]
+      - name: OA999_Encrypted_System_Partition
+        number: 3
+        start: 532MiB
+        end: 10763MiB
+        flags: []
+      - name: OA999_Encrypted_Data_Partition
+        number: 4
+        start: 10764MiB
+        end: 21003MiB
+        flags: []
+
+  efi_volume:
+    filesystem:
+      path: /dev/disk/by-partlabel/OA999_EFI_Partition
+      label: OA999_EFI
+      type: vfat
+      opts: "-F 32 -S 4096"
+
+  system_volume:
+    name: Orchestration Architect System Encrypted Volume
+    luks:
+      path: /dev/disk/by-partlabel/OA999_Encrypted_System_Partition
+      label: OA999_Encrypted_System
+      mapped_name: OA999_System
+
+    filesystem:
+      path: /dev/mapper/OA999_System
+      label: OA999_System
+      type: btrfs
+      opts: "-n 16k"
+
+    btrfs_subvolumes:
+      fs_label: OA999_System
+      subvols:
+        - '@OA999_System'
+        - '@OA999_System-tmp'
+        - '@OA999_System-var_log'
+        - '@OA999_System-var_cache_pacman_pkg'
+        - '@OA999_System-snapshots'
+        - '@OA999_System-persistence'
+
+    mount_table:
+      - type: btrfs
+        source: LABEL=OA999_System
+        map:
+          - source: 'subvol=@OA999_System,compress=zstd'
+            target: /mnt/OA999_System
+          - source: 'subvol=@OA999_System-persistence,compress=zstd'
+            target: /mnt/OA999_System/root
+          - source: 'subvol=@OA999_System-snapshots,compress=zstd'
+            target: /mnt/OA999_System/.snapshots
+          - source: 'subvol=@OA999_System-tmp,compress=zstd'
+            target: /mnt/OA999_System/tmp
+          - source: 'subvol=@OA999_System-var_log,compress=zstd'
+            target: /mnt/OA999_System/var/log
+          - source: 'subvol=@OA999_System-var_cache_pacman_pkg,compress=zstd'
+            target: /mnt/OA999_System/var/cache/pacman/pkg
+      - type: vfat
+        source: LABEL=OA999_EFI
+        target: /mnt/OA999_System/boot
+
+  data_volume:
+    name: Orchestration Architect Encrypted Data Volume
+    luks:
+      path: /dev/disk/by-partlabel/OA999_Encrypted_Data_Partition
+      label: OA999_Encrypted_Data
+      mapped_name: OA999_Data
+
+    filesystem:
+      path: /dev/mapper/OA999_Data
+      label: OA999_Data
+      type: btrfs
+      opts: "-n 16k"
+
+    btrfs_subvolumes:
+      fs_label: OA999_Data
+      subvols:
+        - '@OA999_Data-Application'
+        - '@OA999_Data-Artifacts'
+        - '@OA999_Data-Repository'
+        - '@OA999_Data-Keystore'
+        - '@OA999_Data-Snapshots'
+
+    mount_table:
+      - type: btrfs
+        source: LABEL=OA999_Data
+        map:
+          - source: 'subvol=@OA999_Data-Application,compress=zstd'
+            target: /mnt/OA999_Data-Application
+          - source: 'subvol=@OA999_Data-Keystore,compress=zstd'
+            target: /mnt/OA999_Data-Keystore
+          - source: 'subvol=@OA999_Data-Artifacts,compress=zstd'
+            target: /mnt/OA999_Data-Artifacts
+          - source: 'subvol=@OA999_Data-Repository,compress=zstd'
+            target: /mnt/OA999_Data-Repository
+          - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
+            target: /mnt/OA999_Data-Snapshots

@@ -38,7 +38,7 @@
         meta_orchestrator_specifications_path: vars/specifications
         meta_orchestrator_scope: schema
         meta_orchestrator_operations: ['process_roles']
-        meta_orchestrator_schema: {'roles': {}}
+        meta_orchestrator_schema: {'roles': {'Storage': {}}}
 
 
     

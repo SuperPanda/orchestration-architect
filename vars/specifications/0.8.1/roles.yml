@@ -67,8 +67,12 @@ roles_specifications:
       files:
         - id: opened_morphism
           path: tasks/opened.yml
+          template: tasks/base.yml.j2
+          state: present
         - id: closed_morphism
           path: tasks/closed.yml
+          template: tasks/base.yml.j2
+          state: present
       parameters:
         name: {}
         path: {}
@@ -79,6 +83,13 @@ roles_specifications:
         new_passphrase: {}
         mapped_name: {}
         uuid: {}
+      defaults:
+        luks_key_size: 2048
+        luks_type: luks2
+        luks_cipher: aes-xts-plain64
+        luks_hash: sha512
+        luks_pbkdf_algorithm: pbkdf2
+        luks_pbkdf_iteration_time: 3
     filesystem:
       role_name: filesystem
       role_path: roles/filesystem

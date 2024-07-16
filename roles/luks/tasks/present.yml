@@ -1,0 +1,57 @@
+# file: roles/luks/tasks/present.yml
+# role: luks
+# version: 0.8.1
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# NOTE: Manual changes should occur in this region, below the managed block
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+- name: Display parameters passed to luks/tasks/present.yml
+  ansible.builtin.debug:
+    msg: "{{ luks_params }}"
+
+- name: Create 2048 byte keyfile
+  community.general.filesize:
+    path: "{{ luks_params.new_keyfile }}"
+    source: /dev/urandom
+    size: 4
+    blocksize: 512
+    mode: u=r,g=,o=
+  when: luks_params.new_keyfile!=omit
+
+- name: Ensure LUKS container is present '{{ luks_params.path }}'
+  community.crypto.luks_device:
+    state: present
+    device: "{{ luks_params.path }}"
+    keyfile: "{{ luks_params.keyfile }}"
+    new_keyfile: "{{ luks_params.new_keyfile }}"
+    passphrase: "{{ luks_params.passphrase }}"
+    name: "{{ luks_params.mapped_name }}"
+    label: "{{ luks_params.label }}"
+    type: "{{ luks_type }}"
+    cipher: "{{ luks_cipher }}"
+    hash: "{{ luks_hash }}"
+    pbkdf:
+      algorithm: "{{ luks_pbkdf_algorithm }}"
+      iteration_time: "{{ luks_pbkdf_iteration_time }}"
+  become: true
+
+- name: Add new passphrase if specified
+  when: luks_params.new_passphrase!=omit and luks_params.new_passphrase|length > 0
+  community.crypto.luks_device:
+    state: present
+    keyfile: "{{ luks_params.keyfile }}"
+    device: "{{ luks_params.path }}"
+    new_passphrase: "{{ luks_params.new_passphrase }}"
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

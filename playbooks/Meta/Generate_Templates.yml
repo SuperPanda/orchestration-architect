@@ -26,7 +26,7 @@
   hosts: localhost
   connection: local
   tasks:
-    - name: Trigger Orchestration of Roles
+    - name: Trigger Orchestration of Templates
       ansible.builtin.include_role:
         name: meta_orchestrator
       vars:

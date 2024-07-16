@@ -1,0 +1,28 @@
+# file: roles/luks/tasks/opened.yml
+# role: luks
+# version: 0.8.1
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# NOTE: Manual changes should occur in this region, below the managed block
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+- name: Ensure LUKS container is opened {{ luks_params.mapped_name }}
+  community.crypto.luks_device:
+    device: "{{ luks_params.path }}"
+    label: "{{ luks_params.label }}"
+    state: opened
+    keyfile: "{{ luks_params.keyfile }}"
+    passphrase: "{{ luks_params.passphrase }}"
+    name: "{{ luks_params.mapped_name }}"
+  become: true
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

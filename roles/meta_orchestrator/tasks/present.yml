@@ -618,7 +618,7 @@
         - name: Load Enriched Schema to Meta Orchestrator Context
           vars:
             meta_orchestrator_context_delta:
-              enriched_schema: "{{ 'enriched_schema' | extract(enriched_specification_skeleton_context) }}"
+              schema: "{{ 'enriched_schema' | extract(enriched_specification_skeleton_context) }}"
           ansible.builtin.set_fact:
             meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta, recursive=True, list_merge='append_rp') }}"
 
@@ -869,7 +869,7 @@
     specifications: "{{ context.specifications }}"
     roles_specifications: "{{ specifications.roles }}"
     base_role: "{{ roles_specifications.Base }}"
-    scope: "{{ meta_orchestrator_context.enriched_schema }}"
+    scope: "{{ meta_orchestrator_context.schema }}"
     current_scope: "{{ scope.roles | default({}) | dict2items }}"
     collections_ids: "{{ current_scope | map(attribute='key') }}"
     collections_roles_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
@@ -939,7 +939,7 @@
     specifications: "{{ 'specifications' | extract(meta_orchestrator_context) }}"
     playbooks_specifications: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys='playbooks') }}"
     base_playbook: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['playbooks','Base']) }}"
-    scope: "{{ meta_orchestrator_context.enriched_schema }}"
+    scope: "{{ meta_orchestrator_context.schema }}"
     current_scope: "{{ scope.playbooks | default({}) | dict2items }}"
     collections_ids: "{{ current_scope | map(attribute='key') }}"
     collections_playbooks_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
