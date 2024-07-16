@@ -13,8 +13,16 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Map LUKS to Unlocked state (if required)
+  when: "'luks' in storage_params and storage_params.luks!=omit"
+  vars:
+    luks: "{{ 'luks' | extract(storage_params) }}"
+    luks_state: opened
+  ansible.builtin.include_role:
+    name: luks
+
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

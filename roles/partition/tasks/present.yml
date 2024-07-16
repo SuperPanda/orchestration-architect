@@ -19,8 +19,8 @@
     label: "{{ 'label' | extract(partition_params) }}"
     name: "{{ 'name' | extract(partition_params) }}"
     number: "{{ 'number' | extract(partition_params) }}"
-    start: "{{ 'start' | extract(partition_params) }}"
-    end: "{{ 'end' | extract(partition_params) }}"
+    part_start: "{{ 'start' | extract(partition_params) }}"
+    part_end: "{{ 'end' | extract(partition_params) }}"
     flags: "{{ 'flags' | extract(partition_params) }}"
     state: present
 

@@ -15,6 +15,7 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 directory_mode: "0770"
 file_mode: "0660"
+partition_flags: "[]"
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 
 ### 03_Content ORCHESTRATION ARCHITECT REGION ###

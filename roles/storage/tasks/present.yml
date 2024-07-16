@@ -28,7 +28,7 @@
         partition_device: "{{ 'device' | extract(storage_params) }}"
         partition_state: present
 
-# (@functor) Storage(present) -> LUKS(present)
+# (@functor) Storage(_ -> present) -> LUKS(_ -> present)
 - name: Map LUKS to Present state (if required)
   when: "'luks' in storage_params and storage_params.luks!=omit"
   vars:
@@ -39,6 +39,16 @@
       ansible.builtin.include_role:
         name: luks
 
+# (@functor) Storage(_ -> present) -> LUKS(present -> opened)
+- name: Map Storage to Opened State
+  when:
+    - "'filesystem' in storage_params and storage_params.filesystem!=omit"
+    - "'luks' in storage_params and storage_params.luks!=omit"
+  ansible.builtin.include_role:
+    tasks_from: opened.yml
+    name: storage
+
+# (@functor) Storage(present -> opened) -> Filesystem(_ -> present)
 - name: Map Filesystem to Present state (if required)
   when: "'filesystem' in storage_params and storage_params.filesystem!=omit"
   vars:

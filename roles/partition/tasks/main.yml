@@ -22,7 +22,9 @@
     msg: |
       partition: {{ partition | default('not set') }}
       partition_state: {{ partition_state | default('not set') }}
+      partition_device: {{ partition_device | default('not set') }}
       partition_label: {{ partition_label | default('not set') }}
+      partition_name: {{ partition_name | default('not set') }}
       partition_number: {{ partition_number | default('not set') }}
       partition_start: {{ partition_start | default('not set') }}
       partition_end: {{ partition_end | default('not set') }}
@@ -32,7 +34,9 @@
     msg: |
       partition_params:
         state: "{{ (partition | default({})).state is defined | ternary(partition.state, partition_state | default(omit, true)) }}"
+        device: "{{ (partition | default({})).device is defined | ternary(partition.device, partition_device | default(omit, true)) }}"
         label: "{{ (partition | default({})).label is defined | ternary(partition.label, partition_label | default(omit, true)) }}"
+        name: "{{ (partition | default({})).name is defined | ternary(partition.name, partition_name | default(omit, true)) }}"
         number: "{{ (partition | default({})).number is defined | ternary(partition.number, partition_number | default(omit, true)) }}"
         start: "{{ (partition | default({})).start is defined | ternary(partition.start, partition_start | default(omit, true)) }}"
         end: "{{ (partition | default({})).end is defined | ternary(partition.end, partition_end | default(omit, true)) }}"
@@ -42,7 +46,9 @@
   vars:
     partition_params:
       state: "{{ (partition | default({})).state is defined | ternary(partition.state, partition_state | default(omit, true)) }}"
+      device: "{{ (partition | default({})).device is defined | ternary(partition.device, partition_device | default(omit, true)) }}"
       label: "{{ (partition | default({})).label is defined | ternary(partition.label, partition_label | default(omit, true)) }}"
+      name: "{{ (partition | default({})).name is defined | ternary(partition.name, partition_name | default(omit, true)) }}"
       number: "{{ (partition | default({})).number is defined | ternary(partition.number, partition_number | default(omit, true)) }}"
       start: "{{ (partition | default({})).start is defined | ternary(partition.start, partition_start | default(omit, true)) }}"
       end: "{{ (partition | default({})).end is defined | ternary(partition.end, partition_end | default(omit, true)) }}"

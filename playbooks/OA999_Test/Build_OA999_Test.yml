@@ -60,7 +60,7 @@
     - vars/enrolment.yml
   vars_prompt:
     - name: supplied_luks_passphrase
-      prompt: "Enter LUKS passphrase"
+      prompt: "Enter LUKS passphrase for Local Key Vault"
       private: true
   vars:
     luks_vault: "{{ ansible_env.HOME }}/.OA_Keystore.vault"
@@ -110,9 +110,14 @@
     - vars/bootstrap.yml
     - vars/applications.yml
     - vars/enrolment.yml
+  vars:
+    storage_state: present
+    luks_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
+    luks_new_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
   roles:
     - role: storage
-      partition_table: "{{ 'partition_table' | extract(OA999_storage_configuration) }}"
+      storage_partition_table: "{{ 'partition_table' | extract(OA999_storage_configuration) }}"
+      storage_device: "{{ install_target }}"
     - role: storage
       storage: "{{ 'efi_volume' | extract(OA999_storage_configuration) }}"
     - role: storage

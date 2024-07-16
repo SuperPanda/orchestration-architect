@@ -22,7 +22,9 @@
     msg: |
       partition: {{ partition | default('not set') }}
       partition_state: {{ partition_state | default('not set') }}
+      partition_device: {{ partition_device | default('not set') }}
       partition_label: {{ partition_label | default('not set') }}
+      partition_name: {{ partition_name | default('not set') }}
       partition_number: {{ partition_number | default('not set') }}
       partition_start: {{ partition_start | default('not set') }}
       partition_end: {{ partition_end | default('not set') }}
@@ -33,7 +35,9 @@
   ansible.builtin.debug:
     msg: |
       state: "{{ ((partition | default({})).state is defined and(partition | default({})).state!=omit) | ternary('partition.state', (partition_state is defined and partition_state==partition_params.state) | ternary('partition_state', '(unset) defaults to: omit' ))  }}"
+      device: "{{ ((partition | default({})).device is defined and(partition | default({})).device!=omit) | ternary('partition.device', (partition_device is defined and partition_device==partition_params.device) | ternary('partition_device', '(unset) defaults to: omit' ))  }}"
       label: "{{ ((partition | default({})).label is defined and(partition | default({})).label!=omit) | ternary('partition.label', (partition_label is defined and partition_label==partition_params.label) | ternary('partition_label', '(unset) defaults to: omit' ))  }}"
+      name: "{{ ((partition | default({})).name is defined and(partition | default({})).name!=omit) | ternary('partition.name', (partition_name is defined and partition_name==partition_params.name) | ternary('partition_name', '(unset) defaults to: omit' ))  }}"
       number: "{{ ((partition | default({})).number is defined and(partition | default({})).number!=omit) | ternary('partition.number', (partition_number is defined and partition_number==partition_params.number) | ternary('partition_number', '(unset) defaults to: omit' ))  }}"
       start: "{{ ((partition | default({})).start is defined and(partition | default({})).start!=omit) | ternary('partition.start', (partition_start is defined and partition_start==partition_params.start) | ternary('partition_start', '(unset) defaults to: omit' ))  }}"
       end: "{{ ((partition | default({})).end is defined and(partition | default({})).end!=omit) | ternary('partition.end', (partition_end is defined and partition_end==partition_params.end) | ternary('partition_end', '(unset) defaults to: omit' ))  }}"

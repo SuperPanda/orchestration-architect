@@ -8,6 +8,7 @@ OA999_applications:
     - btrfs-progs
     - cryptsetup
     - dhcpcd
+    - dosfstools
     - e2fsprogs
     - exfatprogs
     - fzf
@@ -25,6 +26,7 @@ OA999_applications:
     - ntfs-3g
     - openssh
     - openvswitch
+    - parted
     - python
     - ripgrep
     - rsync
