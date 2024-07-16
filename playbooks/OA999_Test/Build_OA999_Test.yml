@@ -61,7 +61,7 @@
   vars_prompt:
     - name: supplied_luks_passphrase
       prompt: "Enter LUKS passphrase"
-      private: yes
+      private: true
   vars:
     luks_vault: "{{ ansible_env.HOME }}/.OA_Keystore.vault"
     mount_point: "{{ ansible_env.HOME }}/.OA_Keystore"

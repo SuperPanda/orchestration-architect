@@ -13,8 +13,18 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Configure Partition Entry
+  community.general.parted:
+    device: "{{ 'device' | extract(partition_params) }}"
+    label: "{{ 'label' | extract(partition_params) }}"
+    name: "{{ 'name' | extract(partition_params) }}"
+    number: "{{ 'number' | extract(partition_params) }}"
+    start: "{{ 'start' | extract(partition_params) }}"
+    end: "{{ 'end' | extract(partition_params) }}"
+    flags: "{{ 'flags' | extract(partition_params) }}"
+    state: present
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

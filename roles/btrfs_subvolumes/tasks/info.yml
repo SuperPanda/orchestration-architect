@@ -17,8 +17,46 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Display Parameters Supplied to BTRFS Subvolumes Role
+  ansible.builtin.debug:
+    msg: "{{ btrfs_subvolumes_params | to_nice_yaml }}"
+
+- name: Display BTRFS Information (fs_label)
+  when: "'fs_label' in btrfs_subvolumes_params and btrfs_subvolumes_params.fs_label!=omit"
+  block:
+    - name: Gather BTRFS Subvolumes Information (fs_label)
+      ansible.builtin.command: btrfs filesystem show "{{ 'fs_label' | extract(btrfs_subvolumes_params) }}"
+      register: btrfs_fs_info
+      changed_when: false
+      ignore_errors: true
+      become: true
+    - name: Display BTRFS File System Information
+      ansible.builtin.debug:
+        msg: "{{ btrfs_fs_info }}"
+
+- name: Display BTRFS Information (fs_uuid)
+  when: "'fs_uuid' in btrfs_subvolumes_params and btrfs_subvolumes_params.fs_uuid!=omit"
+  block:
+    - name: Gather BTRFS Subvolumes Information (fs_uuid)
+      ansible.builtin.command: btrfs filesystem show "{{ 'fs_uuid' | extract(btrfs_subvolumes_params) }}"
+      register: btrfs_fs_info
+      changed_when: false
+      ignore_errors: true
+      become: true
+    - name: Display BTRFS File System Information
+      ansible.builtin.debug:
+        msg: "{{ btrfs_fs_info }}"
+
+- name: Display information on system-wide btrfs filesystems
+  block:
+    - name: Query information about mounted btrfs filesystems
+      community.general.btrfs_info:
+      register: btrfs_info
+    - name: Display system BTRFS Information
+      ansible.builtin.debug:
+        msg: "{{ btrfs_info | to_nice_yaml }}"
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

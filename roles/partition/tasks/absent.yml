@@ -13,8 +13,14 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Remove Partition
+  when: "partition_params.state is defined and partition_params.state == 'absent'"
+  community.general.parted:
+    device: "{{ 'device' | extract(partition_params) }}"
+    number: "{{ 'number' | extract(partition_params) }}"
+    state: absent
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

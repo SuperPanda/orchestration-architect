@@ -17,8 +17,25 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Display Parameters Suppled to Partition Role
+  ansible.builtin.debug:
+    msg: "{{ partition_params | to_nice_yaml }}"
+
+- name: Read Device Partition Information
+  when: "'device' in partition_params and partition_params.device"
+  block:
+    - name: Gather Partition Information
+      community.general.parted:
+        device: "{{ 'device' | extract(partition_params) }}"
+        state: info
+        unit: MiB
+      register: partition_info_output
+
+    - name: Display Partition Information
+      ansible.builtin.debug:
+        msg: "{{ partition_info_output | to_nice_yaml }}"
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

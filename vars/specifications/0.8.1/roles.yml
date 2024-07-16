@@ -35,32 +35,42 @@ roles_specifications:
       role_name: storage
       role_path: roles/storage
       parameters:
+        device: {}
         luks: {}
         mount_table: {}
         btrfs_subvolumes: {}
         partition_table: {}
+        filesystem: {}
       files:
         - id: mounted_morphism
           path: tasks/mounted.yml
+          template: tasks/base.yml.j2
           state: present
         - id: unmounted_morphism
           path: tasks/unmounted.yml
+          template: tasks/base.yml.j2
           state: present
         - id: opened_morphism
           path: tasks/opened.yml
+          template: tasks/base.yml.j2
           state: present
         - id: closed_morphism
           path: tasks/closed.yml
+          template: tasks/base.yml.j2
           state: present
     partition:
       role_name: partition
       role_path: roles/partition
       parameters:
+        device: {}
         label: {}
+        name: {}
         number: {}
         start: {}
         end: {}
         flags: {}
+      defaults:
+        partition_flags: []
     luks:
       role_name: luks
       role_path: roles/luks

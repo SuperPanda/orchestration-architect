@@ -15,6 +15,12 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 directory_mode: "0770"
 file_mode: "0660"
+luks_key_size: "2048"
+luks_type: "luks2"
+luks_cipher: "aes-xts-plain64"
+luks_hash: "sha512"
+luks_pbkdf_algorithm: "pbkdf2"
+luks_pbkdf_iteration_time: "3"
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 
 ### 03_Content ORCHESTRATION ARCHITECT REGION ###

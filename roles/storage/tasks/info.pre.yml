@@ -26,6 +26,7 @@
       storage_mount_table: {{ storage_mount_table | default('not set') }}
       storage_btrfs_subvolumes: {{ storage_btrfs_subvolumes | default('not set') }}
       storage_partition_table: {{ storage_partition_table | default('not set') }}
+      storage_filesystem: {{ storage_filesystem | default('not set') }}
       
 - name: Display the variable used to set the storage role parameters
   when: ansible_verbosity | int > 0 and storage is defined
@@ -36,6 +37,7 @@
       mount_table: "{{ ((storage | default({})).mount_table is defined and(storage | default({})).mount_table!=omit) | ternary('storage.mount_table', (storage_mount_table is defined and storage_mount_table==storage_params.mount_table) | ternary('storage_mount_table', '(unset) defaults to: omit' ))  }}"
       btrfs_subvolumes: "{{ ((storage | default({})).btrfs_subvolumes is defined and(storage | default({})).btrfs_subvolumes!=omit) | ternary('storage.btrfs_subvolumes', (storage_btrfs_subvolumes is defined and storage_btrfs_subvolumes==storage_params.btrfs_subvolumes) | ternary('storage_btrfs_subvolumes', '(unset) defaults to: omit' ))  }}"
       partition_table: "{{ ((storage | default({})).partition_table is defined and(storage | default({})).partition_table!=omit) | ternary('storage.partition_table', (storage_partition_table is defined and storage_partition_table==storage_params.partition_table) | ternary('storage_partition_table', '(unset) defaults to: omit' ))  }}"
+      filesystem: "{{ ((storage | default({})).filesystem is defined and(storage | default({})).filesystem!=omit) | ternary('storage.filesystem', (storage_filesystem is defined and storage_filesystem==storage_params.filesystem) | ternary('storage_filesystem', '(unset) defaults to: omit' ))  }}"
       
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

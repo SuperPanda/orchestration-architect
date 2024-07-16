@@ -13,8 +13,52 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+# (@functor) Storage(present) -> Partition(present)
+- name: Map Partition Table to Present state (if required)
+  when: "'partition_table' in storage_params and storage_params.partition_table!=omit"
+  block:
+    - name: Pass Partition Table Entry to Partition Role
+      loop: "{{ 'partition_table' | extract(storage_params, morekeys=['table']) }}"
+      loop_control:
+        loop_var: partition
+      ansible.builtin.include_role:
+        name: partition
+      vars:
+        partition_label: "{{ 'partition_table' | extract(storage_params, morekeys=['label']) }}"
+        partition_device: "{{ 'device' | extract(storage_params) }}"
+        partition_state: present
+
+# (@functor) Storage(present) -> LUKS(present)
+- name: Map LUKS to Present state (if required)
+  when: "'luks' in storage_params and storage_params.luks!=omit"
+  vars:
+    luks: "{{ 'luks' | extract(storage_params) }}"
+    luks_state: present
+  block:
+    - name: Pass LUKS Configuration Object to LUKS Role
+      ansible.builtin.include_role:
+        name: luks
+
+- name: Map Filesystem to Present state (if required)
+  when: "'filesystem' in storage_params and storage_params.filesystem!=omit"
+  vars:
+    filesystem: "{{ 'filesystem' | extract(storage_params) }}"
+    filesystem_state: present
+  block:
+    - name: Pass Filesystem Configuration to Filesystem Role
+      ansible.builtin.include_role:
+        name: filesystem
+
+- name: Map BTRFS Subvolumes Role to Present state (if required)
+  when: "'btrfs_subvolumes' in storage_params and storage_params.btrfs_subvolumes!=omit"
+  vars:
+    btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(storage_params) }}"
+    btrfs_subvolumes_state: present
+  block:
+    - name: Pass BTRFS Subvolumes Configuration to BTRFS Subvolumes Role
+      ansible.builtin.include_role:
+        name: btrfs_subvolumes
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

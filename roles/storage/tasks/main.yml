@@ -26,6 +26,7 @@
       storage_mount_table: {{ storage_mount_table | default('not set') }}
       storage_btrfs_subvolumes: {{ storage_btrfs_subvolumes | default('not set') }}
       storage_partition_table: {{ storage_partition_table | default('not set') }}
+      storage_filesystem: {{ storage_filesystem | default('not set') }}
       
 - debug:
     msg: |
@@ -35,6 +36,7 @@
         mount_table: "{{ (storage | default({})).mount_table is defined | ternary(storage.mount_table, storage_mount_table | default(omit, true)) }}"
         btrfs_subvolumes: "{{ (storage | default({})).btrfs_subvolumes is defined | ternary(storage.btrfs_subvolumes, storage_btrfs_subvolumes | default(omit, true)) }}"
         partition_table: "{{ (storage | default({})).partition_table is defined | ternary(storage.partition_table, storage_partition_table | default(omit, true)) }}"
+        filesystem: "{{ (storage | default({})).filesystem is defined | ternary(storage.filesystem, storage_filesystem | default(omit, true)) }}"
         
 - name: Pass configuration parameters to the storage role
   vars:
@@ -44,6 +46,7 @@
       mount_table: "{{ (storage | default({})).mount_table is defined | ternary(storage.mount_table, storage_mount_table | default(omit, true)) }}"
       btrfs_subvolumes: "{{ (storage | default({})).btrfs_subvolumes is defined | ternary(storage.btrfs_subvolumes, storage_btrfs_subvolumes | default(omit, true)) }}"
       partition_table: "{{ (storage | default({})).partition_table is defined | ternary(storage.partition_table, storage_partition_table | default(omit, true)) }}"
+      filesystem: "{{ (storage | default({})).filesystem is defined | ternary(storage.filesystem, storage_filesystem | default(omit, true)) }}"
       
   ansible.builtin.include_tasks:
     file: "{{ (storage_params.state==omit) | ternary('info', storage_params.state) }}.yml"

@@ -13,8 +13,29 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Ensure Filesystem is present
+  vars:
+    fs_type: "{{ 'type' | extract(filesystem_params) }}"
+    fs_opts: "{{ 'opts' | extract(filesystem_params) }}"
+    fs_path: "{{ 'path' | extract(filesystem_params) }}"
+    fs_label: "{{ 'label' | extract(filesystem_params) }}"
+  block:
+    - name: Create Filesystem (BTRFS)
+      when: "fs_type=='btrfs'"
+      community.general.filesystem:
+        fstype: "{{ fs_type }}"
+        opts: "-L {{ fs_label }} {{ fs_opts }}"
+        dev: "{{ fs_path }}"
+
+    - name: Create Filesystem (vFat)
+      when: "fs_type=='vfat'"
+      community.general.filesystem:
+        fstype: "{{ fs_type }}"
+        opts: "-n {{ fs_label }} {{ fs_opts }}"
+        dev: "{{ fs_path }}"
+
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

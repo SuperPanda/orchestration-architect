@@ -12,9 +12,21 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+- name: Ensure BTRFS Subvolumes are Present
+  when: "'subvols' in btrfs_subvolumes_params and btrfs_subvolumes_params.subvols!=omit"
+  block:
+    - name: Generate BTRFS Subvolume
+      loop: "{{ 'subvols' | extract(btrfs_subvolumes_params) }}"
+      loop_control:
+        loop_var: btrfs_subvolume_name
+      community.general.btrfs_subvolume:
+        name: "{{ btrfs_subvolume_name }}"
+        filesystem_label: "{{ 'fs_label' | extract(btrfs_subvolumes_params) }}"
+        filesystem_uuid: "{{ 'fs_uuid' | extract(btrfs_subvolumes_params) }}"
+        state: present
+        automount: true
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-
