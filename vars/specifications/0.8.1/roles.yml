@@ -119,6 +119,15 @@ roles_specifications:
     mount:
       role_name: mount
       role_path: roles/mount
+      files:
+        - id: mounted_morphism
+          path: tasks/mounted.yml
+          template: tasks/base.yml.j2
+          state: present
+        - id: unmounted_morphism
+          path: tasks/unmounted.yml
+          template: tasks/base.yml.j2
+          state: present
       parameters:
         map: {}
         target: {}

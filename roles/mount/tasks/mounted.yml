@@ -18,31 +18,31 @@
     - "'map' in mount_params and mount_params.map!=omit"
     - "'type' in mount_params and mount_params.type=='btrfs'"
   block:
-    - name: Add BTRFS Subvolumes fstab entries
+    - name: Mount BTRFS Subvolumes
       when: sub_mount.options is not defined
       loop: "{{ mount.map }}"
       loop_control:
         loop_var: sub_mount
       ansible.posix.mount:
-        state: present
+        state: mounted
         fstype: "{{ mount.type }}"
         src: "{{ mount.source }}"
         opts: "{{ sub_mount.source }}"
         path: "{{ sub_mount.target }}"
 
-- name: Add Filesystem fstab entries
+- name: Mount Filesystems
   when: mount.target is defined and mount.type!='bind'
   ansible.posix.mount:
-    state: present
+    state: mounted
     fstype: "{{ mount.type }}"
     src: "{{ mount.source }}"
     opts: "{{ mount.options | default(omit) }}"
     path: "{{ mount.target }}"
 
-- name: Add Bind Mount Fstab entries
+- name: Mount a Bind
   when: mount.type=='bind'
   ansible.posix.mount:
-    state: present
+    state: mounted
     fstype: none
     opts: bind
     src: "{{ mount.source }}"

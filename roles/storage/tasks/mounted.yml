@@ -13,8 +13,34 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+# (@functor) Storage(_ -> Opened) -> LUKS(_ -> Opened)
+- name: Map Storage to Opened State
+  ansible.builtin.include_role:
+    name: storage
+  vars:
+    storage_state: opened
+
+- name: Map BTRFS Subvolumes to Present State (if required)
+  when: "'btrfs_subvolumes' in storage_params and storage_params.btrfs_subvolumes!=omit"
+  ansible.builtin.include_role:
+    name: btrfs_subvolumes
+  vars:
+    btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(storage_params) }}"
+    btrfs_subvolumes_state: present
+
+# (@functor) Storage(Opened -> Mounted) -> Mount(_ -> Present)
+
+- name: Map Mount Table Entries to Present State
+  when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
+  loop: "{{ 'mount_table' | extract(storage_params) }}"
+  loop_control:
+    loop_var: mount
+  ansible.builtin.include_role:
+    name: mount
+  vars:
+    mount_state: present
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-
