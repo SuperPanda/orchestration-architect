@@ -61,6 +61,35 @@ playbooks_specifications:
       - 30_managed_block_before_content
       - 50_content_region_message
       - 90_managed_block_after_content
+  OA001_LiveUSB:
+    Provision:
+      playbook_name: Provision OA001 LiveUSB System
+      playbook_path: OA001_Provision.yml
+      playbook_description: Provisions the Master System as Bootable Encrypted LiveUSB.
+      state: updated
+      metadata:
+        pre_run_playbooks:
+          - Setup_Environment.yml
+        post_run_playbooks:
+          - Provision/Activate.yml
+          - Provision/Build.yml
+          - Provision/Deactivate.yml
+    Provision_Activate:
+      playbook_name: Prepare OA001 LiveUSB Device for Modification
+      playbook_path: OA001_Provision/Activate.yml
+      state: updated
+    Provision_Build:
+      playbook_name: Build and/or Repair OA001 LiveUSB System
+      playbook_path: OA001_Provision/Build.yml
+      state: updated
+    Provision_Deactivate:
+      playbook_name: Prepare OA001 LiveUSB Device for Ejection
+      playbook_path: OA001_Provision/Deactivate.yml
+      state: updated
+
+
+
+
   Meta:
     Generate_Playbooks:
       playbook_name: Generate Playbooks From Specifications
@@ -82,33 +111,63 @@ playbooks_specifications:
               trigger_role:
                 <<: *orchestration_role
                 state: present
-                operations: ['process_templates', 'process_playbooks']
+                operations: ['process_playbooks']
                 schema:
-                  templates:
-                    Playbooks: {}
                   playbooks: {}
 
-    Generate_Roles:
-      playbook_name: Generate Roles From Specifications
-      playbook_path: Generate_Roles.yml
+    Generate_Templates:      
+      playbook_name: Generate Templates From Specifications
+      playbook_path: Generate_Templates.yml
       state: pristine
       metadata:
         auto_generated: true
         pre_run_playbooks:
           - Setup_Environment.yml
       playbook_content:
-        - play_id: Generate Roles        
+        - play_id: Generate Templates
           <<: *default_params
           tasks:
             - name: Trigger Orchestration of Roles
               trigger_role:
                 <<: *orchestration_role
                 state: present
-                operations: ['process_templates', 'process_roles']
+                operations: ['process_templates']
                 schema:
                   templates:
                     Roles: {}
+                    Playbooks: {}
+
+    Generate_Roles:
+      playbook_name: Generate Roles From Specifications
+      playbook_path: Generate_Roles.yml
+      playbook_description: |
+        Builds Roles from Specifications.
+      state: pristine
+      metadata:
+        auto_generated: true
+        pre_run_playbooks:
+          - Setup_Environment.yml
+      playbook_content:
+        - play_id: Generate Roles
+          <<: *default_params
+          tasks:
+            - name: Trigger Orchestration of Roles
+              trigger_role:
+                <<: *orchestration_role
+                state: present
+                operations: ['process_roles']
+                schema:
                   roles: {}
+
+
+    Trigger_Bootstrap:
+      playbook_name: Setup and Trigger Bootstrap Build from Seed
+      playbook_path: Trigger_Bootstrap.yml
+      state: present
+    Bootstrap_Workspace:
+      playbook_name: Bootstrap Current Workspace from Seed to Pristine Environment
+      playbook_path: Bootstrap_Workspace.yml
+      state: present
 
     Setup_Environment:
       playbook_name: Setup Environment

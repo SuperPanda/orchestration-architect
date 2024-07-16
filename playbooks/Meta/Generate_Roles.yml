@@ -6,6 +6,9 @@
 # =============================================
 # playbook: Generate Roles From Specifications
 # version: 0.8.1
+# description:
+#     Builds Roles from Specifications.
+#     
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
@@ -34,8 +37,8 @@
         meta_orchestrator_specifications_version: 0.8.1
         meta_orchestrator_specifications_path: vars/specifications
         meta_orchestrator_scope: schema
-        meta_orchestrator_operations: ['process_templates', 'process_roles']
-        meta_orchestrator_schema: {'templates': {'Roles': {}}, 'roles': {}}
+        meta_orchestrator_operations: ['process_roles']
+        meta_orchestrator_schema: {'roles': {}}
 
 
     

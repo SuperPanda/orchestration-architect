@@ -111,6 +111,7 @@
   vars:
     context: "{{ meta_orchestrator_context }}"
     specifications_path: "{{ 'specifications_path' | extract(meta_orchestrator_context) }}"
+    specifications_version: "{{ 'specifications_version' | extract(meta_orchestrator_context) }}"
     # specifications_path: "{{ [context.specifications_path, context.specifications_version] | path_join }}"
   block:
     - name: Show specification path (Debug)
@@ -187,7 +188,7 @@
 
     - name: Imports the specifications YAML from the designated directory
       ansible.builtin.include_vars:
-        dir: "{{ specifications_path }}"
+        dir: "{{ [specifications_path, specifications_version] | path_join }}"
         name: loaded_specifications
 
 #       - name: Show Loaded Specifications
@@ -614,6 +615,12 @@
               enriched_schema: "{{ enriched_specification_skeleton_context.enriched_schema_empty_collection }}"
           ansible.builtin.set_fact:
             enriched_specification_skeleton_context: "{{ enriched_specification_skeleton_context  | combine(enriched_specification_skeleton_context_delta, recursive=True, list_merge='append_rp') }}"
+        - name: Load Enriched Schema to Meta Orchestrator Context
+          vars:
+            meta_orchestrator_context_delta:
+              enriched_schema: "{{ 'enriched_schema' | extract(enriched_specification_skeleton_context) }}"
+          ansible.builtin.set_fact:
+            meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta, recursive=True, list_merge='append_rp') }}"
 
 # (@doc=roles.meta_orchestrator.operations.process_templates) Enrichment of Template Specifications
 # The section on processing templates embodies the application of category theory to system configuration,
@@ -729,68 +736,6 @@
       ansible.builtin.set_fact:
         template_enrichment_context: "{{ template_enrichment_context | combine(context_delta, recursive=True, list_merge='append_rp') }}"
 
-#       - name: Debug Enrich Template
-#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
-#         loop_control:
-#           loop_var: loop_item
-#         ansible.builtin.debug:
-#           msg: |
-#             collection: "{{ loop_item.0 }}"
-#             collection_templates_field: "{{ loop_item.1 }}"
-#             template_to_update: "{{ loop_item.2 }}"
-#
-#       - name: Specification Keys
-#         ansible.builtin.debug:
-#           msg: "specifications_keys: {{ specifications | dict2items | map(attribute='key') }}"
-#       - name: Template Specification Keys
-#         when: "'templates' in specifications"
-#         vars:
-#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
-#         ansible.builtin.debug:
-#           msg: "templates_specifications keys:  {{templates_specifications | dict2items | map(attribute='key') }}"
-#       - name: Debug Enrich Template 2
-#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
-#         loop_control:
-#           loop_var: loop_item
-#         vars:
-#           collection: "{{ loop_item.0 }}"
-#           collection_templates_field: "{{ loop_item.1 }}"
-#           template_id: "{{ loop_item.2 }}"
-#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
-#         ansible.builtin.debug:
-#           msg: |
-#             collection: "{{ collection }}"
-#             collection_templates_field: "{{ collection_templates_field }}"
-#             template_id: "{{ template_id }}"
-#             #templates_specifications: "{{ templates_specifications | to_nice_yaml }}"
-#       - name: Debug Enrich Template 3
-#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
-#         loop_control:
-#           loop_var: loop_item
-#         vars:
-#           collection: "{{ loop_item.0 }}"
-#           collection_templates_field: "{{ loop_item.1 }}"
-#           template_id: "{{ loop_item.2 }}"
-#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
-#         ansible.builtin.debug:
-#           var: templates_specifications[collection]
-#
-#       - name: Debug Enrich Template 4
-#         loop: "{{ template_enrichment_context.template_enrichment_queue }}"
-#         loop_control:
-#           loop_var: loop_item
-#         vars:
-#           collection: "{{ loop_item.0 }}"
-#           collection_templates_field: "{{ loop_item.1 }}"
-#           template_id: "{{ loop_item.2 }}"
-#           templates_specifications: "{{ 'templates' | extract(specifications) }}"
-#           collection_specification: "{{ collection | extract(templates_specifications) }}"
-#           template_spec: "{{ collection_templates_field | extract(collection_specification) }}"
-#         ansible.builtin.debug:
-#           msg: |
-#             collection_specification: "{{ collection_specification }}"
-#             template_spec: "{{ template_spec }}"
-#             base_template: "{{ base_template }}"
     - name: Enrich Template Specifications and Update Context with Extraction Paths
       loop: "{{ template_enrichment_context.template_enrichment_queue }}"
       loop_control:
@@ -857,7 +802,7 @@
           enriched_specifications:
             templates: "{{ template_enrichment_context.enriched_specification }}"
       ansible.builtin.set_fact:
-        meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta) }}"
+        meta_orchestrator_context: "{{ meta_orchestrator_context | combine(meta_orchestrator_context_delta, recursive=True, list_merge='append_rp') }}"
     - name: Determine Template Scope
       when: template_collections
       vars:
@@ -924,7 +869,7 @@
     specifications: "{{ context.specifications }}"
     roles_specifications: "{{ specifications.roles }}"
     base_role: "{{ roles_specifications.Base }}"
-    scope: "{{ meta_orchestrator_context.schema }}"
+    scope: "{{ meta_orchestrator_context.enriched_schema }}"
     current_scope: "{{ scope.roles | default({}) | dict2items }}"
     collections_ids: "{{ current_scope | map(attribute='key') }}"
     collections_roles_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
@@ -934,7 +879,6 @@
     # This enriches roles by combining base specifications with role-specific modifications,
     # ensuring all roles are up to date with the current system requirements.
     - name: Present detailed debug messages
-      when: debug_mode
       block:
         - name: Current Scope
           ansible.builtin.debug:
@@ -987,12 +931,15 @@
  ## # Process Playbooks
  ## # Similar to roles, this segment enriches playbook specifications and prepares them for execution,
  ## # showcasing the orchestration system's dynamic and modular nature. When it is finished.
+- name: Debug Playbooks
+  ansible.builtin.debug:
+    var: meta_orchestrator_context
 - name: Enrich Playbooks Specifications and Queue for Processing by Meta Playbook (meta_playbook)
   vars:
     specifications: "{{ 'specifications' | extract(meta_orchestrator_context) }}"
     playbooks_specifications: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys='playbooks') }}"
     base_playbook: "{{ 'specifications' | extract(meta_orchestrator_context, morekeys=['playbooks','Base']) }}"
-    scope: "{{ meta_orchestrator_context.schema }}"
+    scope: "{{ meta_orchestrator_context.enriched_schema }}"
     current_scope: "{{ scope.playbooks | default({}) | dict2items }}"
     collections_ids: "{{ current_scope | map(attribute='key') }}"
     collections_playbooks_ids: "{{ (collections_ids | map('extract', current_scope | items2dict)) | map('dict2items') | map('map',attribute='key') | list }}"
