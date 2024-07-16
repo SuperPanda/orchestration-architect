@@ -13,8 +13,21 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Map Storage to Unmounted State
+  when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
+  ansible.builtin.include_role:
+    name: storage
+    tasks_from: unmounted.yml
+
+- name: Close LUKS container (if required)
+  when: "'luks' in storage_params and storage_params.luks!=omit"
+  ansible.builtin.include_role:
+    name: luks
+  vars:
+    luks: "{{ 'luks' | extract(storage_params) }}"
+    luks_state: closed
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

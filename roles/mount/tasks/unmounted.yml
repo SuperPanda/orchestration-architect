@@ -1,4 +1,4 @@
-# file: roles/mount/tasks/absent.yml
+# file: roles/mount/tasks/unmounted.yml
 # role: mount
 # version: 0.8.1
 ---
@@ -19,13 +19,13 @@
   loop_control:
     loop_var: sub_mount
   ansible.posix.mount:
-    state: absent
+    state: unmounted
     path: "{{ sub_mount.target }}"
 
 - name: Unmount Filesystems
   when: mount.target is defined
   ansible.posix.mount:
-    state: absent
+    state: unmounted
     path: "{{ mount.target }}"
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###

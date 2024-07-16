@@ -13,8 +13,17 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Unmount Entries in Mount Table
+  when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
+  loop: "{{ 'mount_table' | extract(storage_params) | reverse }}"
+  loop_control:
+    loop_var: mount
+  ansible.builtin.include_role:
+    name: mount
+  vars:
+    mount_state: unmounted
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-
