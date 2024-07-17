@@ -59,7 +59,10 @@ playbooks_specifications:
         path: playbooks/OA999_Test
         template_path: playbooks/base.yml.j2
         description: |
-          Test LiveUSB Deployment to seperate device
+          Test LiveUSB Deployment to seperate device. Currently being used to
+          design the ability to create a way to generate templates to create playbooks
+          for LiveUSB systems, and to identify blocks of composable configuration variant
+          blocks.
       Default:
         collection_name: Default
         path: playbooks/Default
@@ -92,7 +95,11 @@ playbooks_specifications:
       playbook_path: Build_OA999.yml
       playbook_description: |
         Opens Keystore if unable to find development key.
-        Provisions a device.
+        Provisions a device. Need to move keyfile path to be in enrolment.yml,
+        and setup the vault to close after playbook is complete or if it fails.
+        And need to make it have password be reset, and when the provision keyfile
+        is removed, a new keyfile should be generated to replace the old one but stored
+        on the device in the keystore.
       state: updated
       metadata:
         pre_run_playbooks: 

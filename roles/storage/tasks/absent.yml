@@ -13,6 +13,54 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+# (@functor) Storage(_ -> Closed -> Absent)
+
+- name: Map BTRFS Subvolumes Role to Absent (if required)
+  when: "'btrfs_subvolumes' in storage_params and storage_params.btrfs_subvolumes!=omit"
+  block:
+    - name: Invoke 'Absent' BTRFS Subvolumes Morphism
+      ansible.builtin.include_role:
+        name: btrfs_subvolumes
+      vars:
+        btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(storage_params) }}"
+        btrfs_subvolumes_state: absent
+
+- name: Map Filesystem to Absent state (if required)
+  when: "'filesystem' in storage_params and storage_params.filesystem!=omit"
+  block:
+    - name: Invoke 'Absent' Filesystem Morphism
+      ansible.builtin.include_role:
+        name: filesystem
+      vars:
+        filesystem: "{{ 'filesystem' | extract(storage_params) }}"
+        filesystem_state: absent
+- name: Map Storage to Closed State
+  ansible.builtin.include_role:
+    name: storage
+  vars:
+    storage_state: closed
+
+- name: Remove LUKS container
+  when: "'luks' in storage_params and storage_params.luks!=omit"
+  ansible.builtin.include_role:
+    name: luks
+  vars:
+    luks: "{{ 'luks' | extract(storage_params) }}"
+    luks_state: absent
+
+- name: Remove Partitions (if specified)
+  when: "'partition_table' in storage_params and storage_params.partition_table!=omit"
+  block:
+    - name: Trigger 'Absent' Morphism Partition 
+      loop: "{{ 'partition_table' | extract(storage_params, morekeys=['table']) }}"
+      loop_control:
+        loop_var: partition
+      ansible.builtin.include_role:
+        name: partition
+      vars:
+        partition_label: "{{ 'partition_table' | extract(storage_params, morekeys=['label']) }}"
+        partition_device: "{{ 'device' | extract(storage_params) }}"
+        partition_state: absent
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

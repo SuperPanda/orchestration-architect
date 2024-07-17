@@ -15,13 +15,14 @@
 
 - name: Unmount Entries in Mount Table
   when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
-  loop: "{{ 'mount_table' | extract(storage_params) | reverse }}"
-  loop_control:
-    loop_var: mount
-  ansible.builtin.include_role:
-    name: mount
   vars:
     mount_state: unmounted
+    mount_table: "{{ 'mount_table' | extract(storage_params) }}"
+  ansible.builtin.include_role:
+    name: mount
+  loop: "{{ ([] if mount_table == omit else mount_table) | reverse }}"
+  loop_control:
+    loop_var: mount
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

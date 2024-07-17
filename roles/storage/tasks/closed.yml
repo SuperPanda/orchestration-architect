@@ -19,6 +19,20 @@
     name: storage
     tasks_from: unmounted.yml
 
+
+# TODO: Make this be absent_from_fstab and add fstab config to mount_table parameter,
+#       and move the absent to the storage absent functor
+- name: Remove mounts from fstab
+  when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
+  vars:
+    mount_state: absent
+    mount_table: "{{ 'mount_table' | extract(storage_params) }}"
+  ansible.builtin.include_role:
+    name: mount
+  loop: "{{ ([] if mount_table == omit else mount_table) | reverse }}"
+  loop_control:
+    loop_var: mount
+
 - name: Close LUKS container (if required)
   when: "'luks' in storage_params and storage_params.luks!=omit"
   ansible.builtin.include_role:

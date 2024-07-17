@@ -123,10 +123,10 @@
       storage: "{{ 'efi_volume' | extract(OA999_storage_configuration) }}"
     - role: storage
       storage: "{{ 'system_volume' | extract(OA999_storage_configuration) }}"
-      storage_state: mounted
     - role: storage
       storage: "{{ 'data_volume' | extract(OA999_storage_configuration) }}"
-      storage_state: mounted
+    - role: storage
+      storage: "{{ 'data_overlay_volume' | extract(OA999_storage_configuration) }}"
 
 
 

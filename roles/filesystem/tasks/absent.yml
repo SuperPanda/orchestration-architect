@@ -12,7 +12,13 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-
+- name: Remove Filesystem
+  vars:
+    fs_path: "{{ 'path' | extract(filesystem_params) }}"
+  when: "fs_type=='btrfs'"
+  community.general.filesystem:
+    dev: "{{ fs_path }}"
+    state: absent
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

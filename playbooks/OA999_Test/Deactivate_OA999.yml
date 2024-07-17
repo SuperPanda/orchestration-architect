@@ -1,0 +1,44 @@
+# file: playbooks/OA999_Test/Deactivate_OA999.yml
+# playbook: Prepare OA999 for Ejection
+# version: 0.8.1
+# description:
+#     Removes mounts, closes LUKS containers and configures the system to be used elsewhere.
+#     
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+## Generated from playbook specifications metadata field 'pre_run_playbooks'
+- ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+
+- hosts: localhost
+  connection: local
+  vars_files:
+    - vars/bootstrap.yml
+    - vars/enrolment.yml
+  vars:
+    luks_keyfile: "{{ 'provision_key' | extract(OA999_keystore_configuration) }}"
+    storage_device: "{{ install_target }}"
+    storage_state: closed
+  roles:
+    - role: storage
+      storage: "{{ 'data_overlay_volume' | extract(OA999_storage_configuration) }}"
+    - role: storage
+      storage: "{{ 'data_volume' | extract(OA999_storage_configuration) }}"
+    - role: storage
+      storage: "{{ 'system_volume' | extract(OA999_storage_configuration) }}"
+    - role: storage
+      storage: "{{ 'efi_volume' | extract(OA999_storage_configuration) }}"
+    - role: storage
+      storage_partition_table: "{{ 'partition_table' | extract(OA999_storage_configuration) }}"
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

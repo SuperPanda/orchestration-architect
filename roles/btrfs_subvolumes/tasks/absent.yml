@@ -15,6 +15,19 @@
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
+- name: Remove BTRFS Subvolumes
+  when: "'subvols' in btrfs_subvolumes_params and btrfs_subvolumes_params.subvols!=omit"
+  block:
+    - name: Remove BTRFS Subvolumes
+      loop: "{{ 'subvols' | extract(btrfs_subvolumes_params) }}"
+      loop_control:
+        loop_var: btrfs_subvolume_name
+      community.general.btrfs_subvolume:
+        name: "{{ btrfs_subvolume_name }}"
+        filesystem_label: "{{ 'fs_label' | extract(btrfs_subvolumes_params) }}"
+        filesystem_uuid: "{{ 'fs_uuid' | extract(btrfs_subvolumes_params) }}"
+        state: absent
+        automount: true
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 
