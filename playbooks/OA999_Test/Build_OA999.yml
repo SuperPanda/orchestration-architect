@@ -1,0 +1,187 @@
+# file: playbooks/OA999_Test/Build_OA999.yml
+# playbook: Build OA999
+# version: 0.8.1
+# description:
+#     Provisions a device.
+#     
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+## Generated from playbook specifications metadata field 'pre_run_playbooks'
+- ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+
+- name: Bootstrap LiveUSB
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/bootstrap.yml
+    - vars/applications.yml
+    - vars/enrolment.yml
+  roles:
+    - role: storage
+      storage: "{{ 'system_volume' | extract(OA999_storage_configuration) }}"
+      storage_state: mounted
+    - role: storage
+      storage: "{{ 'data_overlay_volume' | extract(OA999_storage_configuration) }}"
+      storage_state: mounted
+  tasks:
+    - name: Bootstrap system with base image
+      tags:
+        - bootstrap
+      block:
+        - name: Update Arch Linux keyring
+          community.general.pacman:
+            update_cache: true
+            name:
+              - archlinux-keyring
+        - name: Initialise pacman keyring
+          ansible.builtin.command: pacman-key --init
+        - name: Repopulate keyring
+          ansible.builtin.command: pacman-key --populate
+        - name: Bootstrap base system
+          ansible.builtin.command: "pacstrap -K
+            {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}
+            {{ 'bootstrap_pkgs' | extract(OA999_applications) | join(' ') }}"
+    - name: Configure system
+      tags:
+        - misc_configuration
+      vars:
+        chroot_exec: "arch-chroot {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}"
+        config_path: "{{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}/etc"
+        template_path: "{{ base_path }}/playbooks/OA999_Test/templates"
+        bootstrap_config: "{{ OA999_bootstrap_configuration }}"
+      block:
+        - name: Generate fstab
+          ansible.builtin.shell: >-
+            genfstab -L {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}
+            | sed 's/subvolid=[^,]*,//g'
+          register: genfstab_result
+          changed_when: false
+        - name: Create fstab with template from genfstab's output
+          ansible.builtin.template:
+            src: "{{ template_path }}/fstab.j2"
+            dest: "{{ config_path }}/fstab"
+        - name: Set Hostname
+          ansible.builtin.copy:
+            dest: "{{ config_path }}/hostname"
+            content: "{{ bootstrap_config.hostname }}"
+        - name: Set Timezone
+          ansible.builtin.command:
+            cmd: "{{ chroot_exec }}
+              ln -sf /usr/share/zoneinfo/{{
+              bootstrap_config.timezone }} /etc/localtime"
+            creates: "{{ config_path }}/localtime"
+        - name: Update locale generator config
+          ansible.builtin.lineinfile:
+            path: "{{ config_path }}/locale.gen"
+            regexp: '^#{{ item }}.UTF-8 UTF-8'
+            line: '{{ item }}.UTF-8 UTF-8'
+          loop: "{{ bootstrap_config.installed_locales }}"
+        - name: Generate Locales
+          ansible.builtin.command: "{{ chroot_exec }}
+            locale-gen"
+        - name: Set Locale
+          ansible.builtin.copy:
+            dest: "{{ config_path }}/locale.conf"
+            content: "LANG={{ bootstrap_config.locale }}.UTF-8"
+        - name: Set default shell for root
+          ansible.builtin.command: "{{ chroot_exec }}
+            chsh -s {{ bootstrap_config.default_shell }}"
+
+    - name: Configure and build initramfs
+      tags: 
+        - initramfs
+      vars:
+        chroot_exec: "arch-chroot {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}"
+        initramfs_config: "{{ 'initramfs_config' | extract(OA999_bootstrap_configuration) }}"
+        initramfs_config_file: "{{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}/etc/mkinitcpio.conf"
+      block:
+        - name: Configure initramfs hooks
+          ansible.builtin.lineinfile:
+            path: "{{ initramfs_config_file }}"
+            regexp: '^HOOKS='
+            line: "HOOKS=({{ initramfs_config.hooks | join(' ')}})"
+        - name: Configure initramfs modules
+          ansible.builtin.lineinfile:
+            path: "{{ initramfs_config_file }}"
+            regexp: '^MODULES='
+            line: "MODULES=({{ initramfs_config.modules | join(' ')}})"
+        - name: Recreate initramfs image
+          ansible.builtin.command: '{{ chroot_exec }} mkinitcpio -P'
+     
+    - name: Configure bootloader (GRUB)
+      tags: 
+        - bootloader
+      vars:
+        chroot_exec: "arch-chroot {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}"
+        grub_config_file: "{{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}/etc/default/grub"
+        grub_config: "{{ 'grub_config' | extract(OA999_bootstrap_configuration) }}"
+      block:
+        - name: Configure default kernel parameters
+          ansible.builtin.lineinfile:
+            path: '{{ grub_config_file }}'
+            search_string: 'GRUB_CMDLINE_LINUX_DEFAULT='
+            line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ grub_config.default_kernel_params }}"'
+
+        - name: Install GRUB
+          args:
+            creates: "{{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}/boot/EFI/BOOT/BOOTX64.EFI"
+          ansible.builtin.shell: "{{ chroot_exec }} grub-install {{ grub_config.grub_install_flags }}"
+        - name: Generate grub.cfg
+          args:
+            creates: "{{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}/boot/grub/grub.cfg"
+          ansible.builtin.shell: "{{ chroot_exec }} grub-mkconfig -o /boot/grub/grub.cfg"
+
+
+- name: Secure LiveUSB
+  hosts: localhost
+  connection: local
+  vars_files: 
+    - vars/bootstrap.yml
+    - vars/applications.yml
+    - vars/enrolment.yml
+  vars:
+    luks_keyfile: "{{ 'provision_key' | extract(OA999_keystore_configuration) }}"
+  vars_prompt:
+    - name: password
+      prompt: "Password for luks and ssh key passphrase"
+      private: true
+  tasks:
+    - name: Secure the LiveUSB
+      tags:
+        - security
+      vars:
+        chroot_exec: "arch-chroot {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}"
+      block:
+        - name: Hash the root password
+          ansible.builtin.command: "openssl passwd -6 {{ password }}"
+          register: hashed_password
+          changed_when: false
+        - name: Set root password
+          ansible.builtin.shell: "chpasswd --root {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }} --encrypted root:{{ hashed_password.stdout }}"
+
+        - name: Add luks passphrase
+          ansible.builtin.include_role:
+            name: luks
+          vars:
+            luks_state: present
+            luks:
+              name: '{{ item }}'
+              keyfile: '{{ luks_keyfile }}'
+              path: '/dev/disk/by-label/{{ item }}'
+            luks_new_passphrase: '{{ password }}'
+          loop:
+            - OA999_Encrypted_System
+            - OA999_Encrypted_Data
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

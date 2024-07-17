@@ -60,13 +60,14 @@
   connection: local
   vars_files: 
     - vars/enrolment.yml
+    - vars/bootstrap.yml
   vars_prompt:
     - name: supplied_luks_passphrase
       prompt: "Enter LUKS passphrase for Local Key Vault"
       private: true
   vars:
-    luks_vault: "{{ ansible_env.HOME }}/.OA_Keystore.vault"
-    mount_point: "{{ ansible_env.HOME }}/.OA_Keystore"
+    luks_vault: "{{ 'vault_path' | extract(OA999_keystore_configuration) }}"
+    mount_point: "{{ 'vault_mount' | extract(OA999_keystore_configuration) }}"
     map_name: "OA_Keystore"
   tasks:
     - name: Ensure the mount point exists
@@ -110,13 +111,11 @@
   connection: local
   vars_files:
     - vars/bootstrap.yml
-    - vars/applications.yml
     - vars/enrolment.yml
   vars:
-    luks_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
+    luks_keyfile: "{{ 'provision_key' | extract(OA999_keystore_configuration) }}"
     storage_device: "{{ install_target }}"
     storage_state: mounted
-    luks_new_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
   roles:
     - role: storage
       storage_partition_table: "{{ 'partition_table' | extract(OA999_storage_configuration) }}"

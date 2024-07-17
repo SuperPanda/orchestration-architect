@@ -1,36 +1,3 @@
-OA999_keystore_configuration:
-  vault_path: /root/.OA_Keystore.vault
-  vault_mount: /root/.OA_Keystore
-  provision_key: /root/.OA_Keystore/OA999_LUKS_Provision_temp.key
-
-  
-OA999_bootstrap_configuration:
-  system_mount_path: /mnt/OA999_System
-  hostname: OA999
-  timezone: Australia/Perth
-  installed_locales:
-    - en_US
-    - en_AU
-  locale: en_AU
-  default_shell: /bin/zsh
-  grub_config:
-    enable_cryptodisk: false
-    default_kernel_params: splash cryptdevice=LABEL=OA999_Encrypted_System:OA999_System
-    grub_install_flags: target=x86-efi --efi-directory=/boot --bootloader-id=OA999 --removable --recheck
-  initramfs_config:
-    hooks:
-      - base
-      - udev
-      - keyboard
-      - keymap
-      - block
-      - filesystems
-      - encrypt
-      - modconf
-      - kms
-    modules:
-      - usbhid
-      - xhci_hcd
 OA999_storage_configuration:
   partition_table:
     label: gpt
@@ -95,7 +62,7 @@ OA999_storage_configuration:
           - source: 'subvol=@OA999_System-persistence,compress=zstd'
             target: /mnt/OA999_System/root
           - source: 'subvol=@OA999_System-snapshots,compress=zstd'
-            target: /mnt/OA999_System/.snapshots/OA999_System
+            target: /mnt/OA999_System/.snapshots
           - source: 'subvol=@OA999_System-tmp,compress=zstd'
             target: /mnt/OA999_System/tmp
           - source: 'subvol=@OA999_System-var_log,compress=zstd'
@@ -106,7 +73,7 @@ OA999_storage_configuration:
         source: LABEL=OA999_EFI
         target: /mnt/OA999_System/boot
 
-  data_volume: &data_volume
+  data_volume:
     name: Orchestration Architect Encrypted Data Volume
     luks:
       path: /dev/disk/by-partlabel/OA999_Encrypted_Data_Partition
@@ -142,20 +109,3 @@ OA999_storage_configuration:
             target: /mnt/OA999_Data-Repository
           - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
             target: /mnt/OA999_Data-Snapshots
-  data_volume_overlay:
-    <<: *data_volume
-    mount_table:
-      - type: btrfs
-        source: LABEL=OA999_Data
-        map:
-          - source: 'subvol=@OA999_Data-Application,compress=zstd'
-            target: /mnt/OA999_System/root/orchestration_architect
-          - source: 'subvol=@OA999_Data-Keystore,compress=zstd'
-            target: /mnt/OA999_System/root/keystore
-          - source: 'subvol=@OA999_Data-Artifacts,compress=zstd'
-            target: /mnt/OA999_System/root/artifacts
-          - source: 'subvol=@OA999_Data-Repository,compress=zstd'
-            target: /mnt/OA999_System/srv/git
-          - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
-            target: /mnt/OA999_System/.snapshots/OA999_Data
-

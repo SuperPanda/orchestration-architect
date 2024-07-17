@@ -74,11 +74,34 @@ playbooks_specifications:
       - 50_content_region_message
       - 90_managed_block_after_content
   OA999_Test:
+    Prepare_OA999:
+      playbook_name: Prepare OA999 Demo
+      playbook_path: Prepare_OA999.yml
+      playbook_description: |
+        Creates a Keystore to hold keys to repeatedly access LUKS containers 
+          during provisioning allowing for experimentation and building features.
+        Configures Installation Target Device.
+        Will need to set keystore to use luks, and be a separate role,
+          which will use later to be built roles zram_device and virtual_block_device
+      state: updated
+      metadata:
+        pre_run_playbooks: 
+          - "../Meta/Setup_Environment.yml"
     Build_OA999:
       playbook_name: Build OA999
-      playbook_path: Build_OA999_Test.yml
-      playbook_description: Provisions a device
+      playbook_path: Build_OA999.yml
+      playbook_description: |
+        Opens Keystore if unable to find development key.
+        Provisions a device.
       state: updated
+      metadata:
+        pre_run_playbooks: 
+          - "../Meta/Setup_Environment.yml"
+    Deactivate_OA999:
+      playbook_name: Prepare OA999 for Ejection
+      playbook_path: Deactivate_OA999.yml
+      playbook_description: |
+        Removes mounts, closes LUKS containers and configures the system to be used elsewhere.
       metadata:
         pre_run_playbooks: 
           - "../Meta/Setup_Environment.yml"

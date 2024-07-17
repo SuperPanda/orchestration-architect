@@ -1,5 +1,5 @@
 OA999_applications:
-  system_default_pkgs:
+  bootstrap_pkgs:
     - amd-ucode
     - ansible
     - base
