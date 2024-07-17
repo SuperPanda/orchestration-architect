@@ -23,6 +23,7 @@
       mount: {{ mount | default('not set') }}
       mount_state: {{ mount_state | default('not set') }}
       mount_map: {{ mount_map | default('not set') }}
+      mount_type: {{ mount_type | default('not set') }}
       mount_target: {{ mount_target | default('not set') }}
       mount_source: {{ mount_source | default('not set') }}
       
@@ -31,6 +32,7 @@
       mount_params:
         state: "{{ (mount | default({})).state is defined | ternary(mount.state, mount_state | default(omit, true)) }}"
         map: "{{ (mount | default({})).map is defined | ternary(mount.map, mount_map | default(omit, true)) }}"
+        type: "{{ (mount | default({})).type is defined | ternary(mount.type, mount_type | default(omit, true)) }}"
         target: "{{ (mount | default({})).target is defined | ternary(mount.target, mount_target | default(omit, true)) }}"
         source: "{{ (mount | default({})).source is defined | ternary(mount.source, mount_source | default(omit, true)) }}"
         
@@ -39,6 +41,7 @@
     mount_params:
       state: "{{ (mount | default({})).state is defined | ternary(mount.state, mount_state | default(omit, true)) }}"
       map: "{{ (mount | default({})).map is defined | ternary(mount.map, mount_map | default(omit, true)) }}"
+      type: "{{ (mount | default({})).type is defined | ternary(mount.type, mount_type | default(omit, true)) }}"
       target: "{{ (mount | default({})).target is defined | ternary(mount.target, mount_target | default(omit, true)) }}"
       source: "{{ (mount | default({})).source is defined | ternary(mount.source, mount_source | default(omit, true)) }}"
       

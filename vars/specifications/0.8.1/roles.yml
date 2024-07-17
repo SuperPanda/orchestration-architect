@@ -130,6 +130,7 @@ roles_specifications:
           state: present
       parameters:
         map: {}
+        type: {}
         target: {}
         source: {}
 

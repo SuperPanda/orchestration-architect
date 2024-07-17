@@ -21,7 +21,9 @@
     storage_state: opened
 
 - name: Map BTRFS Subvolumes to Present State (if required)
-  when: "'btrfs_subvolumes' in storage_params and storage_params.btrfs_subvolumes!=omit"
+  when:
+    - "'btrfs_subvolumes' in storage_params"
+    - "storage_params.btrfs_subvolumes != omit"
   ansible.builtin.include_role:
     name: btrfs_subvolumes
   vars:
@@ -29,16 +31,24 @@
     btrfs_subvolumes_state: present
 
 # (@functor) Storage(Opened -> Mounted) -> Mount(_ -> Present)
-
-- name: Map Mount Table Entries to Present State
-  when: "'mount_table' in storage_params and storage_params.mount_table!=omit"
-  loop: "{{ 'mount_table' | extract(storage_params) }}"
-  loop_control:
-    loop_var: mount
-  ansible.builtin.include_role:
-    name: mount
+- name: Map Mount Table Entries to Mounted State
+  when: "storage_params.mount_table!=omit"
   vars:
-    mount_state: mounted
+    mount_table: "{{ 'mount_table' | extract(storage_params) }}"
+  block:
+    # Note: Added condition in loop because jinja2 is still evaluated causing loop
+    #   parameter to be invalid. Since the when clause is distributed to the block tasks.
+    #
+    #   In the future, the functors will be generated in a separate task, and
+    #   this hack will not be needed.
+    - name: Mount Table Entry
+      loop: "{{ [] if mount_table == omit else mount_table }}"
+      loop_control:
+        loop_var: mount
+      ansible.builtin.include_role:
+        name: mount
+      vars:
+        mount_state: mounted
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

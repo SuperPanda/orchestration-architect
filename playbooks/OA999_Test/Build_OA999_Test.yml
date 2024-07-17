@@ -113,19 +113,21 @@
     - vars/applications.yml
     - vars/enrolment.yml
   vars:
-    storage_state: present
     luks_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
+    storage_device: "{{ install_target }}"
+    storage_state: mounted
     luks_new_keyfile: "{{ ansible_env.HOME }}/.OA_Keystore/OA999_LUKS_Provision_temp.key"
   roles:
     - role: storage
       storage_partition_table: "{{ 'partition_table' | extract(OA999_storage_configuration) }}"
-      storage_device: "{{ install_target }}"
     - role: storage
       storage: "{{ 'efi_volume' | extract(OA999_storage_configuration) }}"
     - role: storage
       storage: "{{ 'system_volume' | extract(OA999_storage_configuration) }}"
+      storage_state: mounted
     - role: storage
       storage: "{{ 'data_volume' | extract(OA999_storage_configuration) }}"
+      storage_state: mounted
 
 
 

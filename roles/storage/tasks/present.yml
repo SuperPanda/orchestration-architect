@@ -31,13 +31,13 @@
 # (@functor) Storage(_ -> present) -> LUKS(_ -> present)
 - name: Map LUKS to Present state (if required)
   when: "'luks' in storage_params and storage_params.luks!=omit"
-  vars:
-    luks: "{{ 'luks' | extract(storage_params) }}"
-    luks_state: present
   block:
     - name: Pass LUKS Configuration Object to LUKS Role
       ansible.builtin.include_role:
         name: luks
+      vars:
+        luks: "{{ 'luks' | extract(storage_params) }}"
+        luks_state: present
 
 # (@functor) Storage(_ -> present) -> LUKS(present -> opened)
 - name: Map Storage to Opened State
@@ -51,23 +51,23 @@
 # (@functor) Storage(present -> opened) -> Filesystem(_ -> present)
 - name: Map Filesystem to Present state (if required)
   when: "'filesystem' in storage_params and storage_params.filesystem!=omit"
-  vars:
-    filesystem: "{{ 'filesystem' | extract(storage_params) }}"
-    filesystem_state: present
   block:
     - name: Pass Filesystem Configuration to Filesystem Role
       ansible.builtin.include_role:
         name: filesystem
+      vars:
+        filesystem: "{{ 'filesystem' | extract(storage_params) }}"
+        filesystem_state: present
 
 - name: Map BTRFS Subvolumes Role to Present state (if required)
   when: "'btrfs_subvolumes' in storage_params and storage_params.btrfs_subvolumes!=omit"
-  vars:
-    btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(storage_params) }}"
-    btrfs_subvolumes_state: present
   block:
     - name: Pass BTRFS Subvolumes Configuration to BTRFS Subvolumes Role
       ansible.builtin.include_role:
         name: btrfs_subvolumes
+      vars:
+        btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(storage_params) }}"
+        btrfs_subvolumes_state: present
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
