@@ -161,13 +161,9 @@
       vars:
         chroot_exec: "arch-chroot {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }}"
       block:
-        - name: Hash the root password
-          ansible.builtin.command: "openssl passwd -6 {{ password }}"
-          register: hashed_password
-          changed_when: false
         - name: Set root password
-          ansible.builtin.shell: "chpasswd --root {{ 'system_mount_path' | extract(OA999_bootstrap_configuration) }} --encrypted root:{{ hashed_password.stdout }}"
-
+          ansible.builtin.shell: echo -e "root:{{ password }}" | {{ chroot_exec }} chpasswd
+          no_log: true
         - name: Add luks passphrase
           ansible.builtin.include_role:
             name: luks
@@ -178,6 +174,7 @@
               keyfile: '{{ luks_keyfile }}'
               path: '/dev/disk/by-label/{{ item }}'
             luks_new_passphrase: '{{ password }}'
+          no_log: true
           loop:
             - OA999_Encrypted_System
             - OA999_Encrypted_Data
