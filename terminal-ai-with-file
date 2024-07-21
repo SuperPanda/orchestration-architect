@@ -1,10 +1,73 @@
 #!/bin/bash
-fzf-copy-files-to-clipboard
-(
-  source activate-terminal-ai
-  TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
-  wl-paste > $TEMP_FILE
-  nvim $TEMP_FILE
-  bat $TEMP_FILE | jq -Rsa . | base64 | xargs terminal-ai
-)
+show_help() {
+  echo "Usage: ./terminal-ai-with-file [--file=<FILE_TO_INCLUDE>] [--message=<MESSAGE_TO_SEND>] [--help]"
+  echo ""
+  echo "Options:"
+  echo "  --file=<FILE_TO_INCLUDE>               File to append to the message"
+  echo "  --message=<MESSAGE_TO_SEND>            Message to include with attached file."
+  echo "  --help                                 Show this help message and exit."
+}
+
+MESSAGE=""
+FILE=""
+
+while [[ "$1" == --* ]]; do
+  case $1 in
+    --message=*)
+      MESSAGE="${1#*=}"
+      shift
+      ;;
+    --file=*)
+      FILE="${1#*=}"
+      shift
+      ;;
+    --help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+source activate-terminal-ai
+TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
+if [[ -n $MESSAGE ]]; then
+  echo $MESSAGE >> $TEMP_FILE
+fi
+
+echo >> $TEMP_FILE
+echo "---" >> $TEMP_FILE
+echo "# Attached File(s) Below" >> $TEMP_FILE
+echo "---" >> $TEMP_FILE
+echo >> $TEMP_FILE
+
+if [[ -z $FILE ]]; then
+  fzf-copy-files-to-clipboard
+  wl-paste >> $TEMP_FILE
+elif [[ -f $FILE ]]; then
+  bat $FILE >> $TEMP_FILE
+else
+  echo "Invalid File"
+  exit 1
+fi
+nvim $TEMP_FILE
+read -p "Do you want to send? (Y/n): " choice
+case "$choice" in
+  [Yy]* )
+    base64 $TEMP_FILE | jq -Rsa . | xargs terminal-ai
+    exit 0
+    ;;
+  [Nn]* )
+    echo "Exiting..."
+    exit 1
+    ;;
+  * )
+    echo "Invalid input. Exiting..."
+    exit 1
+    ;;
+esac
 

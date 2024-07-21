@@ -131,7 +131,7 @@ GPTSpeak() {
         "messages": [
           {
             "role": "system",
-            "content": "You are a Terminal Based Assistant"
+            "content": "You are a Terminal Based Assistant. If you receive base64 encoded messages, you will respond to the contents of decoded message as if it were the original message; where the start of the decoded message is what the user asked, that is the instructions precedes the contents of one of more files relevant to that message."
           },
           {
             "role": "user",
