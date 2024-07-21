@@ -34,31 +34,33 @@ while [[ "$1" == --* ]]; do
 done
 
 source activate-terminal-ai
-TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
+MESSAGE_TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
+ATTACHED_TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
 if [[ -n $MESSAGE ]]; then
-  echo $MESSAGE >> $TEMP_FILE
+  echo "$MESSAGE" >> $MESSAGE_TEMP_FILE
 fi
-
-echo >> $TEMP_FILE
-echo "---" >> $TEMP_FILE
-echo "# Attached File(s) Below" >> $TEMP_FILE
-echo "---" >> $TEMP_FILE
-echo >> $TEMP_FILE
 
 if [[ -z $FILE ]]; then
   fzf-copy-files-to-clipboard
-  wl-paste >> $TEMP_FILE
+  wl-paste >> $ATTACHED_TEMP_FILE
 elif [[ -f $FILE ]]; then
-  bat $FILE >> $TEMP_FILE
+  cat $FILE >> $ATTACHED_TEMP_FILE
 else
   echo "Invalid File"
   exit 1
 fi
-nvim $TEMP_FILE
+echo "MESSAGE"
+echo "-------"
+cat "$MESSAGE_TEMP_FILE"
+echo ""
+echo "ATTACHED CONTENT"
+echo "-----------------"
+cat "$ATTACHED_TEMP_FILE"
+echo ""
 read -p "Do you want to send? (Y/n): " choice
 case "$choice" in
   [Yy]* )
-    base64 $TEMP_FILE | jq -Rsa . | xargs terminal-ai
+    terminal-ai --input-file="$ATTACHED_TEMP_FILE" -- "$(cat $MESSAGE_TEMP_FILE)"
     exit 0
     ;;
   [Nn]* )

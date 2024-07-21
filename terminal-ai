@@ -13,6 +13,8 @@ DRY_RUN=0
 VERBOSE=0
 OUTPUT_DIR="$LOG_STORAGE_PATH"
 OUTPUT_FILE="$LOG_FILE"
+INPUT_FILE=""
+ATTACHMENT=""
 
 # Function to display help
 show_help() {
@@ -42,6 +44,10 @@ while [[ "$1" == --* ]]; do
       OUTPUT_FILE="${1#*=}"
       shift
       ;;
+    --input-file=*)
+      INPUT_FILE="${1#*=}"
+      shift
+      ;;
     --env-file=*)
       source "${1#*=}"
       shift
@@ -49,6 +55,10 @@ while [[ "$1" == --* ]]; do
     --help)
       show_help
       exit 0
+      ;;
+    -- )
+      shift
+      break
       ;;
     --verbose)
       VERBOSE=1
@@ -73,11 +83,25 @@ if [ -z "$SUPPLIED_PROMPT" ]; then
   SUPPLIED_PROMPT="$user_response"
 fi
 
+if [ -n "$INPUT_FILE" ]; then
+  if [ -f "$INPUT_FILE" ]; then
+    ATTACHMENT=$(<"$INPUT_FILE")
+  else
+    echo "Unable to read file. Exiting..."
+    exit 1
+  fi
+fi
+
 Converse() {
   
-  local supplied_prompt=$1
-
-  user_speech=$(Speak "USER" "$supplied_prompt")
+  local supplied_prompt="$1"
+  local attachment="$2"  
+  if [ -z "$attachment" ]; then
+    user_speech=$(Speak "USER" "$supplied_prompt")
+  else
+    user_speech=$(Speak "USER" "${supplied_prompt}\n--- (@attachment) ---\n${attachment}")
+  fi
+  
   echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   Record "USER" "$user_speech"
   echo "" >> "$OUTPUT_DIR/$OUTPUT_FILE"
@@ -89,8 +113,8 @@ Converse() {
 }
 
 Speak() {
-  local speaker=$1
-  local prompt=$2
+  local speaker="$1"
+  local prompt="$2"
   if [ "$speaker" == "USER" ]; then
     UserSpeak "$prompt"
   elif [ "$speaker" == "GPT" ]; then
@@ -99,15 +123,15 @@ Speak() {
 }
 
 Record() {
-  local speaker=$1
-  local speech=$2
+  local speaker="$1"
+  local speech="$2"
   local speech_metadata="[`date --rfc-3339=seconds`,speaker=$speaker]" 
   
   echo "$speech_metadata"
-  echo "$speech"
+  echo -e "$speech"
 
   echo "$speech_metadata" >> "$OUTPUT_DIR/$OUTPUT_FILE"
-  echo "$speech" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+  echo -e "$speech" >> "$OUTPUT_DIR/$OUTPUT_FILE"
 }
 
 UserSpeak() {
@@ -117,28 +141,39 @@ UserSpeak() {
 
 
 GPTSpeak() {
-  local prompt=$1
+  local prompt="$1"
   local gpt_speech
   if [ "$DRY_RUN" -eq 1 ]; then
     gpt_speech="<GPT Response>"
   else
+    MODEL="gpt-4o"
+    #INSTRUCTION="You are a Terminal Based Assistant. Before responding, you will read the message that is base64 encoded, and respond to the decoded message. Any direct instructions will be included at the start of the decoded message. The decoded content may also include the content of files or other information related to the provided instructions or query."
+    INSTRUCTION="You are a Terminal Based Assistant."
+    request_body=$(jq -n \
+      --arg model "$MODEL" \
+      --arg system "system" \
+      --arg user "user" \
+      --arg instruction "$INSTRUCTION" \
+      --arg message "$prompt" \
+      '{
+          model: $model,
+          messages: [
+            {
+              role: $system,
+              content: $instruction
+            },
+            {
+              role: $user,
+              content: $message
+            }
+          ]
+          }
+        ')
     response=$(curl -s https://api.openai.com/v1/chat/completions \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "OpenAI-Project: $OPENAI_PROJECT_ID" \
-      -d '{
-        "model": "gpt-4o",
-        "messages": [
-          {
-            "role": "system",
-            "content": "You are a Terminal Based Assistant. If you receive base64 encoded messages, you will respond to the contents of decoded message as if it were the original message; where the start of the decoded message is what the user asked, that is the instructions precedes the contents of one of more files relevant to that message."
-          },
-          {
-            "role": "user",
-            "content": "'"$prompt"'"
-          }
-        ]
-      }')
+      -d "$request_body")
     if [ "$VERBOSE" -eq 1 ]; then
       gpt_speech="$response"
     else
@@ -179,7 +214,7 @@ Main() {
       exit 1
     fi
   fi
-  Converse "$SUPPLIED_PROMPT"
+  Converse "$SUPPLIED_PROMPT" "$ATTACHMENT"
 }
 
 Main

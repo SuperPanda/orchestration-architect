@@ -5,5 +5,21 @@ source activate-terminal-ai
 terminal-ai-extract -d 2
 wl-paste > $TEMP_FILE
 nvim $TEMP_FILE
-terminal-ai $(bat $TEMP_FILE)
+NEW_MSG="$(<$TEMP_FILE)"
+echo -e "$NEW_MSG"
+read -p "Do you want to send? (Y/n): " choice
+case "$choice" in
+  [Yy]* )
+    terminal-ai -- "$NEW_MSG"
+    exit 0
+    ;;
+  [Nn]* )
+    echo "Exiting..."
+    exit 1
+    ;;
+  * )
+    echo "Invalid input. Exiting..."
+    exit 1
+    ;;
+esac
 
