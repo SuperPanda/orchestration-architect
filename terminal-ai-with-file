@@ -1,0 +1,10 @@
+#!/bin/bash
+fzf-copy-files-to-clipboard
+(
+  source activate-terminal-ai
+  TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
+  wl-paste > $TEMP_FILE
+  nvim $TEMP_FILE
+  bat $TEMP_FILE | jq -Rsa . | base64 | xargs terminal-ai
+)
+
