@@ -5,5 +5,5 @@ source activate-terminal-ai
 terminal-ai-extract -d 2
 wl-paste > $TEMP_FILE
 nvim $TEMP_FILE
-bat $TEMP_FILE | xargs terminal-ai
+terminal-ai $(bat $TEMP_FILE)
 
