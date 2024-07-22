@@ -4,6 +4,12 @@
 #     It generates a list of conversation items for AI fine tuning
 #     and batch summarization. The outputted list can be used with the 
 #     extract contents script for batch content processing.
+# Description: 
+#     This script is used to extract speech components from transcripts.
+#     It generates a list of conversation items for AI fine tuning
+#     and batch summarization. The outputted list can be used with the 
+#     extract contents script for batch content processing.
+#
 # Example of the JSON output:
 # ```json
 # [
@@ -28,16 +34,19 @@
 # Function to display help
 show_help() {
   cat << EOF
-Usage: terminal-ai-transcript-indexer [--update] [--index-file=<INDEX_FILE_PATH>] [--target-path=<INDEX_TARGET_PATH>] [--help]
+Usage: terminal-ai-transcript-indexer [--update|--rebuild] [--index-file=<INDEX_FILE_PATH>] [--target-path=<INDEX_TARGET_PATH>] [--help]
 Options:
-  --update           Generate the index for the provided INDEX_TARGET_PATH (default: $DEFAULT_DIRECTORY_TO_PROCESS) and output the index contents to INDEX_FILE_PATH (default: $DEFAULT_INDEX_FILE). If omitted, the index will be output to stdout.
-  --index-file=<INDEX_FILE_PATH> Specify a custom file to write the index to (when --update is provided) or to read from when the indexed file has not changed (feature coming soon).
+  --update           Update the index for the provided INDEX_TARGET_PATH (default: $DEFAULT_DIRECTORY_TO_PROCESS) and output the index contents to INDEX_FILE_PATH (default: $DEFAULT_INDEX_FILE). If omitted, the index will be output to stdout.
+  --rebuild          Rebuild the index for the provided INDEX_TARGET_PATH (default: $DEFAULT_DIRECTORY_TO_PROCESS) and output the index contents to INDEX_FILE_PATH (default: $DEFAULT_INDEX_FILE).
+  --index-file=<INDEX_FILE_PATH> Specify a custom file to write the index to (when --update or --rebuild is provided) or to read from when the indexed file has not changed (feature coming soon).
   --target-path=<INDEX_TARGET_PATH> Specify the path (file or directory) to be processed when generating the index. Overrides the default directory for the current script invocation.
   --help             Display this help message and exit.
 EOF
 }
 
+# Default values
 PERFORM_UPDATE=0
+PERFORM_REBUILD=0
 DEFAULT_DIRECTORY_TO_PROCESS="/root/artifacts/logs/terminal-ai/transcripts/"
 DEFAULT_INDEX_FILE="/root/artifacts/transcript-blocks.json"
 
@@ -57,6 +66,10 @@ while [[ "$1" == --* ]]; do
       ;;
     --update)
       PERFORM_UPDATE=1
+      shift
+      ;;
+    --rebuild)
+      PERFORM_REBUILD=1
       shift
       ;;
     --help)
@@ -89,6 +102,11 @@ fi
 files=$(find "$INDEX_TARGET_PATH" -type f)
 json_result="[]"
 
+# Load existing JSON if updating
+if [[ "$PERFORM_UPDATE" -eq 1 && -f $INDEX_FILE_PATH ]]; then
+  json_result=$(cat "$INDEX_FILE_PATH")
+fi
+
 for file in $files; do
   end_line=$(wc -l < "$file")
   if [[ "$end_line" -eq 0 ]]; then
@@ -97,6 +115,16 @@ for file in $files; do
 
   # Get file hash and last modified date
   file_hash=$(md5sum "$file" | awk '{ print $1 }')
+
+  if [[ "$PERFORM_UPDATE" -eq 1 ]]; then
+    existing_entry=$(jq --arg file "$file" --arg hash "$file_hash" '.[] | select(.file == $file and .file_hash == $hash)' <<< "$json_result")
+    
+    if [[ -n "$existing_entry" ]]; then
+      continue
+    fi
+
+    json_result=$(jq --arg current_hash "$file_hash" --arg file "$file" '[.[] | if .file == $file and .file_hash != $current_hash then empty else . end]' <<< "$json_result")
+  fi
 
   tags=$(grep -oP --line-number '^\[[^,]+,[^]]+\]$' "$file" | sed 's#\(.*\):\[\(.*\),speaker=\(.*\)\]#\1,\2,\3#')
   tags=$(echo "$tags" | sort -t',' -r -g)  # Sort by line number in descending order 
@@ -124,8 +152,10 @@ for file in $files; do
 done
 
 # Output the result to either standard output or the specified index file
-if [[ "$PERFORM_UPDATE" -eq 0 ]]; then
+if [[ "$PERFORM_UPDATE" -eq 0 && "$PERFORM_REBUILD" -eq 0 ]]; then
   echo "$json_result"
 else
   echo "$json_result" > "$INDEX_FILE_PATH"
 fi
+
+
