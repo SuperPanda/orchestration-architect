@@ -36,15 +36,15 @@ done
 source activate-terminal-ai
 MESSAGE_TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
 ATTACHED_TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
-if [[ -n $MESSAGE ]]; then
+if [[ -n "$MESSAGE" ]]; then
   echo "$MESSAGE" >> $MESSAGE_TEMP_FILE
 fi
 
-if [[ -z $FILE ]]; then
+if [[ -z "$FILE" ]]; then
   fzf-copy-files-to-clipboard
   wl-paste >> $ATTACHED_TEMP_FILE
-elif [[ -f $FILE ]]; then
-  cat $FILE >> $ATTACHED_TEMP_FILE
+elif [[ -f "$FILE" ]]; then
+  cat "$FILE" >> "$ATTACHED_TEMP_FILE"
 else
   echo "Invalid File"
   exit 1
