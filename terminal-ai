@@ -18,11 +18,12 @@ ATTACHMENT=""
 
 # Function to display help
 show_help() {
-  echo "Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] [<MSG_TO_SEND_TO_GPT>]"
+  echo "Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--input-file=<FILE_TO_ATTACH] [--help] [--verbose] [<MSG_TO_SEND_TO_GPT>]"
   echo ""
   echo "Options:"
   echo "  --output-dir=<OUTPUT_DIRECTORY_PATH>   Specifies the directory where the log file will be stored. Defaults to /home/root/artifacts/logs/terminal-ai/transcripts."
   echo "  --output-file=<OUTPUT_FILE>            Specifies the name of the log file. Defaults to the current date in RFC-3339 format."
+  echo "  --input-file=<INPUT_FILE>             Specify a file to attach."
   echo "  --env-file=<OPENAI_ENV_FILE>           If set, specifies the file path to source environment variables for OpenAI."
   echo "  --dry-run                              If set, the script will not actually send the message to GPT, but will log a placeholder response."
   echo "  --help                                 Show this help message and exit."
