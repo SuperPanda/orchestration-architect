@@ -101,15 +101,10 @@ Converse() {
   else
     user_speech=$(Speak "USER" "${supplied_prompt}\n--- (@attachment) ---\n${attachment}")
   fi
-  
-  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   Record "USER" "$user_speech"
-  echo "" >> "$OUTPUT_DIR/$OUTPUT_FILE"
 
   gpt_speech=$(Speak "GPT" "$user_speech")
-  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   Record "GPT" "$gpt_speech"
-  echo "" >> "$OUTPUT_DIR/$OUTPUT_FILE"
 }
 
 Speak() {
@@ -129,9 +124,11 @@ Record() {
   
   echo "$speech_metadata"
   echo -e "$speech"
+  echo "---"
 
   echo "$speech_metadata" >> "$OUTPUT_DIR/$OUTPUT_FILE"
   echo -e "$speech" >> "$OUTPUT_DIR/$OUTPUT_FILE"
+  echo "---" >> "$OUTPUT_DIR/$OUTPUT_FILE"
 }
 
 UserSpeak() {

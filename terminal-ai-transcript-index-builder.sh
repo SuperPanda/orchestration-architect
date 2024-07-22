@@ -17,6 +17,10 @@ files=$(find $DIRECTORY_TO_PROCESS -type f)
 json_result="[]"
 for file in $files; do
   end_line=$(wc -l $file)
+  if [[ $end_line -eq 0 ]]; then
+    continue
+  fi
+
   tags=$(grep -oP --line-number '^\[[^,]+,[^]]+\]$' $file | sed 's#\(.*\):\[\(.*\),speaker=\(.*\)\]#\1,\2,\3#')
   tags=$(echo "$tags" | sort -t, -k1,1r)  # Sort by line number in descending order 
   while IFS="," read -r start_line timestamp speaker; do
