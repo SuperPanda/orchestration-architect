@@ -2,7 +2,7 @@
 TEMP_FILE=$(mktemp /tmp/tai.XXXXXXXX)
 
 source activate-terminal-ai
-terminal-ai-extract -d 2
+terminal-ai-extract -n 2
 wl-paste > $TEMP_FILE
 nvim $TEMP_FILE
 NEW_MSG="$(<$TEMP_FILE)"

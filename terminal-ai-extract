@@ -1,96 +1,74 @@
 #!/bin/bash
-# File: terminal-ai-extract
-# Script to find the latest file and process specific sections demarcated by triple dashes ("---")
-# Usage: terminal-ai-extract [options]
-# Options:
-#   -d <dash_count>   The nth occurrence of triple dashes from the end. Default is 1 (last occurrence).
-#   -s <span_count>   The number of dashes to span. Default is the whole section to the next triple dash.
-#   -h                Display help.
 
-help_message() {
-    echo "Usage: $0 [options]"
-    echo "Options:"
-    echo "  -d <dash_count>   The nth occurrence of triple dashes from the end. Default is 1 (last occurrence)."
-    echo "  -s <span_count>   The number of dashes to span. Default is the whole section to the next triple dash."
-    echo "  -h                Display help."
+# Function to display help
+show_help() {
+  cat << EOF
+Usage: $0 [-i <INDEX_FILE_PATH>] [-n <NTH_LAST_MESSAGE>] [-c <MESSAGE_COUNT>] [-h]
+Options:
+  -i <INDEX_FILE_PATH>          Specify the path to the index JSON file (default: /root/artifacts/transcript-blocks.json).
+  -n <NTH_LAST_MESSAGE>         Specify how many messages to go back from the last message (default: 0 i.e., the last message).
+  -c <MESSAGE_COUNT>      Specify how many messages to extract (default: 1).
+  --help                         Display this help message and exit.
+EOF
 }
 
-DASH_COUNT=1
-SPAN_COUNT=0
+INDEX_FILE_PATH="/root/artifacts/transcript-blocks.json"
+NTH_LAST_MESSAGE=0
+MESSAGE_COUNT=1
 
 # Parse command line arguments
-while getopts ":d:s:h" opt; do
+while getopts ":n:c:i:h" opt; do
   case ${opt} in
-    d)
-      DASH_COUNT=$OPTARG
+    i)
+      INDEX_FILE_PATH=$OPTARG
       ;;
-    s)
-      SPAN_COUNT=$OPTARG
+    n)
+      NTH_LAST_MESSAGE=$OPTARG
+      ;;
+    c)
+      MESSAGE_COUNT=$OPTARG
       ;;
     h)
-      help_message
+      show_help
       exit 0
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      help_message
-      exit 1
       ;;
     :)
       echo "Option -$OPTARG requires an argument." >&2
-      help_message
+      show_help
       exit 1
       ;;
   esac
 done
 
-# Main logic
-main() {
-  local directory="/root/artifacts/logs/terminal-ai/transcripts"
-  local latest_file
-  local dash_lines
-  local selected_dash_line
-  local last_line
-  local num_lines
+# Call the terminal-ai-transcript-indexer script to update the index
+terminal-ai-transcript-indexer --update --index-file="$INDEX_FILE_PATH"
 
-  latest_file=$(ls -t "$directory/"*.md | head -n 1)
-  dash_lines=$(grep -n "^---$" "$latest_file" | cut -d: -f1)
+# Check if the index file exists
+if [[ ! -f "$INDEX_FILE_PATH" ]]; then
+  echo "Error: Index file '$INDEX_FILE_PATH' does not exist."
+  exit 1
+fi
 
-  if [ -n "$dash_lines" ]; then
-    dash_lines=($dash_lines)  # Convert to array
-    local dash_count=${#dash_lines[@]}
-    local reference_index=$((dash_count - DASH_COUNT))
+# Ensure messages are sorted by timestamp using jq.
+# This simplifies operations such as:
+#   - NTH_LAST_MESSAGE messages and MESSAGE_COUNT messages are able to return
+#     messages for revision or expansion effectively
+#   - Diffs are predictable with changes being appended to the end
+messages=$(jq -c ". | reverse | .[$NTH_LAST_MESSAGE:$((NTH_LAST_MESSAGE + MESSAGE_COUNT))]" "$INDEX_FILE_PATH")
 
-    # Ensure valid reference index
-    if [ $reference_index -lt 0 ]; then
-      echo "Error: Invalid dash occurrence specified." >&2
-      exit 1
-    fi
-
-    selected_dash_line=${dash_lines[$reference_index]}
-    if [ $reference_index -lt $((dash_count - 1)) ]; then
-      last_line=${dash_lines[$((reference_index + 1))]}
-      num_lines=$((last_line - selected_dash_line))
-    else
-      num_lines=$(($(wc -l < "$latest_file") - selected_dash_line + 1))
-    fi
-
-    if [ "$SPAN_COUNT" -ge 2 ]; then
-      for ((i=1; i<SPAN_COUNT; i++)); do
-        if [ $((reference_index + i)) -lt $dash_count ]; then
-          last_line=${dash_lines[$((reference_index + i))]}
-          num_lines=$((last_line - selected_dash_line))
-        else
-          break
-        fi
-      done
-    fi
-
-    explore-file -m copy "$latest_file" "$selected_dash_line" "$num_lines"
-  else
-    echo "No triple dash separators found in the latest file." >&2
-    exit 1
-  fi
+# Function to extract lines from a file
+extract_lines() {
+  local file=$1
+  local start_line=$2
+  local end_line=$3
+  sed -n "${start_line},${end_line}p" "$file"
 }
 
-main "$@"
+# Loop through the messages and extract their content from the files
+echo "$messages" | jq -c '.[]' | while read -r message; do
+  file=$(echo "$message" | jq -r '.file')
+  start_line=$(echo "$message" | jq -r '.start_line')
+  end_line=$(echo "$message" | jq -r '.end_line')
+  
+  extract_lines "$file" "$start_line" "$end_line"
+done
