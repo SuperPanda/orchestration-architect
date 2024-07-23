@@ -147,9 +147,11 @@ for file in $files; do
       }'
     )
     json_result=$(jq --argjson item "$json_entry" '. += [$item]' <<< "$json_result")
-    end_line="$start_line"
+    end_line=$((start_line-1))
   done <<< "$tags"
 done
+
+json_result=$(jq 'sort_by(.timestamp)' <<< "$json_result")
 
 # Output the result to either standard output or the specified index file
 if [[ "$PERFORM_UPDATE" -eq 0 && "$PERFORM_REBUILD" -eq 0 ]]; then
