@@ -3,6 +3,22 @@
 # Description: Script to Communicate and Log with GPT.
 # Usage: ./terminal-ai [--output-dir=<OUTPUT_DIRECTORY_PATH>] [--output-file=<OUTPUT_FILE>] [--dry-run] [--help] [--verbose] <MSG_TO_SEND_TO_GPT>
 
+# [INSTRUCTIONS FOR TERMINAL AI] #
+# Context: This script is triggered to call the API endpoint for chat completion.
+#          The intent is that the functions should represent the Speaker, Speech (Message: {Speaker,Speech}).
+# Goal:   Add thread_id as argument, which will set the thread_id.
+#         If no thread_id, then we will generate a UUID as thread_id.
+# Tasks:
+#   - Add function Prepare_Conversation: This will load the thread_id, or generate a UUID
+#   - Make function Prepare_Speech
+#       - used by User to attach content to speech and create speech metadata
+#       - used by GPT to send the messages to API and to create speech and create speech metadata
+#   - Start of script set thread_id to a UUID, or provide the supplied thread_id from arguments
+#   - Ensure the thread_id is added to arguments parsing
+#   - Generate a UUID to assign for each Message ID 
+#   - Add GPT response metadata to the metadata field.
+#
+#
 LOG_STORAGE_PATH="/root/artifacts/logs/terminal-ai/transcripts"
 LOG_FILE="`date --rfc-3339=date`.md"
 mkdir -p "$LOG_STORAGE_PATH"
@@ -94,7 +110,6 @@ if [ -n "$INPUT_FILE" ]; then
 fi
 
 Converse() {
-  
   local supplied_prompt="$1"
   local attachment="$2"  
   if [ -z "$attachment" ]; then
@@ -122,7 +137,7 @@ Record() {
   local speaker="$1"
   local speech="$2"
   local speech_metadata="[`date --rfc-3339=seconds`,speaker=$speaker]" 
-  
+  # SPEECH METADATA NEEDS TO BE CONSISTENT WHEN CALLED FROM GPT OR USER.
   echo "$speech_metadata"
   echo -e "$speech"
   echo "---"
@@ -145,7 +160,6 @@ GPTSpeak() {
     gpt_speech="<GPT Response>"
   else
     MODEL="gpt-4o"
-    #INSTRUCTION="You are a Terminal Based Assistant. Before responding, you will read the message that is base64 encoded, and respond to the decoded message. Any direct instructions will be included at the start of the decoded message. The decoded content may also include the content of files or other information related to the provided instructions or query."
     INSTRUCTION="You are a Terminal Based Assistant."
     request_body=$(jq -n \
       --arg model "$MODEL" \
@@ -192,7 +206,6 @@ ExtractMetadata() {
   local prompt_tokens
   local completion_tokens
   local conversation_id
-  
   total_tokens=$(echo "$response" | jq -r '.usage.total_tokens')
   prompt_tokens=$(echo "$response" | jq -r '.usage.prompt_tokens')
   completion_tokens=$(echo "$response" | jq -r '.usage.completion_tokens')

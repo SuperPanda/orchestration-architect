@@ -1,4 +1,9 @@
 #!/bin/bash
+### TODO: Add option to select
+###         thread which will return all the messages unless NTH_LAST_MESSAGE is explicitly set (requirement 1)
+###       Add message option and -n will be from that message (requirement 2)
+### add skip conversation marker -s tag which will make the start line be incremented by one (requirement 3)
+### .message_id, .thread_id .speaker are now possible values from the index item (context)
 
 # Function to display help
 show_help() {

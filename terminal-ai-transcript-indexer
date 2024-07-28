@@ -1,4 +1,9 @@
 # File: scripts/terminal-ai-transcript-indexer
+# LIMITATIONS TO FIX:
+#   Issue: Cannot handle MESSAGE IDENTIFIER in the Conversation.
+#   Proposed Plan: Add content line field to Message Identifier.
+#   Issue: Message IDs and Thread IDs are missing from previous versions.
+#   Proposed Plan: Add script to add message id and thread id to existing metadata after BTRFS snapshots work.
 # Description: 
 #     This script is used to extract speech components from transcripts.
 #     It generates a list of conversation items for AI fine tuning
@@ -126,26 +131,48 @@ for file in $files; do
     json_result=$(jq --arg current_hash "$file_hash" --arg file "$file" '[.[] | if .file == $file and .file_hash != $current_hash then empty else . end]' <<< "$json_result")
   fi
 
-  tags=$(grep -oP --line-number '^\[[^,]+,[^]]+\]$' "$file" | sed 's#\(.*\):\[\(.*\),speaker=\(.*\)\]#\1,\2,\3#')
+  tags=$(grep -E '^\[[^,]+,[^]]+\]$' "$file"  --line-number | sed -E 's#^([^:]+):\[([^,]+),([^]]+)\]#\1,\2,\3#g')
   tags=$(echo "$tags" | sort -t',' -r -g)  # Sort by line number in descending order 
-  while IFS="," read -r start_line timestamp speaker; do
-    json_entry=$(
-      jq -n \
+  while IFS="," read -r start_line timestamp additional_fields; do
+    ### HOW TO SET MESSAGE_ID TO A UUID IF NOT SET
+
+    declare -A FIELDS
+    FIELDS=(
+      ["speaker"]=null
+      ["thread_id"]=null
+      ["message_id"]=null
+    )
+    # ADD MESSAGE ID BY UPDATING LOGS, ADD AFTER
+    # BTRFS SNAPSHOT FEATURE IMPLEMENTED
+    IFS=',' read -r -a FIELDS_ARRAY <<< "$additional_fields"
+
+    for FIELD in "${FIELDS_ARRAY[@]}"; do
+      KEY=$(echo $FIELD | cut -d'=' -f1)
+      VALUE=$(echo $FIELD | cut -d'=' -f2)
+      FIELDS[$KEY]=$VALUE
+    done
+    
+    json_entry=$(jq -n \
       --arg item_time "$timestamp" \
       --arg item_file "$file" \
-      --arg item_speaker "$speaker" \
       --arg item_start "$start_line" \
       --arg item_end "$end_line" \
       --arg item_hash "$file_hash" \
+      --arg item_speaker "${FIELDS[speaker]}" \
+      --arg item_thread_id "${FIELDS[thread_id]}" \
+      --arg item_message_id "${FIELDS[message_id]}" \
       '{
         "timestamp": $item_time,
         "file": $item_file,
-        "speaker": $item_speaker,
         "start_line": $item_start,
         "end_line": $item_end,
-        "file_hash": $item_hash
-      }'
-    )
+        "file_hash": $item_hash,
+        "speaker": $item_speaker,
+        "thread_id": $item_thread_id,
+        "message_id": $item_message_id
+      }')
+    
+
     json_result=$(jq --argjson item "$json_entry" '. += [$item]' <<< "$json_result")
     end_line=$((start_line-1))
   done <<< "$tags"
