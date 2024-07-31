@@ -1,1 +1,43 @@
-ansible-doc -l | cut -f1 -d' ' | fzf | xargs -I {} ansible-doc '{}'
+#!/bin/bash
+# File: scripts/fzf-ansible-docs
+# Description: Fuzzy Find Ansible Documentation
+# Usage: fzf-ansible-docs [<FILTER_TYPE>] [--help]
+
+# Function to display help
+show_help() {
+  echo "Usage: fzf-ansible-docs [ module | become | cache | callback | cliconf |
+                                  connection | httpapi | inventory | lookup | netconf |
+                                  shell | vars | module | strategy | test |
+                                  filter | role | keyboard ] [--help]"  
+  echo ""
+  echo "        --help             Show this help message and exit."
+}
+
+filter=""
+
+# Parse command-line arguments
+while [[ "$1" == --* ]]; do
+  case $1 in
+    --help)
+      show_help
+      exit 0
+      ;;
+    -- )
+      shift
+      break
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+filter="$*"
+
+if [ -z "$filter" ]; then
+  ansible-doc -l | cut -f1 -d' ' | fzf | xargs -I {} ansible-doc '{}'
+else
+  ansible-doc -t ${filter} -l | cut -f1 -d' ' | fzf | xargs -I {} ansible-doc -t ${filter} '{}'
+fi
