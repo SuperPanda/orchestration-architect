@@ -55,6 +55,7 @@ OA999_storage_configuration:
 
     mount_table:
       - type: btrfs
+        fstab: /etc/fstab
         source: LABEL=OA999_System
         map:
           - source: 'subvol=@OA999_System,compress=zstd'
@@ -63,8 +64,6 @@ OA999_storage_configuration:
             target: /mnt/OA999_System/root
           - source: 'subvol=@OA999_System-snapshots,compress=zstd'
             target: /mnt/OA999_System/.snapshots
-          - source: 'subvol=@OA999_System-tmp,compress=zstd'
-            target: /mnt/OA999_System/tmp
           - source: 'subvol=@OA999_System-var_log,compress=zstd'
             target: /mnt/OA999_System/var/log
           - source: 'subvol=@OA999_System-var_cache_pacman_pkg,compress=zstd'
@@ -72,7 +71,8 @@ OA999_storage_configuration:
       - type: vfat
         source: LABEL=OA999_EFI
         target: /mnt/OA999_System/boot
-
+      - type: tmpfs
+        target: /mnt/OA999_System/tmp
   data_volume:
     name: Orchestration Architect Encrypted Data Volume
     luks:
@@ -95,6 +95,7 @@ OA999_storage_configuration:
         - '@OA999_Data-Keystore'
         - '@OA999_Data-Snapshots'
 
+    mount_table: /etc/fstab
     mount_table:
       - type: btrfs
         source: LABEL=OA999_Data

@@ -133,6 +133,9 @@ roles_specifications:
         type: {}
         target: {}
         source: {}
+        fstab: {}
+      defaults:
+        mount_fstab: "/etc/fstab"
 
   Base:
     parameters:

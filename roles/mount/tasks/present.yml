@@ -13,13 +13,12 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
-- name: Mount with sub-mounts (BTRFS subvolumes)
+- name: Nested Mount(BTRFS subvolumes)
   when:
     - "'map' in mount_params and mount_params.map!=omit"
     - "'type' in mount_params and mount_params.type=='btrfs'"
   block:
-    - name: Add BTRFS Subvolumes fstab entries
-      when: sub_mount.options is not defined
+    - name: Mount BTRFS Subvolumes
       loop: "{{ mount.map }}"
       loop_control:
         loop_var: sub_mount
@@ -29,24 +28,40 @@
         src: "{{ mount.source }}"
         opts: "{{ sub_mount.source }}"
         path: "{{ sub_mount.target }}"
+        fstab: "{{ mount.fstab | default(omit) }}"
+      when: sub_mount.options is not defined
 
-- name: Add Filesystem fstab entries
-  when: mount.target is defined and mount.type!='bind'
+- name: Mount Filesystems
   ansible.posix.mount:
     state: present
     fstype: "{{ mount.type }}"
     src: "{{ mount.source }}"
     opts: "{{ mount.options | default(omit) }}"
     path: "{{ mount.target }}"
+    fstab: "{{ mount.fstab | default(omit) }}"
+  when:
+    - mount.target is defined
+    - mount.type!='bind'
 
-- name: Add Bind Mount Fstab entries
-  when: mount.type=='bind'
+- name: Bind source to Target
   ansible.posix.mount:
     state: present
     fstype: none
     opts: bind
     src: "{{ mount.source }}"
     path: "{{ mount.target }}"
+    fstab: "{{ mount.fstab | default(omit) }}"
+  when: mount.type=='bind'
+
+- name: Add TmpFS Mount Fstab entries
+  ansible.posix.mount:
+    state: present
+    fstype: "{{ mount.type }}"
+    opts: "{{ mount.options }}"
+    src: "{{ mount.type }}"
+    path: "{{ mount.target }}"
+    fstab: "{{ mount.fstab | default(omit) }}"
+  when: mount.type=='tmpfs'
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

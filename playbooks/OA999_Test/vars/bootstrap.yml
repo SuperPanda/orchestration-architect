@@ -3,7 +3,6 @@ OA999_keystore_configuration:
   vault_mount: /root/.OA_Keystore
   provision_key: /root/.OA_Keystore/OA999_LUKS_Provision_temp.key
 
-  
 OA999_bootstrap_configuration:
   system_mount_path: /mnt/OA999_System
   hostname: OA999
@@ -31,6 +30,7 @@ OA999_bootstrap_configuration:
     modules:
       - usbhid
       - xhci_hcd
+
 OA999_storage_configuration:
   partition_table:
     label: gpt
@@ -88,21 +88,25 @@ OA999_storage_configuration:
 
     mount_table:
       - type: btrfs
-        source: LABEL=OA999_System
+        fstab: /etc/fstab.OA999.install
+        source: LABEL=OA999_System        
         map:
           - source: 'subvol=@OA999_System,compress=zstd'
             target: /mnt/OA999_System
           - source: 'subvol=@OA999_System-persistence,compress=zstd'
             target: /mnt/OA999_System/root
-          - source: 'subvol=@OA999_System-snapshots,compress=zstd'
-            target: /mnt/OA999_System/.snapshots/OA999_System
-          - source: 'subvol=@OA999_System-tmp,compress=zstd'
-            target: /mnt/OA999_System/tmp
           - source: 'subvol=@OA999_System-var_log,compress=zstd'
             target: /mnt/OA999_System/var/log
           - source: 'subvol=@OA999_System-var_cache_pacman_pkg,compress=zstd'
             target: /mnt/OA999_System/var/cache/pacman/pkg
+          - source: 'subvol=@OA999_System-snapshots,compress=zstd'
+            target: /mnt/OA999_System/.snapshots/OA999_System
+      - source: tmpfs
+        fstab: /etc/fstab.OA999.install
+        type: tmpfs
+        target: /mnt/OA999_System/tmp
       - type: vfat
+        fstab: /etc/fstab.OA999.install
         source: LABEL=OA999_EFI
         target: /mnt/OA999_System/boot
 
@@ -128,9 +132,14 @@ OA999_storage_configuration:
         - '@OA999_Data-Keystore'
         - '@OA999_Data-Snapshots'
 
+    # Mount Table for Installation
+    # OA999 Offline - Mounted on Another System (e.g. OA001)
     mount_table:
+      # Mount Points When Mounted to Rescue and Recover Machine
       - type: btrfs
         source: LABEL=OA999_Data
+        # (@fstab): offline Data Population, Migration and Recovery
+        fstab: /etc/fstab.OA999.modify   
         map:
           - source: 'subvol=@OA999_Data-Application,compress=zstd'
             target: /mnt/OA999_Data-Application
@@ -141,21 +150,21 @@ OA999_storage_configuration:
           - source: 'subvol=@OA999_Data-Repository,compress=zstd'
             target: /mnt/OA999_Data-Repository
           - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
-            target: /mnt/OA999_Data-Snapshots
-  data_volume_overlay:
-    <<: *data_volume
-    mount_table:
-      - type: btrfs
-        source: LABEL=OA999_Data
-        map:
-          - source: 'subvol=@OA999_Data-Application,compress=zstd'
-            target: /mnt/OA999_System/root/orchestration_architect
-          - source: 'subvol=@OA999_Data-Keystore,compress=zstd'
-            target: /mnt/OA999_System/root/keystore
-          - source: 'subvol=@OA999_Data-Artifacts,compress=zstd'
-            target: /mnt/OA999_System/root/artifacts
-          - source: 'subvol=@OA999_Data-Repository,compress=zstd'
-            target: /mnt/OA999_System/srv/git
-          - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
-            target: /mnt/OA999_System/.snapshots/OA999_Data
+            target: /mnt/OA999_Data-Snapshots            
+        # Mount table Used For Installation, genfstab (with prefix: /mnt/OA999_System)
+        # Mount Data Subvolumes over the OA999 System 
+        - type: btrfs
+          source: LABEL=OA999_Data
+          fstab: /etc/fstab.OA999.install
+          map:
+            - source: 'subvol=@OA999_Data-Application,compress=zstd'
+              target: /opt/orchestration_architect
+            - source: 'subvol=@OA999_Data-Keystore,compress=zstd'
+              target: /mnt/OA999_System/root/keystore
+            - source: 'subvol=@OA999_Data-Artifacts,compress=zstd'
+              target: /mnt/OA999_System/opt/orchestration_architect
+            - source: 'subvol=@OA999_Data-Repository,compress=zstd'
+              target: /mnt/OA999_System/srv/git
+            - source: 'subvol=@OA999_Data-Snapshots,compress=zstd'
+              target: /mnt/OA999_System/.snapshots/@OA999_Data
 

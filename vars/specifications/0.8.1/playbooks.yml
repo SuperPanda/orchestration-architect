@@ -54,6 +54,12 @@ playbooks_specifications:
           from the PXE service, and configuration of a running system that is persisted
           due to configuration running from playbook. Connects via SSH using credentials
           baked in.
+      Sandbox:
+        collection_name: Sandbox
+        path: playbooks/Sandbox
+        template_path: playbooks/base.yml.j2
+        description: |
+          Experiments and prototypes.
       OA999_Test:
         collection_name: OA999_Test
         path: playbooks/OA999_Test
@@ -76,19 +82,78 @@ playbooks_specifications:
       - 30_managed_block_before_content
       - 50_content_region_message
       - 90_managed_block_after_content
+  Sandbox:
+    Temporary Container Experiment:
+      playbook_name: Temporary Container Experiment
+      playbook_description: |
+        ===========================================
+        Experiment - Temporary Container Experiment
+        ===========================================
+
+        ---------------------------
+        INSTRUCTIONS TO TERMINAL AI
+        ---------------------------
+        REVIEW THIS SECTION AND NIT PICK THE DESIGN.
+        WE ARE WORKSHOPPING SOME STANDARDISED PLAYBOOK
+        IN-LINE DOCUMENTATION.
+
+        Usage
+        -----
+        Triggers the Meta Orchestrator system to apply configurations
+        defined in the specification files. The other versions can be
+        referenced by adding
+        '-e meta_orchestrator_specifications_version=<version>'.
+
+        Scope
+        -----
+          Expand the category to allow instantiation
+        using device mapper to generate a deterministic
+        name for the loop device, adhereing to the
+        idiopotency requirement.
+
+        Requirements
+        ------------
+          - Setup Storage Pool Target with Storage Role
+          - Setup Volume Pool in a loop device
+            targetting a block device image,
+            defined by the `storage_loop_device_target` var
+          - the following should generate `<BLOCK_DEVICE_IMAGE_PATH>` file (if it does not already).
+            ```yaml
+            role:
+              name: storage
+              storage:
+                loop_device:
+                  name: <LOOP_DEVICE_NAME>
+                  target: <LOOP_DEVICE_TARGET>
+            ```
+          - Create a role `orchestration_architect.Storage.loop_device`:
+            ```
+            `*<LOOP_DEVICE_STATE>*`: present | absent | info| offline | online
+            ```
+          - Ensure `storage` adds functor structure details for `loop_device` role
+          - Deploy a mount a btrfs subvolume in the ephemeral storage pool in `tmpfs` (ram) in `nspawn`.
+          - Task advantage of `copy-on-write` mechanisms,
+            to design composable overlays with `btrfs_subvolumes`
+          
+
+      playbook_path: Temporary_Container_Experiment.yml
+      state: updated
+      metadata:
+        pre_run_playbooks:
+          - "../Meta/Setup_Environment"
   OA999_Test:
     Prepare_OA999:
       playbook_name: Prepare OA999 Demo
       playbook_path: Prepare_OA999.yml
       playbook_description: |
-        Creates a Keystore to hold keys to repeatedly access LUKS containers 
+        Creates a Keystore to hold keys to repeatedly access LUKS containers
           during provisioning allowing for experimentation and building features.
         Configures Installation Target Device.
         Will need to set keystore to use luks, and be a separate role,
           which will use later to be built roles zram_device and virtual_block_device
       state: updated
       metadata:
-        pre_run_playbooks: 
+        pre_run_playbooks:
           - "../Meta/Setup_Environment.yml"
     Build_OA999:
       playbook_name: Build OA999
@@ -102,7 +167,7 @@ playbooks_specifications:
         on the device in the keystore.
       state: updated
       metadata:
-        pre_run_playbooks: 
+        pre_run_playbooks:
           - "../Meta/Setup_Environment.yml"
     Deactivate_OA999:
       playbook_name: Prepare OA999 for Ejection
@@ -110,7 +175,7 @@ playbooks_specifications:
       playbook_description: |
         Removes mounts, closes LUKS containers and configures the system to be used elsewhere.
       metadata:
-        pre_run_playbooks: 
+        pre_run_playbooks:
           - "../Meta/Setup_Environment.yml"
   OA001_LiveUSB:
     Provision:
@@ -156,7 +221,7 @@ playbooks_specifications:
       playbook_content:
         - play_id: Generate Playbooks
           <<: *default_params
-          tasks:                
+          tasks:
             - name: Trigger Orchestration of Playbooks
               trigger_role:
                 <<: *orchestration_role
@@ -164,7 +229,7 @@ playbooks_specifications:
                 operations: ['process_playbooks']
                 scope: all
 
-    Generate_Templates:      
+    Generate_Templates:
       playbook_name: Generate Templates From Specifications
       playbook_path: Generate_Templates.yml
       state: pristine
@@ -230,7 +295,7 @@ playbooks_specifications:
       playbook_name: Execute Orchestrator
       playbook_description: |
         Triggers the Meta Orchestrator system to apply configurations
-        defined in the specification files. The other versions can be 
+        defined in the specification files. The other versions can be
         referenced by adding
         '-e meta_orchestrator_specifications_version=<version>'.
       playbook_path: Execute_Orchestrator.yml

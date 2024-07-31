@@ -1,41 +1,45 @@
 OA999_applications:
   bootstrap_pkgs:
-    - amd-ucode
-    - ansible
+    - linux
+    - linux-firmware
     - base
-    - bat
-    - btop
-    - btrfs-progs
+    - kernel-modules-hook
+    - amd-ucode
+    - intel-ucode
     - cryptsetup
-    - dhcpcd
+    - grub
+    - parted
+    - btrfs-progs
     - dosfstools
     - e2fsprogs
     - exfatprogs
-    - fzf
+    - ntfs-3g
+    - dhcpcd
+    - ansible
+    - python
     - git
-    - grub
-    - intel-ucode
-    - kernel-modules-hook
-    - linux
-    - linux-firmware
+    - neovim
+    - zsh
+    - tmux
+    - bat
+    - most
+    - fzf
+    - ripgrep
+    - btop
+    - rsync
     - lynx
+    - tree
     - man-db
     - man-pages
-    - most
-    - neovim
-    - ntfs-3g
+    - texinfo
     - openssh
     - openvswitch
-    - parted
-    - python
-    - ripgrep
-    - rsync
     - sudo
-    - firefox
     - sway
-    - texinfo
-    - tmux
-    - tree
+    - firefox
+    - foot
     - wget
+    - curl
     - wpa_supplicant
-    - zsh
+  dev_pkgs:
+    - inotify-tools
