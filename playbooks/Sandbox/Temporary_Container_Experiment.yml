@@ -22,25 +22,15 @@
 #     - Generate`*storage_loop_device_target*` that
 #       assigns a `loop device` `target` a deterministic and predictable 
 #       identity.
-#       ```yaml
-#       role:
-#         name: storage
-#         storage:
-#           loop_device:
-#             name: <LOOP_DEVICE_NAME>
-#             target: <LOOP_DEVICE_TARGET>
-#           loop_device_state: present
-#       ```
-#     - Create a loop_device` role in the `storage`  ollection`:
-#       ```
-#       `*<LOOP_DEVICE_STATE>*`: present | absent | info
-#       ```
-#     - Ensure `storage` adds functor structure details for `loop_device` role
+#     - Create a `loop_device` role in the `storage`  collection
+#     - `*<LOOP_DEVICE_STATE>*`: `present` | `absent` | `info`
+#     - Ensure `storage` adds functor structure details for `loop_device`
 #     - Deploy a mount a btrfs subvolume in the ephemeral storage pool
-#         in `tmpfs` (ram) in `nspawn`.
+#         in `tmpfs` (ram) in `nspawn`
 #     - Take advantage of `copy-on-write` mechanisms,
 #       to design composable overlays with `btrfs_subvolumes`
 ---
+
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
@@ -49,7 +39,7 @@
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
-#
+ 
 # -----
 # Usage
 # -----
@@ -57,150 +47,193 @@
 # ```
 # ansible-playbook playbooks/Sandbox/Temporary_Container_Experiment.yml
 # ```
-# Parameters
-    # -e container_collection=<COLLECTION>,container_name
-    #
-    # Next version consider mounting ephemeral storage volume to a 
-    # default of /var/{run,lib}/orchestration_architect/containers/<system_name>_<ephemeral[STORAGE_TYPE]/{storage_pool -> ...,volume_pool -> </mnt/orchestration_architect/...>}
+# Parameters:
+#   -e container_collection=<COLLECTION>,container_name
+
 - name: Prepare Ephemeral Container Environment
   hosts: localhost
   vars:     
+
+    container_name: "base"
+    container_state: "present"
+    container_parent: "initial"
     container_params: &container
-      tags: []
-      project_code: "OA"
-      name: "base"
+      name: "{{ container_name }}"
+      parent: "{{ container_parent }}"
       variant: "ALPHA"
       version: "0.8.1"
       collection: "Sandbox"
       size: "2G"      
-    
-    #  [<key>,<object?],
-    system_name: >-
-      {{       
-          
-        ['project_code', 'collection', 'name', 'version', 'variant']
-        | product([container_params])
-        | map('map','extract')
-        | join('-')
+    system_name:  >-
+      {{
+        [
+          'collection' | extract(container_params),
+          'name' | extract(container_params)
+        ] | join('-')
       }}
-        
-
+    system_id: >-
+      {{
+        [
+          'collection' | extract(container_params),
+          'name' | extract(container_params),
+          'version' | extract(container_params),
+          'variant' | extract(container_params)
+        ] | join('-')
+      }}
     ephemeral_storage_pool_size: "3G"
-    ephemeral_storage_pool_path: "/mnt/orchestration_architect/pools/ephemeral"
-    
+    ephemeral_storage_pool_path: "/mnt/orchestration_architect/ephemeral"
+
+
     ephemeral_storage_pool: &storage_pool
       mount_table:
         - source: tmpfs
           target: "{{ ephemeral_storage_pool_path }}"
           opts: "size={{ ephemeral_storage_pool_size }}"
 
+    container_system_volume: "{{ system_name }}_System"
+    container_volume_pool_name: "{{ system_name }}_Volume_Pool"
+    container_volume_pool_image_path: "{{ [ephemeral_storage_pool_path, container_volume_pool_name + '.img'] | path_join }}"
+    container_volume_pool_image_size: "2G"
+
     container_volume_pool: &volume_pool
-       storage_loop_device_target: "{{ container_volume_pool_block_device_image }}" 
-       storage_loop_device_name: "{{ system_name }}"
-
-      pools:
-
-      
-
-          
-
-    - name: Create file for volume collection block device image
-      community.general.filesize:
-        path: "{{ container_volume_pool_block_device_image }}"
-        size: "{{ container_base_size }}"
-    - name: Create Ephemeral Storage Pool
-    
-      ansible.builtin.mount:
-        path: "{{ ephemeral_mount_point }}"
-        src: "tmpfs"
-        fstype: "tmpfs"
-        opts: "size={{ ephemeral_storage_pool_size }}"
-        state: "mounted"
-
-
-        container_base_size: 2G
-        storage_mount_table:
-          source: tmpfs
-          type: tmpfs
-        options: "size={{ ephemeral_pool_size }}"
-           target: "{{ ephemeral_storage_pool }}"
-           state: "mounted"
-
-
-        - name: Generate {{ container_params }}
-      include_role:
-        name: storage
-      vars:
-    
-    size: "2G" # size of volume pool
-
-      storage:
-
-
-    system: 
-      collection: "{{ 'collection' | extract(container_params) }}"
-      name:
-
-}}_{{ container_name }}"
-  tasks:
-    #
-    # Create Volume Storage
-    #
-    # include_role:
-    #   name: storage
-      
-
-    
-    container_base_size: 2G
-    - name: Create container volume pool mount point directory
-      ansible.builtin.file:
-        path: "{{ container_volume_pool_mount_point }}"
-        state: directory
-        mode: '0700'
-        
-
-    - name: Create loop device to expose the volume pool
-      command: "losetup --find --nooverlap --show {{ container_volume_pool_block_device_image }}"
-      register: loop_device_result
-
-    - name: Generate Container Volumes
-      ansible.builtin.include_role: "storage"
-      vars:
-        storage_loopback_device:
-          name: "{{ oollection_name }}"
-    - name: Create BTRFS filesystem on the loop device
+      loop_device:
+        target: "{{ container_volume_pool_image_path }}" 
+        map_name: "{{ container_volume_pool_name }}"
+        size: "{{ container_volume_pool_image_size }}"
       filesystem:
-        path: "{{ loop_device_result.stdout }}"
+        path: "{{ ['/dev/mapper', container_volume_pool_name] | path_join }}"
+        label: "{{ container_system_pool }}"
         type: btrfs
         opts: "-n 16k"
-    
-    - name: Create BTRFS subvolume for @init
-      command: btrfs subvolume create {{ container_volume_pool }}/@init
+      btrfs_subvolumes:
+        fs_label: "{{ container_system_volume }}"
+        subvols:
+          - "@{{ container_system_volume }}-initial"        
+        
+    container_storage: &container_storage
+      <<: *volume_pool
+      btrfs_snapshots: 
+        source: 
 
-    - name: Create @base subvolume
-      command: btrfs subvolume snapshot -r {{ container_volume_pool }}/@init {{ container_volume_pool }}/@base
+  roles:
+    - role: storage
+      storge: "{{ ephemeral_storage_pool }}"
+      storage_state: present
+    - role: storage
+      storage: "{{ container_volume_pool }}"
+      storage_state: present
 
-    - name: Create @overlay subvolume for changes
-      command: btrfs subvolume create {{ container_volume_pool }}/@overlay
+# tasks:
+#   - name: Create Container Mountable
+#     
+#     vars:
+#       initial_subvolume_name: "@{{ system_name }}-initial"
+#       base_subvolume_name: "@{{ system_name }}-base"
+#     block:
 
-    - name: Create overlay directories for nspawn
-      ansible.builtin.file:
-        path: "{{ ephemeral_storage_pool }}/overlay"
-        state: directory
-        mode: '0700'
+#     # ...
+#     - name: Generate `base` subvolume from  `initial` snapshot
+#       state: "present"
+#       source: "@{{ initial_subvolume_name }}-init"
+#       destination: "@{{ container_system_volume }}-{{ container_base }} "
+#   tasks:
+#     - name: Create file for volume collection block device image
+#       community.general.filesize:
+#         path: "{{ container_volume_pool_block_device_image }}"
+#         size: "{{ container_base_size }}"
+#     - name: Create Ephemeral Storage Pool
+#     
+#       ansible.builtin.mount:
+#         path: "{{ ephemeral_mount_point }}"
+#         src: "tmpfs"
+#         fstype: "tmpfs"
+#         opts: "size={{ ephemeral_storage_pool_size }}"
+#         state: "mounted"
 
-    - name: Create initial snapshot for container
-      command: btrfs subvolume snapshot {{ ephemeral_storage_pool }}/@base {{ ephemeral_storage_pool }}/@initial
 
-    - name: Configure systemd-nspawn container
-      community.general.systemd_nspawn:
-        name: arch_container
-        image: "{{ container_volume_pool }}/@base"
-        machine: "arch_sandbox_container"
-        command: /bin/zsh
-        state: started
-        boot: false
-### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+#         container_base_size: 2G
+#         storage_mount_table:
+#           source: tmpfs
+#           type: tmpfs
+#         options: "size={{ ephemeral_pool_size }}"
+#            target: "{{ ephemeral_storage_pool }}"
+#            state: "mounted"
+
+
+#         - name: Generate {{ container_params }}
+#       include_role:
+#         name: storage
+#         storage:
+#           
+#       vars:
+#     
+#     size: "2G" # size of volume pool
+
+#       storage:
+
+
+#     system: 
+#       collection: "{{ 'collection' | extract(container_params) }}"
+#       name:
+
+# }}_{{ container_name }}"
+#     #
+#     # Create Volume Storage
+#     #
+#     # include_role:
+#     #   name: storage
+#       
+
+#     
+#     container_base_size: 2G
+#     - name: Create container volume pool mount point directory
+#       ansible.builtin.file:
+#         path: "{{ container_volume_pool_mount_point }}"
+#         state: directory
+#         mode: '0700'
+#         
+#     - name: Create loop device to expose the volume pool
+#       command: "losetup --find --nooverlap --show {{ container_volume_pool_block_device_image }}"
+#       register: loop_device_result
+
+#     - name: Generate Container Volumes
+#       ansible.builtin.include_role: "storage"
+#       vars:
+#         storage_loopback_device:
+#           name: "{{ oollection_name }}"
+#     - name: Create BTRFS filesystem on the loop device
+#       filesystem:
+#         path: "{{ loop_device_result.stdout }}"
+#         type: btrfs
+#         opts: "-n 16k"
+#     
+#     - name: Create BTRFS subvolume for @init
+#       command: btrfs subvolume create {{ container_volume_pool }}/@init
+
+#     - name: Create @base subvolume
+#       command: btrfs subvolume snapshot -r {{ container_volume_pool }}/@init {{ container_volume_pool }}/@base
+
+#     - name: Create @overlay subvolume for changes
+#       command: btrfs subvolume create {{ container_volume_pool }}/@overlay
+
+#     - name: Create overlay directories for nspawn
+#       ansible.builtin.file:
+#         path: "{{ ephemeral_storage_pool }}/overlay"
+#         state: directory
+#         mode: '0700'
+
+#     - name: Create initial snapshot for container
+#       command: btrfs subvolume snapshot {{ ephemeral_storage_pool }}/@base {{ ephemeral_storage_pool }}/@initial
+
+#     - name: Configure systemd-nspawn container
+#       community.general.systemd_nspawn:
+#         name: arch_container
+#         image: "{{ container_volume_pool }}/@base"
+#         machine: "arch_sandbox_container"
+#         command: /bin/zsh
+#         state: started
+#         boot: false
+  ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
