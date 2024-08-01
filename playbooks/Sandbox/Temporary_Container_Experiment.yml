@@ -2,27 +2,13 @@
 # playbook: Temporary Container Experiment
 # version: 0.8.1
 # description:
-#
-#   ===========================================
-#   Experiment - Temporary Container Experiment
-#   ===========================================
-#
-#   ---------------------------
-#   INSTRUCTIONS TO TERMINAL AI
-#   ---------------------------
-#   Improve phrasing through the throughout the description,
-#   follow technical communication principles.
-#
-#   Usage
-#   -----
-#   Triggers the Meta Orchestrator system to apply configurations
-#   defined in the specification files. The other versions can be
-#   referenced by adding
-#   '-e meta_orchestrator_specifications_version=<version>'.
+#   ==========================================
+#   EXPERIMENT. Temporary Container Experiment
+#   ==========================================
 #
 #   Scope
 #   -----
-#     Expand the category to allow instantiation
+#   Expand the category to allow instantiation
 #   using device mapper to generate a deterministic
 #   name for the loop device, adhereing to the
 #   idiopotency requirement.
@@ -33,8 +19,9 @@
 #     - Setup Volume Pool in a loop device
 #       targetting a block device image,
 #       defined by the `storage_loop_device_target` var
-#     - the following should generate the
-#       `*<BLOCK_DEVICE_IMAGE_PATH>*` file (if it does not already).
+#     - Generate`*storage_loop_device_target*` that
+#       assigns a `loop device` `target` a deterministic and predictable 
+#       identity.
 #       ```yaml
 #       role:
 #         name: storage
@@ -42,10 +29,11 @@
 #           loop_device:
 #             name: <LOOP_DEVICE_NAME>
 #             target: <LOOP_DEVICE_TARGET>
+#           loop_device_state: present
 #       ```
-#     - Create a role `orchestration_architect.Storage.loop_device`:
+#     - Create a loop_device` role in the `storage`  ollection`:
 #       ```
-#       `*<LOOP_DEVICE_STATE>*`: present | absent | info| offline | online
+#       `*<LOOP_DEVICE_STATE>*`: present | absent | info
 #       ```
 #     - Ensure `storage` adds functor structure details for `loop_device` role
 #     - Deploy a mount a btrfs subvolume in the ephemeral storage pool
@@ -61,59 +49,67 @@
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
-
-### CONTEXT:
-# I WANT A STORAGE POOL WHICH WILL MOUNT TMPFS AND STORE THE FILES OR ISOs OR DIRECTORIES THAT CAN BE USED TO CREATE A PORTABLE VOLUME POOL.
-# THE VOLUME POOL SHOULD BE THE SUBVOLUMES OF THE BTRFS FILESYSTEM THAT WAS GENERATED WHEN USING A FILE BACKED LOOP DEVICE TO EMULATE A BLOCK DEVICE. THAT IS THE <STORAGE_POOL>/sandbox-container-experiment.raw IS USED FOR A LOOP DEVICE, AND BTRFS FILE SYSTEM IS INSTALLED AT THE LOOP DEVICE (FILESYSTEM SHOULD BE LABELED - OA_SANDBOX-VOLUME_POOL. A SUBVOLUME AT OA_SANDBOX-VOLUME_POOL SHOULD HAVE IN THE TOP LEVEL SUBVOLUME (SUBVOLID=5) SHOULD CONTAIN THE SUBVOLUMES '@init' and some sort of copy reflink thingy to '@base' and an '@overlay' to catch changes. The nspawn should usee the @base subvolume. This @base path should be pacstrapped, we will do this here though I will move my other script to do it later.
-# There are issues with naming conventions of vars so container_volume_pool_size should be ephemeral_storage_pool_size... which would be the size of the tmpfs. The tmpfs actually be mounted to sandbox-container instead as different containers will need to be able to specify how much ephemeral storage it wants.
-# The Storage Pool term is storage as in the distinction libvirt makes between volume pool and storage pool, where volume pool is for instead the container, and storage pool outside.
-# when the tmpfs file system mounted, and the raw file is created in the storage pool, the file backed loop block device available in /dev/mapper/<btrfs-fs-label> (btrfs-fs-label in this case should be /dev/mapper/OA_SANDBOX-VOLUME_POOL. The creation of overlays and seed and base should all be subvolumes. Detail the nspawn documentation and the template parameter with regards to btrfs.
-# Also isn't there a trick with reflinks and copy, and we may need to figure out how to make the overlay work.
+#
+# -----
+# Usage
+# -----
+# 
+# ```
+# ansible-playbook playbooks/Sandbox/Temporary_Container_Experiment.yml
+# ```
+# Parameters
+    # -e container_collection=<COLLECTION>,container_name
+    #
+    # Next version consider mounting ephemeral storage volume to a 
+    # default of /var/{run,lib}/orchestration_architect/containers/<system_name>_<ephemeral[STORAGE_TYPE]/{storage_pool -> ...,volume_pool -> </mnt/orchestration_architect/...>}
 - name: Prepare Ephemeral Container Environment
   hosts: localhost
-  vars:
-    # These should be designed to be overridden arguments when calling playbook
-    container_collection: "OA_Sandbox"
-    container_name: "Experiment_Container"
-    # Next version consider mounting ephemeral storage volume to a 
-    # default of /var/lib/orchestration_architect/ephemeral
-    # when packaged
-    ephemeral_base_path: "/mnt/orchestration_architect/ephemeral"
-    ephemeral_storage_pool: "{{ ephemeral_base_path, container_collection, 'storage_pool'] | path_join }}"
-    ephemeral_storage_pool_size: 4G
+  vars:     
+    container_params: &container
+      tags: []
+      project_code: "OA"
+      name: "base"
+      variant: "ALPHA"
+      version: "0.8.1"
+      collection: "Sandbox"
+      size: "2G"      
     
-    container_base_size: 2G
+    #  [<key>,<object?],
+    system_name: >-
+      {{       
+          
+        ['project_code', 'collection', 'name', 'version', 'variant']
+        | product([container_params])
+        | map('map','extract')
+        | join('-')
+      }}
+        
 
-  tasks:
-    - name: Create Ephemeral Storage Pool for Containers
-     include_role:
-       name: storage
-      vars:
-        storage_mount_table:
-          - source: tmpfs
-            type: tmpfs
-            options: "size={{ ephemeral_storage_pool_size }}"
-            target: "{{ ephemeral_storage_pool }}"
-            state: "mounted"
-
-
-    #
-    # Create Volume Storage
-    - name: Load Volume Storage
-    ephemeral_storage_pool: "{{ ephemeral_storage_pool_mount_point }}"
-    #   storage_loop_device_target: "{{ container_volume_pool_block_device_image }}" 
-    #   storage_loop_device_name: "{{ system_name }}_"
-    #
-    # include_role:
-    #   name: storage
+    ephemeral_storage_pool_size: "3G"
+    ephemeral_storage_pool_path: "/mnt/orchestration_architect/pools/ephemeral"
     
-      - name: Create Ephemeral Storage Pool mount point
-        ansible.builtin.file:
-          path: "{{ ephemeral_mount_point }}"
-          state: directory
-          mode: '0700'
+    ephemeral_storage_pool: &storage_pool
+      mount_table:
+        - source: tmpfs
+          target: "{{ ephemeral_storage_pool_path }}"
+          opts: "size={{ ephemeral_storage_pool_size }}"
+
+    container_volume_pool: &volume_pool
+       storage_loop_device_target: "{{ container_volume_pool_block_device_image }}" 
+       storage_loop_device_name: "{{ system_name }}"
+
+      pools:
+
       
+
+          
+
+    - name: Create file for volume collection block device image
+      community.general.filesize:
+        path: "{{ container_volume_pool_block_device_image }}"
+        size: "{{ container_base_size }}"
     - name: Create Ephemeral Storage Pool
+    
       ansible.builtin.mount:
         path: "{{ ephemeral_mount_point }}"
         src: "tmpfs"
@@ -121,16 +117,47 @@
         opts: "size={{ ephemeral_storage_pool_size }}"
         state: "mounted"
 
+
+        container_base_size: 2G
+        storage_mount_table:
+          source: tmpfs
+          type: tmpfs
+        options: "size={{ ephemeral_pool_size }}"
+           target: "{{ ephemeral_storage_pool }}"
+           state: "mounted"
+
+
+        - name: Generate {{ container_params }}
+      include_role:
+        name: storage
+      vars:
+    
+    size: "2G" # size of volume pool
+
+      storage:
+
+
+    system: 
+      collection: "{{ 'collection' | extract(container_params) }}"
+      name:
+
+}}_{{ container_name }}"
+  tasks:
+    #
+    # Create Volume Storage
+    #
+    # include_role:
+    #   name: storage
+      
+
+    
+    container_base_size: 2G
     - name: Create container volume pool mount point directory
       ansible.builtin.file:
         path: "{{ container_volume_pool_mount_point }}"
         state: directory
         mode: '0700'
         
-    - name: Create file for volume collection block device image
-      community.general.filesize:
-        path: "{{ container_volume_pool_block_device_image }}"
-        size: "{{ container_base_size }}"
 
     - name: Create loop device to expose the volume pool
       command: "losetup --find --nooverlap --show {{ container_volume_pool_block_device_image }}"

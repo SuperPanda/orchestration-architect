@@ -118,7 +118,7 @@ playbooks_specifications:
             targetting a block device image,
             defined by the `storage_loop_device_target` var
           - the following should generate `<BLOCK_DEVICE_IMAGE_PATH>` file (if it does not already).
-            ```yaml
+            ```yaml            
             role:
               name: storage
               storage:
@@ -132,7 +132,7 @@ playbooks_specifications:
             ```
           - Ensure `storage` adds functor structure details for `loop_device` role
           - Deploy a mount a btrfs subvolume in the ephemeral storage pool in `tmpfs` (ram) in `nspawn`.
-          - Task advantage of `copy-on-write` mechanisms,
+          - Take advantage of `copy-on-write` mechanisms,
             to design composable overlays with `btrfs_subvolumes`
           
 
