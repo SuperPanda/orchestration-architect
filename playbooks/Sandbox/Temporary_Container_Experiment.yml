@@ -34,11 +34,16 @@
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 ## Generated from playbook specifications metadata field 'pre_run_playbooks'
-- ansible.builtin.import_playbook: "../Meta/Setup_Environment"
+- ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
  
 # -----
 # Usage
@@ -50,45 +55,183 @@
 # Parameters:
 #   -e container_collection=<COLLECTION>,container_name
 
+# INSTRUCTIONS TO TERMINAL AI: I want to be able to use jinja2 OR similar
+# to generate templated values for subvolumes
+# in the following it should make subvol `@OA999_Container-Base` from the snapshot
+# `@OA999_Container-Initial`.
+# The container will be turned into the role `container` which will take:
+#   Storage Configurations Parameters:
+#
+#              Precedence of Variables
+#               ----------------------
+#               ( Lowest to Higher )
+#
+#  Omit (lowest) -> Role defaults (<role_name>_<param_name>) -> In `<role_name>` object
+#                -> `<role_name>_<param_name>` input variable 
+#                -> `-e <role_name>_<role_param>=<role_param_value>`
+#
+#                
+#     Project: Orchestration Architect
+#            
+#                     Framework
+#                     =========
+#
+#     Roles
+#     -----
+#     Roles are constructed as category R with:
+#     objects at minimal include: 'absent', 'present', 'info' (identity) morphisms,
+#     which identifies a `tasks/<role_state>yml` task (e.g. `present.yml`) that 
+#     is routed via the auto generated `main.yml` task when the role is called,
+#     with the `configuration variables` packaged into a <role_name>_params object,
+#     defined by the role's parameters defined in the `vars/specifications/<version>/roles.yml`
+#     by default.
+#
+#     Tasks
+#     -----
+#     Role task files (i.e. `roles/<role_name>/tasks/*.yml`) content (tasks) represent the morphisms
+#     to be at the provided `<role_name>_state`. Functors are currently applied at boundaries
+#     of composability. These allows subsystems like storage and network roles, to be
+#     the concatentation of the various storage roles: loop_device, partition, btrfs_subvolumes,
+#     filesystem, mount_table, etc. etc.
+#     These subsystem roles allows for composable blocks, to have customisable
+#       blocks, that can be used as part of the bigger systems.
+#
+#     -----------
+#     Collections
+#     -----------
+#     
+#     `Meta` Collection
+#     -----------------
+#
+#     The `Meta` Collection Consists of Role and Playbooks required to bootstrap,
+#     modify and execute the elements of the system itself.
+#     
+#     Meta Collection Components
+#     ==========================
+#     Introduction
+#     ------------
+#
+#     Overview
+#     --------
+#
+#     Meta Template
+#     -------------
+#
+#
+#     Role: `Meta.meta_role`
+#     ----------------------
+#
+#     `meta_template`
+#     ---------------
+#
+#     `
+#
+#     ``Meta.meta_role``: 
+#    
+#     
+#
+#     `OAXXX` Collection (Units of Composable System Planes partitioned by regeneration.
+#     -------------------
+#          
+#     `OA000` System Bootstrap, Installation or Recovery Media.
+#     `OA001` System Master Control Node: LiveUSB, Applications, Containers, ...
+#             - OA001 Design is to provide a LUKS-encrypted persistent LiveUSB,
+#               that is able to provision systems via PXE Boot Live Images,
+#               and Generate Other Systems, generates secure and configurable
+#               systems and stores the secrets and system user specifications.
+#             - The `OA001_<Component>` Collection generates a local repository,
+#               manages version control, and holding the master blueprints.
+#             - The `OA001_<Component>` is used to provision `OA002` and `OA999`
+#               systems. And must be able to generate `OA000` images.
+#       `OA002` Live Hypervisor that runs entirely on RAM. Configured in the 
+#               image used to provision the device, and lock down is restricted
+#               to a guest for basic lockdown nspawn style login. `OA002`
+#               should container a nested hypervisor guest. The goal is to
+#               allow for iterative prototyping and testing variants.
+#               System design is directed towards allowing live updates, via
+#               snapshot cloning the base system, and running updates to create
+#               base system' and by reapplying the playbooks and configuration,
+#               such that derived system ---> derived system', via
+#               
+#
+#               SNAPSHOT: STORAGE(PARENT) -> STORAGE(CHILD)
+#               INSTALL: SYSTEM(X) -> SYSTEM(X')
+#
+#
+#
+#                  BOOTSTRAP: Image -> Image'     # Changes an Image
+#                  BUILD:  Image -> Container     # Builds a Container#                  
+#                  SNAP: Container -> Image   # Clones reflink clone
+#                  SNAP(UPDATE): Image -> Image'
+#                  BUILD(UPDATE): 
+#
+#              BOOTSTRAP: Image -> (Snapshot Image -> Image)
+#           
+#                      BOOTSTRAP                                                    SNAP(C')
+#       init---------------------------> base ---------------------------> container------>derived
+#         |     B: (init -> base)         |                                 ^   | |         |   
+#         |                               | SNAP(UPDATE(base'))             |___| |         | 
+#         |  < major            minor  >  |                                UPDATE |         v
+#         |  < update           update >  | [NEW IMAGE]          Container: Container -> Container'
+#         |     <X>.y.z       x.<Y>.z     |                                       | 
+#         --------------                  | SNAP(base, base')                     | [NEW OVERLAY]
+#                      |----------------->|                                       |
+#                                         v     INSTALL(base')                    |
+#                                       base' -----------------> container'-->x<--
+#             SHOW FUNCTORS                                           ^       | Overlay
+#             BETWEEN CONTAINER <-> STORAGE                           |       | (Diff
+#                                                                     |       |  container
+#             SHOW NATURAL TRANSFORMATION                             |-------|  container')
+#             BETWEEN BARE METAL, CONTAINER,                                    (container)
+#                 VIRTUALISATION, AND SWITCHING                                   
+#                 COMPONENTS.
+#
+#                                QUICKLY BENCHMARK SYSTEM ARCHITECTURE
+#                                QUICKLY GENERATE AND PROVISION SYSTEMS
+#                                QUICKLY BOOT A BARE METAL IMAGE
+#                                SYSTEM GENERATION PIPELINE WITH LIVE UPDATES IN MIND
+#                                
+#
+#
+#
+#     
+#
+ 
 - name: Prepare Ephemeral Container Environment
   hosts: localhost
-  vars:     
-
-    container_name: "base"
+  vars:
+    container_version: "0.8.1"
+    container_name: "Container"
+    container_variant: "Base"
+    container_parent: "Initial"
+    container_collection: "OA999"
+    container_id: "{{ container_collection }}_{{ container_name }}"
     container_state: "present"
-    container_parent: "initial"
     container_params: &container
       name: "{{ container_name }}"
       parent: "{{ container_parent }}"
-      variant: "ALPHA"
-      version: "0.8.1"
-      collection: "Sandbox"
-      size: "2G"      
+      variant: "{{ container_variant }}"
+      version: "{{ container_version }}"
+      collection: "{{ container_collection }}"
+      size: "2G"
+    
     system_name:  >-
       {{
         [
           'collection' | extract(container_params),
-          'name' | extract(container_params)
-        ] | join('-')
-      }}
-    system_id: >-
-      {{
-        [
-          'collection' | extract(container_params),
           'name' | extract(container_params),
-          'version' | extract(container_params),
           'variant' | extract(container_params)
         ] | join('-')
       }}
     ephemeral_storage_pool_size: "3G"
     ephemeral_storage_pool_path: "/mnt/orchestration_architect/ephemeral"
 
-
     ephemeral_storage_pool: &storage_pool
       mount_table:
         - source: tmpfs
+          options: "size={{ ephemeral_storage_pool_size }}"
+          type: tmpfs
           target: "{{ ephemeral_storage_pool_path }}"
-          opts: "size={{ ephemeral_storage_pool_size }}"
 
     container_system_volume: "{{ system_name }}_System"
     container_volume_pool_name: "{{ system_name }}_Volume_Pool"
@@ -102,26 +245,32 @@
         size: "{{ container_volume_pool_image_size }}"
       filesystem:
         path: "{{ ['/dev/mapper', container_volume_pool_name] | path_join }}"
-        label: "{{ container_system_pool }}"
-        type: btrfs
+        label: "{{ container_system_volume }}"
+        type: btrfs        
         opts: "-n 16k"
       btrfs_subvolumes:
         fs_label: "{{ container_system_volume }}"
         subvols:
           - "@{{ container_system_volume }}-initial"        
         
-    container_storage: &container_storage
-      <<: *volume_pool
-      btrfs_snapshots: 
-        source: 
+#   container_storage: &container_storage
+#     <<: *volume_pool
+#     btrfs_snapshots: 
+#       source: 
 
   roles:
+    # 
     - role: storage
-      storge: "{{ ephemeral_storage_pool }}"
-      storage_state: present
+      storage_state: mounted
+      storage_mount_table: "{{ 'mount_table' | extract(ephemeral_storage_pool) }}"
     - role: storage
-      storage: "{{ container_volume_pool }}"
+      storage_loop_device: "{{ 'loop_device' | extract(container_volume_pool) }}"
+      storage_loop_device: "{{ 'loop_device' | extract(container_volume_pool) }}"
+      storage_filesystem: "{{ 'filesystem' | extract(container_volume_pool) }}"
+      storage_btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(container_volume_pool) }}"
       storage_state: present
+
+
 
 # tasks:
 #   - name: Create Container Mountable

@@ -58,7 +58,7 @@
     state: present
     fstype: "{{ mount.type }}"
     opts: "{{ mount.options }}"
-    src: "{{ mount.type }}"
+    src: "{{ mount.source }}"
     path: "{{ mount.target }}"
     fstab: "{{ mount.fstab | default(omit) }}"
   when: mount.type=='tmpfs'

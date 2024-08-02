@@ -128,19 +128,17 @@ playbooks_specifications:
             ```
           - Create a role `orchestration_architect.Storage.loop_device`:
             ```
-            `*<LOOP_DEVICE_STATE>*`: present | absent | info| offline | online
+            `*<LOOP_DEVICE_STATE>*`: present | absent | info | offline | online
             ```
           - Ensure `storage` adds functor structure details for `loop_device` role
           - Deploy a mount a btrfs subvolume in the ephemeral storage pool in `tmpfs` (ram) in `nspawn`.
           - Take advantage of `copy-on-write` mechanisms,
             to design composable overlays with `btrfs_subvolumes`
-          
-
       playbook_path: Temporary_Container_Experiment.yml
       state: updated
       metadata:
         pre_run_playbooks:
-          - "../Meta/Setup_Environment"
+          - "../Meta/Setup_Environment.yml"
   OA999_Test:
     Prepare_OA999:
       playbook_name: Prepare OA999 Demo

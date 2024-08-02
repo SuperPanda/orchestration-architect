@@ -30,7 +30,24 @@ roles_specifications:
         description: |
           Roles that coordinate, provision or manage storage volumes, encryption,
           mounts, btrfs subvolumes and snapshots.
+
   Storage:
+    loop_device:
+      role_name: loop_device
+      role_path: roles/loop_device
+      parameters:
+        target: {}
+        map_name: {}
+        size: {}
+      files:
+        - id: loopdev_active
+          path: tasks/active.yml
+          template: tasks/base.yml.j2
+          state: updated
+        - id: storage_inactive
+          path: tasks/inactive.yml
+          template: tasks/base.yml.j2
+          state: updated
     storage:
       role_name: storage
       role_path: roles/storage
@@ -131,6 +148,7 @@ roles_specifications:
       parameters:
         map: {}
         type: {}
+        options: {}
         target: {}
         source: {}
         fstab: {}

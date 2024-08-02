@@ -26,6 +26,7 @@
       mount_type: {{ mount_type | default('not set') }}
       mount_target: {{ mount_target | default('not set') }}
       mount_source: {{ mount_source | default('not set') }}
+      mount_fstab: {{ mount_fstab | default('not set') }}
       
 - debug:
     msg: |
@@ -35,6 +36,7 @@
         type: "{{ (mount | default({})).type is defined | ternary(mount.type, mount_type | default(omit, true)) }}"
         target: "{{ (mount | default({})).target is defined | ternary(mount.target, mount_target | default(omit, true)) }}"
         source: "{{ (mount | default({})).source is defined | ternary(mount.source, mount_source | default(omit, true)) }}"
+        fstab: "{{ (mount | default({})).fstab is defined | ternary(mount.fstab, mount_fstab | default(omit, true)) }}"
         
 - name: Pass configuration parameters to the mount role
   vars:
@@ -44,6 +46,7 @@
       type: "{{ (mount | default({})).type is defined | ternary(mount.type, mount_type | default(omit, true)) }}"
       target: "{{ (mount | default({})).target is defined | ternary(mount.target, mount_target | default(omit, true)) }}"
       source: "{{ (mount | default({})).source is defined | ternary(mount.source, mount_source | default(omit, true)) }}"
+      fstab: "{{ (mount | default({})).fstab is defined | ternary(mount.fstab, mount_fstab | default(omit, true)) }}"
       
   ansible.builtin.include_tasks:
     file: "{{ (mount_params.state==omit) | ternary('info', mount_params.state) }}.yml"

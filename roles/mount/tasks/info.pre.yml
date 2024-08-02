@@ -26,6 +26,7 @@
       mount_type: {{ mount_type | default('not set') }}
       mount_target: {{ mount_target | default('not set') }}
       mount_source: {{ mount_source | default('not set') }}
+      mount_fstab: {{ mount_fstab | default('not set') }}
       
 - name: Display the variable used to set the mount role parameters
   when: ansible_verbosity | int > 0 and mount is defined
@@ -36,6 +37,7 @@
       type: "{{ ((mount | default({})).type is defined and(mount | default({})).type!=omit) | ternary('mount.type', (mount_type is defined and mount_type==mount_params.type) | ternary('mount_type', '(unset) defaults to: omit' ))  }}"
       target: "{{ ((mount | default({})).target is defined and(mount | default({})).target!=omit) | ternary('mount.target', (mount_target is defined and mount_target==mount_params.target) | ternary('mount_target', '(unset) defaults to: omit' ))  }}"
       source: "{{ ((mount | default({})).source is defined and(mount | default({})).source!=omit) | ternary('mount.source', (mount_source is defined and mount_source==mount_params.source) | ternary('mount_source', '(unset) defaults to: omit' ))  }}"
+      fstab: "{{ ((mount | default({})).fstab is defined and(mount | default({})).fstab!=omit) | ternary('mount.fstab', (mount_fstab is defined and mount_fstab==mount_params.fstab) | ternary('mount_fstab', '(unset) defaults to: omit' ))  }}"
       
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

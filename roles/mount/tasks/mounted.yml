@@ -41,8 +41,8 @@
     fstab: "{{ mount.fstab | default(omit) }}"
   when:
     - mount.target is defined
-    - mount.type!='bind'
-    - mount.type!='tmpfs'
+    - mount.type is defined
+    - "mount.type!='bind'"
 
 - name: Bind source to Target
   ansible.posix.mount:
@@ -52,17 +52,10 @@
     src: "{{ mount.source }}"
     path: "{{ mount.target }}"
     fstab: "{{ mount.fstab | default(omit) }}"
-  when: mount.type=='bind'
+  when:
+    - mount.type is defined
+    - "mount.type=='bind'"
 
-- name: Add TmpFS Mount Fstab entries
-  ansible.posix.mount:
-    state: mounted
-    fstype: "{{ mount.type }}"
-    opts: "{{ mount.options }}"
-    src: "{{ mount.type }}"
-    path: "{{ mount.target }}"
-    fstab: "{{ mount.fstab | default(omit) }}"
-  when: mount.type=='tmpfs'
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

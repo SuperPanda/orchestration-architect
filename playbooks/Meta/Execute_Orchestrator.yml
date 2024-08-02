@@ -8,7 +8,7 @@
 # version: 0.8.1
 # description:
 #     Triggers the Meta Orchestrator system to apply configurations
-#     defined in the specification files. The other versions can be 
+#     defined in the specification files. The other versions can be
 #     referenced by adding
 #     '-e meta_orchestrator_specifications_version=<version>'.
 #     

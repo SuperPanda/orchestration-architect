@@ -14,7 +14,7 @@
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
 # (@functor) Storage(_ -> Opened) -> LUKS(_ -> Opened)
-- name: Map Storage to Opened State
+- name: Map Storage to Opened State  
   ansible.builtin.include_role:
     name: storage
   vars:

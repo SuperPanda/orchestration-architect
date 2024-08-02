@@ -13,6 +13,19 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Map Loop Device to Block Device Image
+  when:
+    - "'loop_device' in storage_params"
+    - "storage_params.loop_device!=omit"
+  block:
+    - name:
+      ansible.builtin.include_role:
+        name: loop_device
+      vars:
+        loop_device: "{{ 'loop_device' | extract(storage_params) }}"
+        loop_device_state: present
+
+
 # (@functor) Storage(present) -> Partition(present)
 - name: Map Partition Table to Present state (if required)
   when: "'partition_table' in storage_params and storage_params.partition_table!=omit"

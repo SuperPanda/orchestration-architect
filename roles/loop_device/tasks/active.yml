@@ -1,5 +1,5 @@
-# file: roles/storage/tasks/opened.yml
-# role: storage
+# file: roles/loop_device/tasks/active.yml
+# role: loop_device
 # version: 0.8.1
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
@@ -12,22 +12,6 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-- name: Attach Loop Device (if required)
-  when: "'loop_device' in storage_params and storage_params.loop_device!=omit"
-  ansible.builtin.include_role:
-    name: loop_device
-  vars:
-    loop_device: "{{ 'loop_device' | extract(storage_params) }}"
-    loop_device_state: active
-
-- name: Map LUKS to Unlocked state (if required)
-  when: "'luks' in storage_params and storage_params.luks!=omit"
-  ansible.builtin.include_role:
-    name: luks
-  vars:
-    luks: "{{ 'luks' | extract(storage_params) }}"
-    luks_state: opened
-
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

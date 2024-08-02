@@ -41,6 +41,13 @@
     luks: "{{ 'luks' | extract(storage_params) }}"
     luks_state: closed
 
+- name: Close Loop Device (if required)
+  when: "'loop_device' in storage_params and storage_params.loop_device!=omit"
+  ansible.builtin.include_role:
+    name: loop_device
+  vars:
+    loop_device: "{{ 'loop_device' | extract(storage_params) }}"
+    loop_device_state: inactive
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
