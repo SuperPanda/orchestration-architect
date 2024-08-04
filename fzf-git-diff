@@ -1,0 +1,1 @@
+git log --oneline | fzf-tmux -p 100%,100% -- --preview 'git show --color=always {1}'
