@@ -1,0 +1,50 @@
+ #!/bin/bash
+
+ # Git log with commit preview
+ git_log() {
+     git log --oneline | fzf-tmux -p 100%,100% -- --preview 'git show --color=always {1}'
+ }
+
+ # Show diff of staged files
+ git_diff_staged() {
+     git diff --cached | less
+ }
+
+ # Show diff of workspace vs HEAD
+ git_diff_workspace_vs_head() {
+     git diff HEAD | less
+ }
+
+ # Git commit history with previews
+ git_commit_history() {
+     git log --graph --oneline --decorate --all | fzf --tac --preview 'git show --color=always {+1}'
+ }
+
+ # Interactive menu for selecting Git operations
+ menu() {
+     PS3="Select an option: "
+     options=("Git Log with Preview" "Diff of Staged Files" "Workspace vs. HEAD Diff" "Commit History with Preview" "Quit")
+     select opt in "${options[@]}"
+     do
+         case $opt in
+             "Git Log with Preview")
+                 git_log
+                 ;;
+             "Diff of Staged Files")
+                 git_diff_staged
+                 ;;
+             "Workspace vs. HEAD Diff")
+                 git_diff_workspace_vs_head
+                 ;;
+             "Commit History with Preview")
+                 git_commit_history
+                 ;;
+             "Quit")
+                 break
+                 ;;
+             *) echo "Invalid option $REPLY";;
+         esac
+     done
+ }
+
+ menu
