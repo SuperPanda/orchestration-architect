@@ -52,6 +52,7 @@ roles_specifications:
       role_name: storage
       role_path: roles/storage
       parameters:
+        loop_device: {}
         device: {}
         luks: {}
         mount_table: {}

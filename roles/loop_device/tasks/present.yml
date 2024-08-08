@@ -13,47 +13,37 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
-- name: Ensure Loop Device Target Available
-  vars:
-    loop_device_target: "{{ 'target' | extract(loop_device_params) }}"
+- name: Ensure Loop Device Target Directory Exists
+  ansible.builtin.file:
+    state: directory
+    mode: "{{ directory_mode | default('0700') }}"
+    path: "{{ 'target' | extract(loop_device_params) | dirname }}"
+
+- name: Ensure Loop Device Target Exists
+  community.general.filesize:
+    path: "{{ 'target' | extract(loop_device_params) }}"
+    size: "{{ 'size' | extract(loop_device_params) | default(omit, true) }}"
+
+- name: Create Loop Device to Access File as Storage Device
+  ansible.builtin.command: "losetup --find --nooverlap --show {{ 'target' | extract(loop_device_params) }}"
+  changed_when: "'loop' in loop_device_result.stdout"
+  register: loop_device_result
+
+- name: Map Predictable Device Name to Loop Device
   block:
+    - name: Get loop device sectors count
+      ansible.builtin.command: "blockdev --getsz {{ loop_device_result.stdout }}"
+      register: loop_device_sectors_result
+      changed_when: false
 
-    - name: Ensure Target Directory Exists
-      ansible.builtin.file:
-        state: directory
-        mode: "{{ directory_mode | default('0700') }}"
-        path: "{{ loop_device_target | dirname }}"
-
-    - name: Ensure Loop Target
-      community.general.filesize:
-        path: "{{ 'target' | extract(loop_device_params) }}"
-        size: "{{ 'size' | extract(loop_device_params) | default(omit, true) }}"
-
-    - name: Create loop device to expose the volume pool
-      vars:
-        loop_device_target: "{{ 'target' | extract(loop_device_params) }}"
-      ansible.builtin.command: "losetup --find --nooverlap --show {{ loop_device_target }}"
-      changed_when: "'loop' in loop_device_result.stdout"
-      register: loop_device_result
-
-    - name: Map Predictable Device Name to Loop Device
-      vars:
-        loop_device_map_name: "{{ 'map_name' | extract(loop_device_params) }}"
-        loop_device_target: "{{ 'target' | extract(loop_device_params) }}"
-      block:
-        - name: Get loop device sectors count
-          ansible.builtin.command: "blockdev --getsz {{ loop_device_result.stdout }}"
-          register: loop_device_sectors_result
-          changed_when: false
-
-        - name: Create Loop Device Alias in Device Map
-          pipefail: true
-          ansible.builtin.shell: >-
-            set -o pipefail &&
-            echo "0 {{ loop_device_sectors_result.stdout }}
-            linear {{ loop_device_result.stdout }} 0" |
-            dmsetup create {{ loop_device_map_name }}
-          creates: /dev/mapper/{{ loop_device_map_name }}
+    - name: Create Loop Device Alias in Device Map
+      ansible.builtin.shell: >-
+        set -o pipefail &&
+        echo "0 {{ loop_device_sectors_result.stdout }}
+        linear {{ loop_device_result.stdout }} 0" |
+        dmsetup create {{ 'map_name' | extract(loop_device_params) }}
+      args:
+        creates: /dev/mapper/{{ 'map_name' | extract(loop_device_params) }}
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 

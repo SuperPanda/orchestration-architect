@@ -13,6 +13,34 @@
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Remove Device Map if it exists
+  ansible.builtin.command: "dmsetup remove {{ 'map_name' | extract(loop_device_params) }}"
+  ignore_errors: true
+  changed_when: false
+  when: ansible_bios_date is defined
+
+- name: Get loop device associated with file
+  ansible.builtin.command: "losetup -j {{ 'target' | extract(loop_device_params) }}"
+  register: loop_device_query
+  changed_when: false
+
+- name: Parse loop device from losetup output
+  set_fact:
+    loop_device_to_detach: "{{ item.split(':')[0] }}"
+  when:
+    - loop_device_query.stdout_lines | length > 0
+    - item in loop_device_query.stdout_lines
+  with_items: "{{ loop_device_query.stdout_lines }}"
+
+- name: Check if loop_device_to_detach is defined
+  fail:
+    msg: "Loop device not found for {{ 'target' | extract(loop_device_params) }}"
+  when: loop_device_to_detach is not defined
+
+- name: Detach loop device
+  ansible.builtin.command: "losetup -d {{ loop_device_to_detach }}"
+  when: loop_device_to_detach is defined
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

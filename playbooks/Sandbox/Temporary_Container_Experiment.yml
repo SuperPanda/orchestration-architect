@@ -30,173 +30,24 @@
 #     - Take advantage of `copy-on-write` mechanisms,
 #       to design composable overlays with `btrfs_subvolumes`
 ---
-
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-## Generated from playbook specifications metadata field 'pre_run_playbooks'
+# Generated from playbook specifications metadata field 'pre_run_playbooks'
 - ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
 
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
- 
+
+
 # -----
 # Usage
 # -----
-# 
 # ```
 # ansible-playbook playbooks/Sandbox/Temporary_Container_Experiment.yml
 # ```
 # Parameters:
-#   -e container_collection=<COLLECTION>,container_name
+#   -e "container_collection=OA999,container_name=Container,container_variant=Base"
 
-# INSTRUCTIONS TO TERMINAL AI: I want to be able to use jinja2 OR similar
-# to generate templated values for subvolumes
-# in the following it should make subvol `@OA999_Container-Base` from the snapshot
-# `@OA999_Container-Initial`.
-# The container will be turned into the role `container` which will take:
-#   Storage Configurations Parameters:
-#
-#              Precedence of Variables
-#               ----------------------
-#               ( Lowest to Higher )
-#
-#  Omit (lowest) -> Role defaults (<role_name>_<param_name>) -> In `<role_name>` object
-#                -> `<role_name>_<param_name>` input variable 
-#                -> `-e <role_name>_<role_param>=<role_param_value>`
-#
-#                
-#     Project: Orchestration Architect
-#            
-#                     Framework
-#                     =========
-#
-#     Roles
-#     -----
-#     Roles are constructed as category R with:
-#     objects at minimal include: 'absent', 'present', 'info' (identity) morphisms,
-#     which identifies a `tasks/<role_state>yml` task (e.g. `present.yml`) that 
-#     is routed via the auto generated `main.yml` task when the role is called,
-#     with the `configuration variables` packaged into a <role_name>_params object,
-#     defined by the role's parameters defined in the `vars/specifications/<version>/roles.yml`
-#     by default.
-#
-#     Tasks
-#     -----
-#     Role task files (i.e. `roles/<role_name>/tasks/*.yml`) content (tasks) represent the morphisms
-#     to be at the provided `<role_name>_state`. Functors are currently applied at boundaries
-#     of composability. These allows subsystems like storage and network roles, to be
-#     the concatentation of the various storage roles: loop_device, partition, btrfs_subvolumes,
-#     filesystem, mount_table, etc. etc.
-#     These subsystem roles allows for composable blocks, to have customisable
-#       blocks, that can be used as part of the bigger systems.
-#
-#     -----------
-#     Collections
-#     -----------
-#     
-#     `Meta` Collection
-#     -----------------
-#
-#     The `Meta` Collection Consists of Role and Playbooks required to bootstrap,
-#     modify and execute the elements of the system itself.
-#     
-#     Meta Collection Components
-#     ==========================
-#     Introduction
-#     ------------
-#
-#     Overview
-#     --------
-#
-#     Meta Template
-#     -------------
-#
-#
-#     Role: `Meta.meta_role`
-#     ----------------------
-#
-#     `meta_template`
-#     ---------------
-#
-#     `
-#
-#     ``Meta.meta_role``: 
-#    
-#     
-#
-#     `OAXXX` Collection (Units of Composable System Planes partitioned by regeneration.
-#     -------------------
-#          
-#     `OA000` System Bootstrap, Installation or Recovery Media.
-#     `OA001` System Master Control Node: LiveUSB, Applications, Containers, ...
-#             - OA001 Design is to provide a LUKS-encrypted persistent LiveUSB,
-#               that is able to provision systems via PXE Boot Live Images,
-#               and Generate Other Systems, generates secure and configurable
-#               systems and stores the secrets and system user specifications.
-#             - The `OA001_<Component>` Collection generates a local repository,
-#               manages version control, and holding the master blueprints.
-#             - The `OA001_<Component>` is used to provision `OA002` and `OA999`
-#               systems. And must be able to generate `OA000` images.
-#       `OA002` Live Hypervisor that runs entirely on RAM. Configured in the 
-#               image used to provision the device, and lock down is restricted
-#               to a guest for basic lockdown nspawn style login. `OA002`
-#               should container a nested hypervisor guest. The goal is to
-#               allow for iterative prototyping and testing variants.
-#               System design is directed towards allowing live updates, via
-#               snapshot cloning the base system, and running updates to create
-#               base system' and by reapplying the playbooks and configuration,
-#               such that derived system ---> derived system', via
-#               
-#
-#               SNAPSHOT: STORAGE(PARENT) -> STORAGE(CHILD)
-#               INSTALL: SYSTEM(X) -> SYSTEM(X')
-#
-#
-#
-#                  BOOTSTRAP: Image -> Image'     # Changes an Image
-#                  BUILD:  Image -> Container     # Builds a Container#                  
-#                  SNAP: Container -> Image   # Clones reflink clone
-#                  SNAP(UPDATE): Image -> Image'
-#                  BUILD(UPDATE): 
-#
-#              BOOTSTRAP: Image -> (Snapshot Image -> Image)
-#           
-#                      BOOTSTRAP                                                    SNAP(C')
-#       init---------------------------> base ---------------------------> container------>derived
-#         |     B: (init -> base)         |                                 ^   | |         |   
-#         |                               | SNAP(UPDATE(base'))             |___| |         | 
-#         |  < major            minor  >  |                                UPDATE |         v
-#         |  < update           update >  | [NEW IMAGE]          Container: Container -> Container'
-#         |     <X>.y.z       x.<Y>.z     |                                       | 
-#         --------------                  | SNAP(base, base')                     | [NEW OVERLAY]
-#                      |----------------->|                                       |
-#                                         v     INSTALL(base')                    |
-#                                       base' -----------------> container'-->x<--
-#             SHOW FUNCTORS                                           ^       | Overlay
-#             BETWEEN CONTAINER <-> STORAGE                           |       | (Diff
-#                                                                     |       |  container
-#             SHOW NATURAL TRANSFORMATION                             |-------|  container')
-#             BETWEEN BARE METAL, CONTAINER,                                    (container)
-#                 VIRTUALISATION, AND SWITCHING                                   
-#                 COMPONENTS.
-#
-#                                QUICKLY BENCHMARK SYSTEM ARCHITECTURE
-#                                QUICKLY GENERATE AND PROVISION SYSTEMS
-#                                QUICKLY BOOT A BARE METAL IMAGE
-#                                SYSTEM GENERATION PIPELINE WITH LIVE UPDATES IN MIND
-#                                
-#
-#
-#
-#     
-#
- 
 - name: Prepare Ephemeral Container Environment
   hosts: localhost
   vars:
@@ -205,24 +56,16 @@
     container_variant: "Base"
     container_parent: "Initial"
     container_collection: "OA999"
-    container_id: "{{ container_collection }}_{{ container_name }}"
-    container_state: "present"
+    container_label: "{{ container_collection }}_{{ container_name }}"
     container_params: &container
       name: "{{ container_name }}"
       parent: "{{ container_parent }}"
       variant: "{{ container_variant }}"
       version: "{{ container_version }}"
       collection: "{{ container_collection }}"
-      size: "2G"
-    
-    system_name:  >-
-      {{
-        [
-          'collection' | extract(container_params),
-          'name' | extract(container_params),
-          'variant' | extract(container_params)
-        ] | join('-')
-      }}
+      size: 2G
+
+    system_name:  "{{ [container_label, 'variant' | extract(container_params)] | join('-') }}"
     ephemeral_storage_pool_size: "3G"
     ephemeral_storage_pool_path: "/mnt/orchestration_architect/ephemeral"
 
@@ -233,156 +76,98 @@
           type: tmpfs
           target: "{{ ephemeral_storage_pool_path }}"
 
-    container_system_volume: "{{ system_name }}_System"
-    container_volume_pool_name: "{{ system_name }}_Volume_Pool"
+    container_volume_pool_name: "{{ container_label }}_Volume_Pool"
     container_volume_pool_image_path: "{{ [ephemeral_storage_pool_path, container_volume_pool_name + '.img'] | path_join }}"
     container_volume_pool_image_size: "2G"
-
+    container_filesystem_name: "{{ container_label }}"
     container_volume_pool: &volume_pool
       loop_device:
         target: "{{ container_volume_pool_image_path }}" 
         map_name: "{{ container_volume_pool_name }}"
         size: "{{ container_volume_pool_image_size }}"
+      device: "{{ [ '/dev/mapper', container_volume_pool_name ] | path_join }}"
       filesystem:
-        path: "{{ ['/dev/mapper', container_volume_pool_name] | path_join }}"
-        label: "{{ container_system_volume }}"
+        path: "{{ ['/dev/mapper', container_volume_pool_name ] | path_join }}"
+        label: "{{ container_volume_pool_name }}"
         type: btrfs        
         opts: "-n 16k"
       btrfs_subvolumes:
-        fs_label: "{{ container_system_volume }}"
+        fs_label: "{{ container_volume_pool_name }}"
         subvols:
-          - "@{{ container_system_volume }}-initial"        
-        
-#   container_storage: &container_storage
-#     <<: *volume_pool
-#     btrfs_snapshots: 
-#       source: 
-
+          - "@Initial"
+      mount_table:        
+        - source: "LABEL={{ container_volume_pool_name }}"
+          type: btrfs
+          map:
+            - source: "subvolid=5"
+              target: "/mnt/{{ container_volume_pool_name }}"
+            - source: "subvol=@Initial"          
+              target: "/mnt/{{ container_volume_pool_name }}/@Initial"
   roles:
-    # 
     - role: storage
+      storage: "{{ ephemeral_storage_pool }}"
       storage_state: mounted
-      storage_mount_table: "{{ 'mount_table' | extract(ephemeral_storage_pool) }}"
     - role: storage
-      storage_loop_device: "{{ 'loop_device' | extract(container_volume_pool) }}"
-      storage_loop_device: "{{ 'loop_device' | extract(container_volume_pool) }}"
-      storage_filesystem: "{{ 'filesystem' | extract(container_volume_pool) }}"
-      storage_btrfs_subvolumes: "{{ 'btrfs_subvolumes' | extract(container_volume_pool) }}"
-      storage_state: present
+      storage: "{{ container_volume_pool }}"
+      storage_state: mounted
+  tasks:
+     - name: Display BTRFS Information
+       ansible.builtin.include_role:
+         name: btrfs_subvolumes
+       vars:
+         # State provided for clarity
+         btrfs_subvolumes_state: info 
+
+     - name: Copy @Initial to @Base for Container
+       vars:
+         container_context_delta:
+           label: "{{ container_label }}"
+           name: "{{ container_label | replace('_', ' ') }}"
+           system_volume:
+             name: "{{ container_label }} System Volume"
+             device: "LABEL={{ container_volume_pool_name }}"
+             overlay_base: "{{ container_filesystem_name }}"
+             # Designed so if the System Volume is in
+             #   a separate namespace, it is able to rebuild
+             #   from a subvolumes from the local initial
+             #  subvolume for that container.
+             filesystem_label: "{{ container_filesystem_name }}"              
+             layer_specification:
+               - parent: "@Initial"
+                 name: "{{ overlay_base }}/@Initial"
+                 mount: "/mnt/{{ overlay_base }}/@Initial"
+               - parent: /{{ overlay_base }}/@Initial"
+                 name: "{{ overlay_base }}/@Base"
+                 mount: "/mnt/{{ overlay_base }}/@Base"
+       block:
+          - name: Update System Volume Container Facts
+            ansible.builtin.set_fact:
+              container_context: "{{ container_context | default({}) | combine(container_context_delta, recursive=True, merge_list='append_rp') }}"
+          - name: Build Container System Volume
+            community.general.btrfs_subvolume:
+              name: "{{ 'name' | extract(layer) }}"
+              snapshot_source: "{{ 'parent' | extract(layer) }}"
+              state: present
+            loop: "{{ 'system_volume' | extract(container_context, morekeys=['layer_specification']) }}"
+            loop_control:
+              loop_var: layer
+          - name: Mount Volumes
+            loop: "{{ 'system_volume' | extract(container_context, morekeys=['layer_specification']) }}"
+            loop_control:
+              loop_var: layer
+            ansible.builtin.include_role:
+              name: mount
+            vars:
+              mount_state: mounted
+              mount_source: "LABEL={{ container_volume_pool_name }}"
+              mount_type: btrfs
+              mount_map:
+                - source: "subvol={{ 'name' | extract(layer) }}"
+                  target: "{{ 'mount' | extract(layer) }}"
+          
 
 
-
-# tasks:
-#   - name: Create Container Mountable
-#     
-#     vars:
-#       initial_subvolume_name: "@{{ system_name }}-initial"
-#       base_subvolume_name: "@{{ system_name }}-base"
-#     block:
-
-#     # ...
-#     - name: Generate `base` subvolume from  `initial` snapshot
-#       state: "present"
-#       source: "@{{ initial_subvolume_name }}-init"
-#       destination: "@{{ container_system_volume }}-{{ container_base }} "
-#   tasks:
-#     - name: Create file for volume collection block device image
-#       community.general.filesize:
-#         path: "{{ container_volume_pool_block_device_image }}"
-#         size: "{{ container_base_size }}"
-#     - name: Create Ephemeral Storage Pool
-#     
-#       ansible.builtin.mount:
-#         path: "{{ ephemeral_mount_point }}"
-#         src: "tmpfs"
-#         fstype: "tmpfs"
-#         opts: "size={{ ephemeral_storage_pool_size }}"
-#         state: "mounted"
-
-
-#         container_base_size: 2G
-#         storage_mount_table:
-#           source: tmpfs
-#           type: tmpfs
-#         options: "size={{ ephemeral_pool_size }}"
-#            target: "{{ ephemeral_storage_pool }}"
-#            state: "mounted"
-
-
-#         - name: Generate {{ container_params }}
-#       include_role:
-#         name: storage
-#         storage:
-#           
-#       vars:
-#     
-#     size: "2G" # size of volume pool
-
-#       storage:
-
-
-#     system: 
-#       collection: "{{ 'collection' | extract(container_params) }}"
-#       name:
-
-# }}_{{ container_name }}"
-#     #
-#     # Create Volume Storage
-#     #
-#     # include_role:
-#     #   name: storage
-#       
-
-#     
-#     container_base_size: 2G
-#     - name: Create container volume pool mount point directory
-#       ansible.builtin.file:
-#         path: "{{ container_volume_pool_mount_point }}"
-#         state: directory
-#         mode: '0700'
-#         
-#     - name: Create loop device to expose the volume pool
-#       command: "losetup --find --nooverlap --show {{ container_volume_pool_block_device_image }}"
-#       register: loop_device_result
-
-#     - name: Generate Container Volumes
-#       ansible.builtin.include_role: "storage"
-#       vars:
-#         storage_loopback_device:
-#           name: "{{ oollection_name }}"
-#     - name: Create BTRFS filesystem on the loop device
-#       filesystem:
-#         path: "{{ loop_device_result.stdout }}"
-#         type: btrfs
-#         opts: "-n 16k"
-#     
-#     - name: Create BTRFS subvolume for @init
-#       command: btrfs subvolume create {{ container_volume_pool }}/@init
-
-#     - name: Create @base subvolume
-#       command: btrfs subvolume snapshot -r {{ container_volume_pool }}/@init {{ container_volume_pool }}/@base
-
-#     - name: Create @overlay subvolume for changes
-#       command: btrfs subvolume create {{ container_volume_pool }}/@overlay
-
-#     - name: Create overlay directories for nspawn
-#       ansible.builtin.file:
-#         path: "{{ ephemeral_storage_pool }}/overlay"
-#         state: directory
-#         mode: '0700'
-
-#     - name: Create initial snapshot for container
-#       command: btrfs subvolume snapshot {{ ephemeral_storage_pool }}/@base {{ ephemeral_storage_pool }}/@initial
-
-#     - name: Configure systemd-nspawn container
-#       community.general.systemd_nspawn:
-#         name: arch_container
-#         image: "{{ container_volume_pool }}/@base"
-#         machine: "arch_sandbox_container"
-#         command: /bin/zsh
-#         state: started
-#         boot: false
-  ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

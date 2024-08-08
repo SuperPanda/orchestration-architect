@@ -24,6 +24,7 @@
       mount_state: {{ mount_state | default('not set') }}
       mount_map: {{ mount_map | default('not set') }}
       mount_type: {{ mount_type | default('not set') }}
+      mount_options: {{ mount_options | default('not set') }}
       mount_target: {{ mount_target | default('not set') }}
       mount_source: {{ mount_source | default('not set') }}
       mount_fstab: {{ mount_fstab | default('not set') }}
@@ -35,6 +36,7 @@
       state: "{{ ((mount | default({})).state is defined and(mount | default({})).state!=omit) | ternary('mount.state', (mount_state is defined and mount_state==mount_params.state) | ternary('mount_state', '(unset) defaults to: omit' ))  }}"
       map: "{{ ((mount | default({})).map is defined and(mount | default({})).map!=omit) | ternary('mount.map', (mount_map is defined and mount_map==mount_params.map) | ternary('mount_map', '(unset) defaults to: omit' ))  }}"
       type: "{{ ((mount | default({})).type is defined and(mount | default({})).type!=omit) | ternary('mount.type', (mount_type is defined and mount_type==mount_params.type) | ternary('mount_type', '(unset) defaults to: omit' ))  }}"
+      options: "{{ ((mount | default({})).options is defined and(mount | default({})).options!=omit) | ternary('mount.options', (mount_options is defined and mount_options==mount_params.options) | ternary('mount_options', '(unset) defaults to: omit' ))  }}"
       target: "{{ ((mount | default({})).target is defined and(mount | default({})).target!=omit) | ternary('mount.target', (mount_target is defined and mount_target==mount_params.target) | ternary('mount_target', '(unset) defaults to: omit' ))  }}"
       source: "{{ ((mount | default({})).source is defined and(mount | default({})).source!=omit) | ternary('mount.source', (mount_source is defined and mount_source==mount_params.source) | ternary('mount_source', '(unset) defaults to: omit' ))  }}"
       fstab: "{{ ((mount | default({})).fstab is defined and(mount | default({})).fstab!=omit) | ternary('mount.fstab', (mount_fstab is defined and mount_fstab==mount_params.fstab) | ternary('mount_fstab', '(unset) defaults to: omit' ))  }}"

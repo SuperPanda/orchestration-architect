@@ -17,13 +17,11 @@
   when:
     - "'loop_device' in storage_params"
     - "storage_params.loop_device!=omit"
-  block:
-    - name:
-      ansible.builtin.include_role:
-        name: loop_device
-      vars:
-        loop_device: "{{ 'loop_device' | extract(storage_params) }}"
-        loop_device_state: present
+  vars:
+    loop_device: "{{ 'loop_device' | extract(storage_params) }}"
+    loop_device_state: present
+  ansible.builtin.include_role:
+    name: loop_device
 
 
 # (@functor) Storage(present) -> Partition(present)
@@ -50,16 +48,7 @@
         name: luks
       vars:
         luks: "{{ 'luks' | extract(storage_params) }}"
-        luks_state: present
-
-# (@functor) Storage(_ -> present) -> LUKS(present -> opened)
-- name: Map Storage to Opened State
-  when:
-    - "'filesystem' in storage_params and storage_params.filesystem!=omit"
-    - "'luks' in storage_params and storage_params.luks!=omit"
-  ansible.builtin.include_role:
-    tasks_from: opened.yml
-    name: storage
+        luks_state: opened
 
 # (@functor) Storage(present -> opened) -> Filesystem(_ -> present)
 - name: Map Filesystem to Present state (if required)

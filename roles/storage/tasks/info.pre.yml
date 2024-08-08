@@ -22,9 +22,9 @@
     msg: |
       storage: {{ storage | default('not set') }}
       storage_state: {{ storage_state | default('not set') }}
+      storage_loop_device: {{ storage_loop_device | default('not set') }}
       storage_device: {{ storage_device | default('not set') }}
       storage_luks: {{ storage_luks | default('not set') }}
-      storage_loop_device: {{ storage_loop_device | default('not set') }}
       storage_mount_table: {{ storage_mount_table | default('not set') }}
       storage_btrfs_subvolumes: {{ storage_btrfs_subvolumes | default('not set') }}
       storage_partition_table: {{ storage_partition_table | default('not set') }}
@@ -35,9 +35,9 @@
   ansible.builtin.debug:
     msg: |
       state: "{{ ((storage | default({})).state is defined and(storage | default({})).state!=omit) | ternary('storage.state', (storage_state is defined and storage_state==storage_params.state) | ternary('storage_state', '(unset) defaults to: omit' ))  }}"
+      loop_device: "{{ ((storage | default({})).loop_device is defined and(storage | default({})).loop_device!=omit) | ternary('storage.loop_device', (storage_loop_device is defined and storage_loop_device==storage_params.loop_device) | ternary('storage_loop_device', '(unset) defaults to: omit' ))  }}"
       device: "{{ ((storage | default({})).device is defined and(storage | default({})).device!=omit) | ternary('storage.device', (storage_device is defined and storage_device==storage_params.device) | ternary('storage_device', '(unset) defaults to: omit' ))  }}"
       luks: "{{ ((storage | default({})).luks is defined and(storage | default({})).luks!=omit) | ternary('storage.luks', (storage_luks is defined and storage_luks==storage_params.luks) | ternary('storage_luks', '(unset) defaults to: omit' ))  }}"
-      loop_device: "{{ ((storage | default({})).loop_device is defined and(storage | default({})).loop_device!=omit) | ternary('storage.loop_device', (storage_loop_device is defined and storage_loop_device==storage_params.loop_device) | ternary('storage_loop_device', '(unset) defaults to: omit' ))  }}"
       mount_table: "{{ ((storage | default({})).mount_table is defined and(storage | default({})).mount_table!=omit) | ternary('storage.mount_table', (storage_mount_table is defined and storage_mount_table==storage_params.mount_table) | ternary('storage_mount_table', '(unset) defaults to: omit' ))  }}"
       btrfs_subvolumes: "{{ ((storage | default({})).btrfs_subvolumes is defined and(storage | default({})).btrfs_subvolumes!=omit) | ternary('storage.btrfs_subvolumes', (storage_btrfs_subvolumes is defined and storage_btrfs_subvolumes==storage_params.btrfs_subvolumes) | ternary('storage_btrfs_subvolumes', '(unset) defaults to: omit' ))  }}"
       partition_table: "{{ ((storage | default({})).partition_table is defined and(storage | default({})).partition_table!=omit) | ternary('storage.partition_table', (storage_partition_table is defined and storage_partition_table==storage_params.partition_table) | ternary('storage_partition_table', '(unset) defaults to: omit' ))  }}"

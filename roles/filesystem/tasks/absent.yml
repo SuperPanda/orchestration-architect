@@ -15,6 +15,7 @@
 - name: Remove Filesystem
   vars:
     fs_path: "{{ 'path' | extract(filesystem_params) }}"
+    fs_type: "{{ 'type' | extract(filesystem_params) }}"
   when: "fs_type=='btrfs'"
   community.general.filesystem:
     dev: "{{ fs_path }}"
