@@ -101,8 +101,6 @@
           map:
             - source: "subvolid=5"
               target: "/mnt/{{ container_volume_pool_name }}"
-            - source: "subvol=@Initial"          
-              target: "/mnt/{{ container_volume_pool_name }}/@Initial"
   roles:
     - role: storage
       storage: "{{ ephemeral_storage_pool }}"
@@ -119,54 +117,28 @@
          btrfs_subvolumes_state: info 
 
      - name: Copy @Initial to @Base for Container
+       community.general.btrfs_subvolume:
+         filesystem_label: "{{ container_volume_pool_name }}"
+         name: "/@{{ system_name }}"
+         snapshot_source: "/@Initial"
+     - name: Mount @Base
+       ansible.builtin.include_role:
+         name: mount
        vars:
-         container_context_delta:
-           label: "{{ container_label }}"
-           name: "{{ container_label | replace('_', ' ') }}"
-           system_volume:
-             name: "{{ container_label }} System Volume"
-             device: "LABEL={{ container_volume_pool_name }}"
-             overlay_base: "{{ container_filesystem_name }}"
-             # Designed so if the System Volume is in
-             #   a separate namespace, it is able to rebuild
-             #   from a subvolumes from the local initial
-             #  subvolume for that container.
-             filesystem_label: "{{ container_filesystem_name }}"              
-             layer_specification:
-               - parent: "@Initial"
-                 name: "{{ overlay_base }}/@Initial"
-                 mount: "/mnt/{{ overlay_base }}/@Initial"
-               - parent: /{{ overlay_base }}/@Initial"
-                 name: "{{ overlay_base }}/@Base"
-                 mount: "/mnt/{{ overlay_base }}/@Base"
-       block:
-          - name: Update System Volume Container Facts
-            ansible.builtin.set_fact:
-              container_context: "{{ container_context | default({}) | combine(container_context_delta, recursive=True, merge_list='append_rp') }}"
-          - name: Build Container System Volume
-            community.general.btrfs_subvolume:
-              name: "{{ 'name' | extract(layer) }}"
-              snapshot_source: "{{ 'parent' | extract(layer) }}"
-              state: present
-            loop: "{{ 'system_volume' | extract(container_context, morekeys=['layer_specification']) }}"
-            loop_control:
-              loop_var: layer
-          - name: Mount Volumes
-            loop: "{{ 'system_volume' | extract(container_context, morekeys=['layer_specification']) }}"
-            loop_control:
-              loop_var: layer
-            ansible.builtin.include_role:
-              name: mount
-            vars:
-              mount_state: mounted
-              mount_source: "LABEL={{ container_volume_pool_name }}"
-              mount_type: btrfs
-              mount_map:
-                - source: "subvol={{ 'name' | extract(layer) }}"
-                  target: "{{ 'mount' | extract(layer) }}"
-          
-
-
+         mount:
+           source: "LABEL={{ container_volume_pool_name }}"
+           state: "mounted"
+           type: "btrfs"
+           map: 
+             - source: "subvol=@{{ system_name }}"
+               target: "/mnt/@{{ system_name }}"
+     - name: Pac Strap Base
+       ansible.builtin.command: "pacstrap -K /mnt/@{{ system_name }} base"
+     - name: Start Container
+       ansible.builtin.debug:
+         msg: |
+           Run `systemd-nspawn --ephemeral --directory=/mnt/@{{ system_name }}`
+    
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
