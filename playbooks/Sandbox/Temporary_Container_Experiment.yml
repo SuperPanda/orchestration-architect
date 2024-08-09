@@ -137,7 +137,7 @@
      - name: Start Container
        ansible.builtin.debug:
          msg: |
-           Run `systemd-nspawn --ephemeral --directory=/mnt/@{{ system_name }}`
+           Run `systemd-nspawn --ephemeral --directory=/mnt/@{{ system_name }} --keep-unit --register=no`
     
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
