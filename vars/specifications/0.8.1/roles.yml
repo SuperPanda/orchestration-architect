@@ -7,7 +7,7 @@ roles_specifications:
     default_sections:
       - file_header
     collections:
-      Meta:
+      Meta:        
         description: Roles that coordinate, generate, update or modify the states
           of specifications, playbooks, roles, tests, templates, and rendered content.
         tools:
@@ -30,6 +30,86 @@ roles_specifications:
         description: |
           Roles that coordinate, provision or manage storage volumes, encryption,
           mounts, btrfs subvolumes and snapshots.
+      Networking:
+        description: |
+          Configure OVS networks, firewalls, and other network services
+      Containers:
+        description: |
+          Configure machines, containers, virtual machines
+      Bootstrap:
+        description: |
+          Building and Creating Operating System Instances and Images, Bootloaders,
+          and other related system generation modification.
+      Desktop:
+        description: |
+          Window Managers, Shells, Themes
+      Application:
+        description: |
+          Build and package applications
+  Networking:
+    openvswitch:      
+      role_name: openvswitch
+      role_path: roles/openvswitch
+      files:
+        - id: openvswitch_configured_task
+          path: tasks/configured.yml
+          template: tasks/base.yml.j2
+          state: updated
+        - id: openvswitch_started_task
+          path: tasks/started.yml
+          template: tasks/base.yml.j2
+          state: updated
+        - id: openvswitch_stopped_task
+          path: tasks/stopped.yml
+          template: tasks/base.yml.j2
+          state: updated
+      parameters:
+        bridges: {}
+    ovs_bridge:
+      role_name: ovs_bridge
+      role_path: roles/ovs_bridge
+      paramters:
+        ports: {}
+        name: {}
+
+  Containers:
+    container:
+      role_name: container
+      role_path: roles/container
+      parameters:
+        machine_name: {}
+        target: {}
+        qemu: {}
+        nspawn: {}
+
+    qemu:
+      role_name: qemu
+      role_path: roles/qemu
+      parameters:
+        machine_name: {}
+        target: {}
+        command_template: {}
+      files:
+        - id: kvm_command_template
+          path: templates/command/kvm.j2
+          state: present
+      defaults:
+        qemu_machine_name: "OA_QEMU_Default"
+        qemu_command_template: command/kvm.j2
+
+    nspawn:
+      role_name: nspawn
+      role_path: roles/nspawn
+      files:
+        - id: ephemeral_command_template
+          path: templates/command/ephemeral.j2
+          state: present
+      parameters:
+        machine_name: {}
+        target: {}
+        command_template: {}
+      defaults:
+        nspawn_command_template: ephemeral.j2
 
   Storage:
     loop_device:
@@ -40,19 +120,17 @@ roles_specifications:
         map_name: {}
         size: {}
       files:
-        - id: loopdev_active
-          path: tasks/active.yml
+        - path: tasks/active.yml
           template: tasks/base.yml.j2
           state: updated
-        - id: storage_inactive
-          path: tasks/inactive.yml
+        - path: tasks/inactive.yml      
           template: tasks/base.yml.j2
           state: updated
     storage:
       role_name: storage
       role_path: roles/storage
       parameters:
-        loop_device: {}
+        loop_devoce: {}
         device: {}
         luks: {}
         mount_table: {}
@@ -149,7 +227,6 @@ roles_specifications:
       parameters:
         map: {}
         type: {}
-        options: {}
         target: {}
         source: {}
         fstab: {}

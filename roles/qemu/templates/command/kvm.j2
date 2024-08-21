@@ -1,0 +1,15 @@
+qemu-system-x86_64 \
+-drive file="{{ template_variables.target }}",format=raw,cache=none \
+-full-screen \
+-enable-kvm \
+-smp 8,sockets=1,cores=4,threads=2 \
+-cpu host \
+-boot menu=on \
+-vga qxl \
+-display spice-app \
+-device virtio-serial-pci \
+-spice unix=on,addr=/run/qemu_{{ template_variables.machine_name }}.socket,disable-ticketing=on,gl=on \
+-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
+-chardev spicevmc,id=spicechannel0,name=vdagent \
+-drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
+-drive if=pflash,format=raw,file=/var/lib/libvirt/qemu/nvram/VM_VARS.fd                
