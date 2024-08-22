@@ -1,0 +1,52 @@
+# file: playbooks/Sandbox/Ephemeral_Runner.yml
+# playbook: Ephemeral Runner
+# version: 0.8.1
+# description:
+#     Run in Container
+---
+### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+## Generated from playbook specifications metadata field 'pre_run_playbooks'
+- ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
+
+### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+
+- name: "Ephemeral Runner Playbook Sanity Tests"
+  hosts: localhost
+  connection: local
+  roles:
+    - role: qemu
+      qemu_machine_name: Sandbox_QEMU_Machine
+      qemu_target: test_target
+      qemu_state: info
+    - role: nspawn
+      nspawn_machine_name: Sandbox_NSPAWN_Machine
+      nspawn_target: test_target_2
+      nspawn_state: info
+    - role: container
+      container:
+        nspawn:
+          machine_name: Sandbox_Container_Nspawn_Machine
+- name: "Ephemeral Test"
+  hosts: localhost
+  connection: local
+  roles:
+    - role: nspawn
+      vars:
+        nspawn_target: "/"
+        nspawn_machine_name: "EphemeralHost"
+        nspawn_overlays: ["/etc::/etc", "/root::/root"]
+        nspawn_extras: ["--user=root", "/bin/zsh"]
+        nspawn_state: present
+
+### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
+
+# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
+# END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

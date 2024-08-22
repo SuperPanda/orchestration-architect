@@ -94,7 +94,6 @@ roles_specifications:
           path: templates/command/kvm.j2
           state: present
       defaults:
-        qemu_machine_name: "OA_QEMU_Default"
         qemu_command_template: command/kvm.j2
 
     nspawn:
@@ -108,8 +107,12 @@ roles_specifications:
         machine_name: {}
         target: {}
         command_template: {}
+        overlays: {}
+        extras: {}
       defaults:
-        nspawn_command_template: ephemeral.j2
+        nspawn_command_template: command/ephemeral.j2
+        nspawn_overlays: []
+        nspawn_extras: []
 
   Storage:
     loop_device:

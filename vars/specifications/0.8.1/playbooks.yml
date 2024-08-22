@@ -83,6 +83,15 @@ playbooks_specifications:
       - 50_content_region_message
       - 90_managed_block_after_content
   Sandbox:
+    Ephemeral_Runner:
+      playbook_name: Ephemeral Runner
+      playbook_description: Run in Container
+      playbook_path: Ephemeral_Runner.yml
+      state: updated
+      metadata:
+        pre_run_playbooks:
+          - "../Meta/Setup_Environment.yml"
+      
     Temporary Container Experiment:
       playbook_name: Temporary Container Experiment
       playbook_description: |
