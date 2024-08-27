@@ -1,3 +1,47 @@
-repositories:
+repositories:  
   orchestration_architect:
-    bare_repo_path: /srv/git/orchestration_architect.git
+    origin: /srv/git/orchestration_architect.git
+    mirror: github.com/SuperPanda/orchestration-architect.git
+    workspace:
+      relative_to: /root/orchestration_architect
+      detach_worktrees: true
+      map:
+        - branch: 0.8.0-initial
+          path: initial
+        - branch: 0.8.0-seed
+          path: seeds/0.8.0
+          parent: 0.8.0-initial
+          description: Branch that seeds the bootstrap process. Seed generated from dev branch.
+        - branch: 0.8.0-pristine
+          path: pristine
+          parent: 0.8.0-initial
+          description: >-
+            The codebase that reflects the resultant transformation from the seed branch,
+            the branch takes the diff between the HEAD of the pristine branch, and the bootstrap environment
+            post-execution, and applied as a patch.   
+        - branch: 0.8.0-dev
+          path: dev
+          parent: 0.8.0-pristine
+          description: >-
+            The branch where changed and worked on. Rebased on pristine when it is updated.
+            The 'dev' branch is used to generate the next seed state, ensuring that the seed
+            is able to undergo the bootstrap process in order to update the pristine branch.
+        - branch: 0.8.0-tools
+          path: scripts
+          parent: 0.8.0-initial
+        - path: docs
+          branch: 0.8.0-documents
+          parent: 0.8.0-initial
+        - path: assets
+          branch: 0.8.0-assets
+          parent: 0.8.0-initial
+        - path: sandbox
+          branch: 0.8.0-sandbox
+          parent: 0.8.0-initial
+          
+
+
+      
+
+
+    

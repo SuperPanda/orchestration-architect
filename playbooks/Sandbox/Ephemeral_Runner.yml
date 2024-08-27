@@ -34,7 +34,8 @@
       container:
         nspawn:
           machine_name: Sandbox_Container_Nspawn_Machine
-- name: "Ephemeral Test"
+          
+- name: Ephemeral NSPAWN
   hosts: localhost
   connection: local
   roles:
@@ -45,6 +46,17 @@
         nspawn_overlays: ["/etc::/etc", "/root::/root"]
         nspawn_extras: ["--user=root", "/bin/zsh"]
         nspawn_state: present
+
+- name: Ephemeral QEMU
+  hosts: localhost
+  connection: local
+  roles:
+    - role: qemu
+      vars:
+        qemu:
+          target: "/"
+          machine_name: "QEMU_Ephemeral_Demo"
+
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
