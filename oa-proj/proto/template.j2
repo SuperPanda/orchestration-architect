@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schema Documentation</title>
+    <script src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+    <script>
+        var respecConfig = {
+            specStatus: "unofficial",
+            inlineCSS: true,
+            shortName: "oa-schema",
+            subtitle: "Orchestration Architect",
+            edDraftURI: "https://yourwebsite.com/drafts/oa-schema",
+            prevRecURI: "https://yourwebsite.com/previous-oa-schema",
+            issueBase: "https://yourwebsite.com/issues",
+            otherLinks: [
+                {
+                    key: "Repository",
+                    href: "https://github.com/yourrepository/oa-schema",
+                    text: "Source code"
+                }
+            ],
+            localBiblio: {
+                "OA-SCHEMA": {
+                    title: "Ontology for OA Schema",
+                    href: "https://yourwebsite.com/oa-schema",
+                    authors: ["Your Name"],
+                    date: "2024"
+                }
+            }
+        };
+    </script>
+</head>
+<body>
+    <section>
+        <h1>OA Schema Documentation</h1>
+        <p>This document provides an overview of the OA Schema, including its entities, relationships, and namespaces.</p>
+
+        <section id="entities">
+            <h2>Entities</h2>
+            <p>The following entities are defined within the OA Schema:</p>
+            <ul>
+                {% for entity in entities %}
+                <li><strong>{{ entity.category }}</strong>: {{ entity.description }}
+                    <ul>
+                    {% for relationship in entity.relationships %}
+                        <li>{{ relationship.type }} &rarr; {{ relationship.target }}</li>
+                    {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section id="namespace">
+            <h2>Namespace</h2>
+            <p>The following namespace is used in this schema:</p>
+            <pre>{{ namespace }}</pre>
+        </section>
+
+        <section id="references">
+            <h2>References</h2>
+            <p>Refer to the following resources for additional information:</p>
+            <dl>
+                <dt><cite>OA-SCHEMA</cite></dt>
+                <dd>Ontology for OA Schema. Available at: <a href="https://yourwebsite.com/oa-schema">https://yourwebsite.com/oa-schema</a></dd>
+            </dl>
+        </section>
+    </section>
+</body>
+</html>
+

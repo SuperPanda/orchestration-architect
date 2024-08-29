@@ -1,0 +1,76 @@
+
+#!/bin/bash
+
+# Ensure the script is executed in a safe environment
+set -e
+
+# Set up directories and paths
+OUTPUT_DIR="output"
+RDF_TEMPLATE="rdf_template.j2"
+HTML_TEMPLATE="template.j2"
+RDF_OUTPUT="$OUTPUT_DIR/schema.ttl"
+RDF_OUTPUT_SERDI="$OUTPUT_DIR/schema_valid.ttl"
+RDF_XML_OUTPUT="$OUTPUT_DIR/schema.rdf"
+HTML_OUTPUT="$OUTPUT_DIR/index.html"
+SCHEMA_YAML="schema.yml"
+
+# Ensure output directory exists
+mkdir -p $OUTPUT_DIR
+
+# [schema.yml] Create the schema.yml file if it doesn't exist
+cat << EOF > $SCHEMA_YAML
+namespace: "urn:oa:schema:graph"
+entities:
+  - category: "Object"
+    description: "An abstract entity."
+    relationships:
+      - type: "relatedTo"
+        target: "Morphism"
+  - category: "Morphism"
+    description: "A directional relationship."
+    relationships:
+      - type: "mapsTo"
+        target: "Object"
+EOF
+
+# Check if j2 is installed
+if ! command -v j2 &> /dev/null
+then
+    echo "j2 could not be found. Please install it before running this script."
+    exit 1
+fi
+
+# Check if serdi is installed
+if ! command -v serdi &> /dev/null
+then
+    echo "serdi could not be found. Please install it before running this script."
+    exit 1
+fi
+
+# Check if rapper is installed
+if ! command -v rapper &> /dev/null
+then
+    echo "rapper could not be found. Please install it before running this script."
+    exit 1
+fi
+
+# [output/schema.ttl] Generate RDF using j2 template
+j2 "$RDF_TEMPLATE" "$SCHEMA_YAML" > "$RDF_OUTPUT"
+
+# [output/schema_valid.ttl] Validate and convert RDF using serdi
+serdi -i turtle -o turtle "$RDF_OUTPUT" > "$RDF_OUTPUT_SERDI"
+
+# [output/schema.rdf] Convert to RDF/XML using rapper for compatibility
+rapper -i turtle -o rdfxml "$RDF_OUTPUT_SERDI" > "$RDF_XML_OUTPUT"
+
+# [output/index.html] Generate HTML using j2 template with ReSpec
+j2 "$HTML_TEMPLATE" "$SCHEMA_YAML" > "$HTML_OUTPUT"
+
+# Output results
+echo "Validated RDF (Turtle format) generated at: $RDF_OUTPUT_SERDI"
+echo "RDF (RDF/XML) generated at: $RDF_XML_OUTPUT"
+echo "HTML ReSpec documentation generated at: $HTML_OUTPUT"
+
+# Instructions to view the HTML
+echo "To view the ReSpec documentation, open the file in a web browser: $HTML_OUTPUT"
+

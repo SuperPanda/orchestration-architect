@@ -1,0 +1,12 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix graph: <{{ namespace }}> .
+
+{% for entity in entities %}
+graph:{{ entity.category | replace(' ', '_') }} a rdfs:Class ;
+    rdfs:label "{{ entity.category }}" ;
+    rdfs:comment "{{ entity.description }}" .
+
+    {% for relationship in entity.relationships %}
+graph:{{ entity.category | replace(' ', '_') }} graph:{{ relationship.type | replace(' ', '_') }} graph:{{ relationship.target | replace(' ', '_') }} .
+    {% endfor %}
+{% endfor %}
