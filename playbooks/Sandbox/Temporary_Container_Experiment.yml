@@ -32,23 +32,10 @@
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
 
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-## Generated from playbook specifications metadata field 'pre_run_playbooks'
-- ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 30_managed_block_before_content
-
 # Generated from playbook specifications metadata field 'pre_run_playbooks'
 - ansible.builtin.import_playbook: "../Meta/Setup_Environment.yml"
 
 ### 03_Content_Region ORCHESTRATION ARCHITECT REGION ###
-
-# BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
-# END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
 
 

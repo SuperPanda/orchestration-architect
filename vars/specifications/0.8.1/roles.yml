@@ -30,36 +30,24 @@ roles_specifications:
         description: |
           Roles that coordinate, provision or manage storage volumes, encryption,
           mounts, btrfs subvolumes and snapshots.
-      Networking:
+      Network:
         description: |
           Configure OVS networks, firewalls, and other network services
-      Containers:
-        description: |
-          Configure machines, containers, virtual machines
-      Bootstrap:
-        description: |
-          Building and Creating Operating System Instances and Images, Bootloaders,
-          and other related system generation modification.
-      Desktop:
-        description: |
-          Window Managers, Shells, Themes
-      Application:
-        description: |
-          Build and package applications
-  Networking:
+
+  Network:
     openvswitch:      
       role_name: openvswitch
       role_path: roles/openvswitch
       files:
-        - id: openvswitch_configured_task
+        - id: ovs_configured_task
           path: tasks/configured.yml
           template: tasks/base.yml.j2
           state: updated
-        - id: openvswitch_started_task
+        - id: ovs_started_task
           path: tasks/started.yml
           template: tasks/base.yml.j2
           state: updated
-        - id: openvswitch_stopped_task
+        - id: ovs_stopped_task
           path: tasks/stopped.yml
           template: tasks/base.yml.j2
           state: updated
@@ -69,50 +57,51 @@ roles_specifications:
       role_name: ovs_bridge
       role_path: roles/ovs_bridge
       paramters:
-        ports: {}
         name: {}
+        ports: {}
 
-  Containers:
+  Container:
     container:
       role_name: container
       role_path: roles/container
       parameters:
-        machine_name: {}
-        target: {}
-        qemu: {}
-        nspawn: {}
-
-    qemu:
-      role_name: qemu
-      role_path: roles/qemu
+        name: {}
+      
+    qemu_runner:
+      role_name: qemu_runner
+      role_path: roles/qemu_runner
       parameters:
-        machine_name: {}
-        target: {}
-        command_template: {}
-      files:
-        - id: kvm_command_template
-          path: templates/command/kvm.j2
-          state: present
+        device_path: {}
+        memory: {}
+        cpu_cores: {}
+        sockets: {}
+        smp: {}
+        vga: {}
+        spice_socket: {}
+        port_forwarding: {}
+        extras: {}
       defaults:
-        qemu_command_template: command/kvm.j2
-
-    nspawn:
-      role_name: nspawn
-      role_path: roles/nspawn
-      files:
-        - id: ephemeral_command_template
-          path: templates/command/ephemeral.j2
-          state: present
+        qemu_runner_memory: "4G"
+        qemu_runner_cpu_cores: 4
+        qemu_runner_sockets: 1
+        qemu_runner_smp: "8,threads=2"
+        qemu_runner_vga: "qxl"
+        qemu_runner_spice_socket: "/run/vm_spice.socket"
+        qemu_runner_port_forwarding: ""
+        qemu_runner_extras: ""
+    nspawn_runner:
+      role_name: nspawn_runner
+      role_path: roles/nspawn_runner
       parameters:
-        machine_name: {}
         target: {}
-        command_template: {}
+        machine_name: {}
         overlays: {}
         extras: {}
       defaults:
-        nspawn_command_template: command/ephemeral.j2
-        nspawn_overlays: []
-        nspawn_extras: []
+        nspawn_runner_target: "/run/nspawn_ephemeral"
+        nspawn_runner_machine_name: "ephemeral_nspawn"
+        nspawn_runner_overlays: []
+        nspawn_runner_extras: ""
 
   Storage:
     loop_device:
