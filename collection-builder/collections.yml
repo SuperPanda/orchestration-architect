@@ -1,0 +1,11 @@
+collections:
+  orchestration_architect:
+    storage:
+      roles:
+        - storage
+        - luks
+        - loop_device
+        - filesystem
+        - partition
+        - btrfs_subvolume
+        - mount
