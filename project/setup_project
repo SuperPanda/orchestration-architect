@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Base directory for the project
+BASE_DIR="/root/orchestration_architect/documents"
+
+# Directories to create
+DIRECTORIES=(
+    "$BASE_DIR/project/bin"
+    "$BASE_DIR/project/data/tasks"
+    "$BASE_DIR/project/data/rdf"
+    "$BASE_DIR/project/backlog"
+    "$BASE_DIR/project/active"
+    "$BASE_DIR/project/completed"
+)
+
+# Files to create in the project/bin directory
+BIN_FILES=("oa")
+
+# Function to create directories
+create_directories() {
+    for dir in "${DIRECTORIES[@]}"; do
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir"
+            echo "Created directory: $dir"
+        else
+            echo "Directory already exists: $dir"
+        fi
+    done
+}
+
+# Function to create files (idempotent, will not overwrite existing files)
+create_files() {
+    for file in "${BIN_FILES[@]}"; do
+        file_path="$BASE_DIR/project/bin/$file"
+        if [ ! -f "$file_path" ]; then
+            touch "$file_path"
+            echo "#!/bin/bash" > "$file_path"
+            chmod +x "$file_path"
+            echo "Created file: $file_path"
+        else
+            echo "File already exists: $file_path"
+        fi
+    done
+}
+
+# Run the functions
+create_directories
+create_files
+
+echo "Directory structure and files created (if they didn't already exist)."
+
