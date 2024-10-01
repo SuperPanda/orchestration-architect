@@ -1,0 +1,20 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix graph: <urn:oa:schema:graph> .
+
+
+graph:Object a rdfs:Class ;
+    rdfs:label "Object" ;
+    rdfs:comment "An abstract entity." .
+
+    
+graph:Object graph:relatedTo graph:Morphism .
+    
+
+graph:Morphism a rdfs:Class ;
+    rdfs:label "Morphism" ;
+    rdfs:comment "A directional relationship." .
+
+    
+graph:Morphism graph:mapsTo graph:Object .
+    
+

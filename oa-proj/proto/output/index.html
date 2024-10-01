@@ -34,29 +34,37 @@
 </head>
 <body>
     <section>
-        <h1>Documentation :: Orchestration Architect</h1>
-        <p>This document provides an overview of the Orchestration Architect Schema, including its entities, relationships, and namespaces.</p>
+        <h1>OA Schema Documentation</h1>
+        <p>This document provides an overview of the OA Schema, including its entities, relationships, and namespaces.</p>
 
         <section id="entities">
             <h2>Entities</h2>
             <p>The following entities are defined within the OA Schema:</p>
             <ul>
-                {% for entity in entities %}
-                <li><strong>{{ entity.category }}</strong>: {{ entity.description }}
+                
+                <li><strong>Object</strong>: An abstract entity.
                     <ul>
-                    {% for relationship in entity.relationships %}
-                        <li>{{ relationship.type }} &rarr; {{ relationship.target }}</li>
-                    {% endfor %}
+                    
+                        <li>relatedTo &rarr; Morphism</li>
+                    
                     </ul>
                 </li>
-                {% endfor %}
+                
+                <li><strong>Morphism</strong>: A directional relationship.
+                    <ul>
+                    
+                        <li>mapsTo &rarr; Object</li>
+                    
+                    </ul>
+                </li>
+                
             </ul>
         </section>
 
         <section id="namespace">
             <h2>Namespace</h2>
             <p>The following namespace is used in this schema:</p>
-            <pre>{{ namespace }}</pre>
+            <pre>urn:oa:schema:graph</pre>
         </section>
 
         <section id="references">
@@ -68,51 +76,6 @@
             </dl>
         </section>
     </section>
-<section id="abstract">
-  <h2>Abstract</h2>
-  <p> Abstract</p>
-</section>
-
-<section>
-  <h2>Introduction</h2>
-  <p>This document defines the core schema for the Orchestration Architect (OA), focusing on the concepts of Object, Category, and Morphism, and their application in a mind map structure.</p>
-</section>
-
-<section>
-  <h2>Core</h2>
-  <dl>
-    <dt><code>oa:Object</code></dt>
-    <dd>An abstract entity foundational to the OA schema.</dd>
-
-    <dt><code>oa:Category</code></dt>
-    <dd>A structure consisting of objects and morphisms between them.</dd>
-
-    <dt><code>oa:Morphism</code></dt>
-    <dd>A directional relationship between objects in a category.</dd>
-  </dl>
-</section>
-
-<section>
-  <h2>Example Graph Structure</h2>
-  <pre><code>@prefix oa: &lt;urn:oa:ns#&gt; .
-
-oa:ExampleCategory a oa:Category ;
-    rdfs:label "Example Category" ;
-    oa:hasObject oa:Node1, oa:Node2 ;
-    oa:hasMorphism oa:Edge1 .
-
-oa:Node1 a oa:Object ;
-    rdfs:label "Node 1" .
-
-oa:Node2 a oa:Object ;
-    rdfs:label "Node 2" .
-
-oa:Edge1 a oa:Morphism ;
-    rdfs:label "Link from Node 1 to Node 2" ;
-    oa:source oa:Node1 ;
-    oa:target oa:Node2 .
-</code></pre>
-</section>
 </body>
 </html>
 

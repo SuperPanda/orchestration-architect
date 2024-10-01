@@ -1,0 +1,13 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix oa: <urn:oa:namespace:schema#> .
+
+oa:{{ class_name }} a rdfs:Class ;
+    rdfs:label "{{ class_name }}" ;
+    rdfs:comment "{{ properties.comment }}" .
+
+{% for prop_name, prop_value in properties.relations.items() %}
+oa:{{ prop_name }} a rdfs:Property ;
+    rdfs:domain oa:{{ class_name }} ;
+    rdfs:range oa:{{ prop_value }} .
+{% endfor %}
+

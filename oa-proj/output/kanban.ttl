@@ -1,0 +1,15 @@
+@prefix project: <urn:oa:project#> .
+
+
+project:Task_1 a project:Task ;
+    project:description "This is the first task." ;
+    project:status "To Do" .
+
+project:Task_2 a project:Task ;
+    project:description "This is the second task." ;
+    project:status "In Progress" .
+
+project:Task_3 a project:Task ;
+    project:description "This is the third task." ;
+    project:status "Done" .
+
