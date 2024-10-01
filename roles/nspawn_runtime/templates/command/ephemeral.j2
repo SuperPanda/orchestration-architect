@@ -1,0 +1,30 @@
+{# file: roles/nspawn_runner/templates/command/ephemeral.j2 #}
+#!/bin/bash
+{% set tmux_cmd = [
+    'tmux',
+    'new-session',
+    '-d',
+    '-s nspawn_' + template_variables.name
+  ]
+%}
+
+{% set nspawn_cmd = [
+    'systemd-nspawn',
+    '--ephemeral',
+    '--directory=' + template_variables.target,
+    '--keep-unit',
+    '--register=no',
+    '--volatile'
+  ]
+%}
+
+{% set overlay_cmd = [] %}
+{% if template_variables.overlays is defined and template_variables.overlays | length > 0 %}
+  {% for overlay in template_variables.overlays %}
+    {% set _ = overlay_cmd.append('--overlay=' + overlay) %}
+  {% endfor %}
+{% endif %}
+
+{% set extras_cmd = template_variables.extras if 'extras' in template_variables else [] %}
+
+{{ tmux_cmd | join(' ') }} "{{ nspawn_cmd | join(' ') }} {{ overlay_cmd | join(' ') }} {{ extras_cmd | join(' ') }}"

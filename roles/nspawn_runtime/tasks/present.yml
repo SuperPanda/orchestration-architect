@@ -1,0 +1,27 @@
+# file: roles/nspawn_runtime/tasks/present.yml
+# role: nspawn_runtime
+# version: 0.8.1
+---
+- name: Render systemd-nspawn command from template
+  vars:
+    command_template: "command/ephemeral.j2"
+    template_variables:
+      name: "{{ nspawn_runtime_params.name }}"
+      target: "{{ nspawn_runtime_params.target }}"
+      extras: "{{ (nspawn_runtime_params.extras is defined and nspawn_runtime_params.extras != omit) | ternary(nspawn_runtime_params.extras, []) }}"
+      overlays: "{{ (nspawn_runtime_params.overlays is defined and nspawn_runtime_params.overlays != omit) | ternary(nspawn_runtime_params.overlays, []) }}"
+  ansible.builtin.template:
+    src: "{{ command_template }}"
+    dest: "/run/nspawn_{{ nspawn_runtime_params.name }}"
+    mode: '0700'
+
+- name: Display rendered systemd-nspawn command
+  ansible.builtin.debug:
+    msg: "/run/nspawn_{{ nspawn_runtime_params.name }}"
+
+- name: Execute systemd-nspawn container in tmux
+  ansible.builtin.command:
+    cmd: "/run/nspawn_{{ nspawn_runtime_params.name }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0

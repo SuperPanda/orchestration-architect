@@ -1,0 +1,7 @@
+# file: playbooks/Sandbox/Nspawn_Test.yml
+- hosts: localhost
+  vars:
+    nspawn_runtime_state: present 
+    nspawn_runtime_name: "container_nspawn_test"
+  roles:
+    - role: nspawn_runtime

@@ -22,28 +22,19 @@
     msg: |
       container: {{ container | default('not set') }}
       container_state: {{ container_state | default('not set') }}
-      container_machine_name: {{ container_machine_name | default('not set') }}
-      container_target: {{ container_target | default('not set') }}
-      container_qemu: {{ container_qemu | default('not set') }}
-      container_nspawn: {{ container_nspawn | default('not set') }}
+      container_name: {{ container_name | default('not set') }}
       
 - debug:
     msg: |
       container_params:
         state: "{{ (container | default({})).state is defined | ternary(container.state, container_state | default(omit, true)) }}"
-        machine_name: "{{ (container | default({})).machine_name is defined | ternary(container.machine_name, container_machine_name | default(omit, true)) }}"
-        target: "{{ (container | default({})).target is defined | ternary(container.target, container_target | default(omit, true)) }}"
-        qemu: "{{ (container | default({})).qemu is defined | ternary(container.qemu, container_qemu | default(omit, true)) }}"
-        nspawn: "{{ (container | default({})).nspawn is defined | ternary(container.nspawn, container_nspawn | default(omit, true)) }}"
+        name: "{{ (container | default({})).name is defined | ternary(container.name, container_name | default(omit, true)) }}"
         
 - name: Pass configuration parameters to the container role
   vars:
     container_params:
       state: "{{ (container | default({})).state is defined | ternary(container.state, container_state | default(omit, true)) }}"
-      machine_name: "{{ (container | default({})).machine_name is defined | ternary(container.machine_name, container_machine_name | default(omit, true)) }}"
-      target: "{{ (container | default({})).target is defined | ternary(container.target, container_target | default(omit, true)) }}"
-      qemu: "{{ (container | default({})).qemu is defined | ternary(container.qemu, container_qemu | default(omit, true)) }}"
-      nspawn: "{{ (container | default({})).nspawn is defined | ternary(container.nspawn, container_nspawn | default(omit, true)) }}"
+      name: "{{ (container | default({})).name is defined | ternary(container.name, container_name | default(omit, true)) }}"
       
   ansible.builtin.include_tasks:
     file: "{{ (container_params.state==omit) | ternary('info', container_params.state) }}.yml"

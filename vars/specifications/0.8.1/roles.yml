@@ -1,4 +1,4 @@
-# vars/specifications/0.8.1/roles.yml
+# file: vars/specifications/0.8.1/roles.yml
 ---
 roles_specifications:
   metadata:
@@ -67,10 +67,11 @@ roles_specifications:
       parameters:
         name: {}
       
-    qemu_runner:
-      role_name: qemu_runner
-      role_path: roles/qemu_runner
+    qemu_runtime:
+      role_name: qemu_runtime
+      role_path: roles/qemu_runtime
       parameters:
+        machine_name: {}
         device_path: {}
         memory: {}
         cpu_cores: {}
@@ -81,27 +82,27 @@ roles_specifications:
         port_forwarding: {}
         extras: {}
       defaults:
-        qemu_runner_memory: "4G"
-        qemu_runner_cpu_cores: 4
-        qemu_runner_sockets: 1
-        qemu_runner_smp: "8,threads=2"
-        qemu_runner_vga: "qxl"
-        qemu_runner_spice_socket: "/run/vm_spice.socket"
-        qemu_runner_port_forwarding: ""
-        qemu_runner_extras: ""
-    nspawn_runner:
-      role_name: nspawn_runner
-      role_path: roles/nspawn_runner
+        qemu_runtime_memory: "4G"
+        qemu_runtime_cpu_cores: 4
+        qemu_runtime_sockets: 1
+        qemu_runtime_smp: "8,threads=2"
+        qemu_runtime_vga: "qxl"
+        qemu_runtime_spice_socket: "/run/vm_spice.socket"
+        qemu_runtime_port_forwarding: ""
+        qemu_runtime_extras: ""
+    nspawn_runtime:
+      role_name: nspawn_runtime
+      role_path: roles/nspawn_runtime
       parameters:
         target: {}
-        machine_name: {}
+        name: {}
         overlays: {}
         extras: {}
       defaults:
-        nspawn_runner_target: "/run/nspawn_ephemeral"
-        nspawn_runner_machine_name: "ephemeral_nspawn"
-        nspawn_runner_overlays: []
-        nspawn_runner_extras: ""
+        nspawn_runtime_target: "/"
+        nspawn_runtime_name: "ephemeral_host"
+        nspawn_runtime_overlays: ["/etc::/etc","/root::/root"]
+        nspawn_runtime_extras: ["--user=root", "/bin/zsh"]
 
   Storage:
     loop_device:

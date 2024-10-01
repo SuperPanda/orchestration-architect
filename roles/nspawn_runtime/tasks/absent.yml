@@ -1,5 +1,5 @@
-# file: roles/qemu/tasks/present.yml
-# role: qemu
+# file: roles/nspawn_runtime/tasks/absent.yml
+# role: nspawn_runtime
 # version: 0.8.1
 ---
 ### 02_Managed_Region_Before_Content ORCHESTRATION ARCHITECT REGION ###
@@ -12,6 +12,17 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # NOTE: Manual changes should occur in this region, below the managed block
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
+- name: Stop the systemd-nspawn container
+  ansible.builtin.command: "kill $(cat /run/nspawn_{{ nspawn_runner_params.machine_name }}.pid)"
+  register: result
+  failed_when: result.rc not in [0, 1]  # Task fails unless result code is 0 or 1 (success or process not running)
+  changed_when: result.rc == 0  # Only report change if the kill command was successful
+
+- name: Remove the nspawn PID file
+  ansible.builtin.file:
+    path: "/run/nspawn_{{ nspawn_runner_params.machine_name }}.pid"
+    state: absent
+  changed_when: false  # No change if the file is already absent
 
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
