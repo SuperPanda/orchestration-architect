@@ -1,0 +1,35 @@
+- name: Bluetooth Configuration
+  hosts: "{{ host_list }}"
+  become: true
+  tasks:
+    - name: Pipewire
+      community.general.pacman:
+        name:
+          - pipewire
+          - wireplumber
+          - pipewire-audio
+          - pipewire-pulse
+          - qt6-wayland
+          - qpwgraph
+          - blueman
+          - rtkit
+
+    - name: Install packages
+      community.general.pacman:
+        name: 
+          - bluez
+          - bluez-utils
+
+    - name: Load module
+      community.general.modprobe:
+        name: btusb
+    - name: Bluetooth Service
+      ansible.builtin.service:
+        name: bluetooth
+        state: started
+    - name: Bluetooth user for guest
+      ansible.builtin.user:
+        append: true
+        groups:
+          - lp
+        name: guest

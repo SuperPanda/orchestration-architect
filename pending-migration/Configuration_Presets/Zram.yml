@@ -1,0 +1,87 @@
+- name: Configure ZRAM
+  hosts: "{{ host_list }}"
+  become: true
+  #vars:
+    #zram_state: true
+    #zram_size: 16G
+    #zram_encrypted_backing_device: 
+    #zram_backing_device:
+    
+  tasks:
+
+    - name: Check if swap is already active
+      ansible.builtin.shell: test -n "$(grep partition /proc/swaps)"
+      register: swap_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Load swap
+      when: not swap_check.rc == 0 and zram_state
+      block:
+        - name: Unlock swap partitions
+          when: zram_encrypted_backing_device is defined
+          community.general.crypttab:
+            name: backing_swap
+            backing_device: "{{ zram_encrypted_backing_device }}"
+            opts: swap,cipher=aes-cbc-essiv:sha256,size=256
+            password: /dev/urandom
+            state: present
+    - name: Load swap partitions
+      when: zram_backing_device is defined and not swap_check.rc == 0
+      ansible.posix.mount:
+        src: "{{ zram_backing_device }}"
+        name: none
+        fstype: swap
+        opts: sw
+        state: present
+    - name: Load swap
+      when: zram_state and zram_encrypted_backing_device is defined and not swap_check.rc == 0
+      block:
+        - name: Reload daemon
+          ansible.builtin.systemd_service:
+            name: cryptsetup.target
+            daemon_reload: true
+            # needed?
+            state: restarted
+        - ansible.builtin.command: "swapon --priority -2 {{ zram_backing_device }}"
+    - name: Enable ZRAM
+      when: zram_state and not swap_check.rc == 0
+      block:
+        - ansible.builtin.shell: echo 0 > /sys/module/zswap/parameters/enabled
+        - community.general.modprobe:
+            name: zram
+            persistent: present
+        - ansible.builtin.command: zramctl /dev/zram0 --algorithm zstd --size {{ zram_size }}
+        - ansible.builtin.command: mkswap -U clear /dev/zram0
+        - ansible.builtin.command: swapon --priority 100 /dev/zram0
+        - ansible.posix.sysctl:
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
+          loop:
+            - key: vm.swappiness
+              value: 180
+            - key: vm.watermark_boost_factor
+              value: 0
+            - key: vm.watermark_scale_factor
+              value: 125
+            - key: vm.page-cluster
+              value: 0
+
+    - name: Disable ZRAM
+      when: not zram_state
+      block:
+        - ansible.builtin.command: swapoff /dev/zram0
+        - ansible.builtin.command: modprobe -r zram
+        - ansible.builtin.shell: echo 1 > /sys/module/zswap/parameters/enabled
+        - ansible.posix.sysctl:
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
+          loop:
+            - key: vm.swappiness
+              value: 60
+            - key: vm.watermark_boost_factor
+              value: 15000
+            - key: vm.watermark_scale_factor
+              value: 10
+            - key: vm.page-cluster
+              value: 3
