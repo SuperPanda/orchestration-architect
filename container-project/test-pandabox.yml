@@ -1,0 +1,66 @@
+---
+- name: Network setup
+  hosts: localhost
+  become: true
+  vars:
+    network:
+      oa-dev: 
+        bridge: "oa-dev"
+        port: enp34s0
+
+- name: Setup VM for USB Boot Test
+  hosts: localhost
+  become: true
+  vars_files:
+    - pandabox.vars.yml
+  tasks:
+    - name: Create a QEMU script to boot from USB
+      copy:
+        dest: "{{ run_vm_script }}"
+        content: |
+          #!/bin/bash
+          DEVICE_PATH={{ device_path }}
+
+          qemu-system-x86_64 \
+            -drive file="${DEVICE_PATH}",format=raw,cache=none \
+            -m 8G \
+            -full-screen \
+            -enable-kvm \
+            -smp 8,sockets=1,cores=4,threads=2 \
+            -cpu host \
+            -boot menu=on \
+            -vga qxl \
+            -display spice-app \
+            -device virtio-serial-pci \
+            -spice unix=on,addr=/tmp/vm_spice.socket,disable-ticketing=on,gl=on \
+            -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
+            -chardev spicevmc,id=spicechannel0,name=vdagent \
+            -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
+            -drive if=pflash,format=raw,file=/var/lib/libvirt/qemu/nvram/VM_VARS.fd \
+            -netdev user,id=net0,hostfwd=tcp::1234-:1234 \
+            -device virtio-net-pci,netdev=net0
+
+    - name: Make the script executable
+      file:
+        path: "{{ run_vm_script }}"
+        mode: '0700'
+
+    - name: Ensure /var/lib/libvirt/qemu/nvram directory exists
+      file:
+        path: /var/lib/libvirt/qemu/nvram
+        state: directory
+
+    - name: Create VM_VARS.fd if it doesn't exist
+      command:
+        cmd: cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/VM_VARS.fd
+        creates: /var/lib/libvirt/qemu/nvram/VM_VARS.fd
+
+    - name: Start libvirt socket
+      ansible.builtin.systemd:
+        name: libvirtd.socket
+        enabled: true
+
+
+    - name: Run VM
+      ansible.builtin.command: "{{ run_vm_script }}"
+

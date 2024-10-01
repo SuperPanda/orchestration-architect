@@ -1,0 +1,2 @@
+ansible-doc --help | grep -oP '{[,(\w+)]+}' | sed 's#[{}]##g'
+echo !! >> ~/orchestration_architect/sandbox/queries.txt # Add last instruction

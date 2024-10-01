@@ -1,0 +1,5 @@
+sudo parted /dev/nvme0n1 --script mklabel gpt
+sudo parted /dev/nvme0n1 --script mkpart primary fat32 1MiB 64GiB  # EFI Partition
+sudo parted /dev/nvme0n1 --script set 1 esp on
+sudo parted /dev/nvme0n1 --script mkpart primary linux-swap 64GiB 128GiB  # Swap Partition
+sudo parted /dev/nvme0n1 --script mkpart primary ext4 128GiB 228GiB  # Bcachefs Partition for System
