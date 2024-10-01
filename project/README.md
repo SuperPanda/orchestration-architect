@@ -22,13 +22,11 @@
    - [Commutative Diagrams](#commutative-diagrams)
 5. [Implementation Guide](#implementation-guide)
    - [Prerequisites](#prerequisites)
-   - [Phase 1: Environment Setup](#phase-1-environment-setup)
-   - [Phase 2: Task Creation and Representation](#phase-2-task-creation-and-representation)
-   - [Phase 3: State Transitions and Morphisms](#phase-3-state-transitions-and-morphisms)
-   - [Phase 4: Functors and System Integration](#phase-4-functors-and-system-integration)
-   - [Phase 5: Command-Line Interface (CLI) Development](#phase-5-command-line-interface-cli-development)
-   - [Phase 6: RDF/SPARQL Integration](#phase-6-rdfsparql-integration)
-   - [Phase 7: API and OpenAPI Schema Generation](#phase-7-api-and-openapi-schema-generation)
+   - [Phase 1: Task Generation](#phase-1-task-generation)
+   - [Phase 2: State Transitions and Morphisms](#phase-2-state-transitions-and-morphisms)
+   - [Phase 3: Functors and System Integration](#phase-3-functors-and-system-integration)
+   - [Phase 4: Command-Line Interface (CLI) Development](#phase-4-command-line-interface-cli-development)
+   - [Phase 5: RDF/SPARQL Integration](#phase-5-rdfsparql-integration)
 6. [Task Representation Formats](#task-representation-formats)
    - [Single-Line Format](#single-line-format)
    - [Card Format](#card-format)
@@ -40,21 +38,21 @@
 9. [Appendices](#appendices)
    - [Appendix A: URN Naming Schema](#appendix-a-urn-naming-schema)
    - [Appendix B: RDF Schema Definitions](#appendix-b-rdf-schema-definitions)
-   - [Appendix C: OpenAPI Specification](#appendix-c-openapi-specification)
+   - [Appendix C: CLI Grammar and Usage](#appendix-c-cli-grammar-and-usage)
 10. [Checklist and Goal Tracking](#checklist-and-goal-tracking)
 
 ---
 
 ## Introduction
 
-The **Orchestration Architect: Project Management Subsystem** is a comprehensive framework designed to manage tasks efficiently while integrating seamlessly with version control systems and other tools. This subsystem leverages advanced concepts from **category theory**, such as **objects**, **morphisms**, and **functors**, to model tasks and their state transitions. By representing tasks as YAML files, utilizing symlink-based state management, and integrating with RDF/SPARQL, the system is both **composable** and **extensible**.
+The **Orchestration Architect: Project Management Subsystem** is a comprehensive framework designed to manage tasks efficiently while integrating seamlessly with other tools and services. This subsystem leverages advanced concepts from **category theory**, such as **objects**, **morphisms**, and **functors**, to model tasks and their state transitions. By representing tasks as YAML files, utilizing symlink-based state management, and integrating with RDF/SPARQL, the system is both **composable** and **extensible**.
 
 ### Why This Design?
 
-- **Composable**: Each component (tasks, morphisms, functors) is designed to work independently but integrates seamlessly with others, allowing for modular development and easier maintenance.
-- **Extendable**: The use of interfaces and abstract concepts allows new features to be added without disrupting existing functionality.
-- **Interface-Based Design**: By defining clear interfaces between components, the system ensures that parts can be swapped or upgraded with minimal impact.
-- **Category Theory Foundations**: Utilizing category theory provides a solid mathematical foundation, enabling us to model complex interactions in an elegant and consistent manner.
+- **Composable**: Each component (tasks, morphisms, functors) works independently but integrates seamlessly, allowing modular development and easier maintenance.
+- **Extensible**: The use of interfaces and abstract concepts allows new features to be added without disrupting existing functionality.
+- **Interface-Based Design**: Clear interfaces between components ensure that parts can be swapped or upgraded with minimal impact.
+- **Category Theory Foundations**: Provides a solid mathematical foundation, enabling us to model complex interactions elegantly and consistently.
 - **Self-Documenting**: The structure and metadata facilitate automatic documentation generation, helping manage complexity and keeping documentation up-to-date.
 
 ---
@@ -70,7 +68,7 @@ The **Orchestration Architect: Project Management Subsystem** is a comprehensive
 - **Metadata**: Additional information stored within a task file, tracking state changes and relationships.
 - **RDF (Resource Description Framework)**: A semantic framework used to represent information and relationships.
 - **SPARQL**: A query language for RDF, used to retrieve and manipulate task data.
-- **URN (Uniform Resource Name)**: A unique identifier for resources, following the `urn:oa:<resource>` schema.
+- **URN (Uniform Resource Name)**: A unique identifier for resources, using prefixes like `oa:task:OA_TASK-001`.
 
 ### Why This Design?
 
@@ -90,49 +88,50 @@ The subsystem is designed to be environment-agnostic and can be integrated into 
 
 ```
 project/
-├── tasks/
-│   ├── OA-TASK-001.yaml
+├── bin/
+│   ├── oa (CLI script)
 │   └── ...
+├── data/
+│   ├── tasks/
+│   │   ├── OA_TASK-001.yaml
+│   │   └── ...
+│   └── rdf/
+│       ├── OA_TASK-001.ttl
+│       └── ...
 ├── backlog/
-│   ├── OA-TASK-001.yaml -> ../tasks/OA-TASK-001.yaml
+│   ├── OA_TASK-001.yaml -> ../data/tasks/OA_TASK-001.yaml
 │   └── ...
 ├── active/
 │   └── ...
 ├── completed/
 │   └── ...
-├── scripts/
-│   ├── tasks (CLI script)
-│   └── ...
-├── rdf/
-│   └── ...
 └── ...
 ```
 
-- **Tasks Directory**: Stores YAML files representing each task.
+- **`bin/` Directory**: Contains CLI scripts and tools for managing tasks.
+- **`data/` Directory**: Stores task YAML files (`data/tasks/`) and RDF representations (`data/rdf/`).
 - **State Directories**: `backlog/`, `active/`, `completed/` contain symlinks to tasks, representing their current state.
-- **Scripts Directory**: Contains CLI scripts and tools for managing tasks.
-- **RDF Directory**: Stores RDF representations of tasks for semantic querying.
 
 ### Task Representation
 
-Tasks are stored as YAML files in the `tasks/` directory. Each task file includes:
+Tasks are stored as YAML files in the `data/tasks/` directory. Each task file includes:
 
 - **Metadata**: Creator, creation time, state changes.
 - **Identifiers**: Unique task IDs.
 - **Descriptions**: Summary and detailed descriptions.
 - **Relationships**: Linked requirements and tasks.
 
-**Example Task YAML (`tasks/OA-TASK-001.yaml`):**
+**Example Task YAML (`data/tasks/OA_TASK-001.yaml`):**
 
 ```yaml
-task_id: OA-TASK-001
+task_id: OA_TASK-001
 summary: "Design the project management subsystem"
 status: "backlog"
 priority: "high"
 requirements:
-  - urn:oa:requirement:REQ-001
+  - oa:requirement:OA_SRS-001
 linked_tasks:
-  - urn:oa:task:OA-TASK-002
+  - oa:task:OA_TASK-002
 description: |
   This task involves designing and implementing the project management system for the Orchestration Architect framework.
 metadata:
@@ -175,19 +174,22 @@ In category theory, **objects** represent entities within a category. Here, each
 #### Examples of Morphisms
 
 1. **Creation Morphism**:
-   - *Source*: `null` (no task)
-   - *Target*: Task in `backlog`
-   - *Function*: `create_task`
+   - **Source**: `null` (no task)
+   - **Target**: Task in `backlog`
+   - **Function**: `create_task`
+   - **Preservation**: The morphism preserves the structure by adding a new task object to the category.
 
 2. **State Change Morphisms**:
-   - *Backlog to Active*: Task starts (`start_task`)
-   - *Active to Completed*: Task completes (`complete_task`)
-   - *Active to Backlog*: Task is paused (`pause_task`)
+   - **Backlog to Active**: Task starts (`start_task`)
+   - **Active to Completed**: Task completes (`complete_task`)
+   - **Active to Backlog**: Task is paused (`pause_task`)
+   - **Preservation**: Morphisms map tasks from one state object to another, maintaining the category's structure.
 
 3. **Deletion Morphism**:
-   - *Source*: Task in any state
-   - *Target*: `null` (task removed)
-   - *Function*: `delete_task`
+   - **Source**: Task in any state
+   - **Target**: `null` (task removed)
+   - **Function**: `delete_task`
+   - **Preservation**: The morphism removes the task object from the category, consistent with the category's rules.
 
 ### Functors: Mapping to External Systems
 
@@ -196,34 +198,55 @@ In category theory, **objects** represent entities within a category. Here, each
 #### Examples of Functors
 
 1. **Symlink Functor**:
-   - Maps task state transitions to symlink operations in the file system.
-   - **Why**: Provides a direct representation of the task's state in the filesystem, simplifying state management.
+   - **Source Category**: Tasks and their state transitions.
+   - **Target Category**: File system symlinks.
+   - **Mapping**: Task objects are mapped to symlinks; morphisms are mapped to symlink operations.
+   - **Preservation**: State transitions (morphisms) correspond to moving symlinks between state directories.
 
 2. **RDF Functor**:
-   - Maps tasks and state changes to RDF triples, enabling semantic querying.
-   - **Why**: Allows integration with semantic web technologies and advanced querying capabilities.
+   - **Source Category**: Tasks and their state transitions.
+   - **Target Category**: RDF triples.
+   - **Mapping**: Tasks are mapped to RDF resources; state changes are mapped to RDF properties.
+   - **Preservation**: The functor ensures that state transitions are reflected in the RDF graph, maintaining consistency.
 
 3. **API Functor**:
-   - Maps task operations to API endpoints.
-   - **Why**: Facilitates integration with external systems and services, enhancing interoperability.
+   - **Source Category**: Tasks and operations.
+   - **Target Category**: API endpoints and responses.
+   - **Mapping**: Task operations are mapped to API calls.
+   - **Preservation**: The API reflects the task's state and operations accurately.
 
 ### Commutative Diagrams
 
 Commutative diagrams illustrate how different paths of morphisms lead to the same result, ensuring consistency.
 
-**Diagram Example**:
+**Concrete Example**:
+
+Let's consider the creation and activation of a task and how it's represented in both the file system and the RDF graph.
 
 ```
-           create_task            start_task             complete_task
-null ---------------> backlog -----------> active ----------------> completed
- \                    |                   |                         |
-  \                   |                   |                         |
-   \______ RDF _______|________ RDF ______|__________ RDF __________|
+          create_task          start_task
+    null -------------> backlog -----------> active
+       |                   |                   |
+       |                   |                   |
+       v                   v                   v
+    (FS)                 (FS)                (FS)
+    Symlink             Symlink             Symlink
+     Created            Moved               Moved
+       |                   |                   |
+       v                   v                   v
+    (RDF)                (RDF)               (RDF)
+    Triple              Triple              Triple
+    Added               Updated             Updated
 ```
 
-- **Horizontal Arrows**: Morphisms (state transitions).
-- **Vertical Arrows**: Functor mappings to RDF representations.
-- **Commutativity**: Performing state transitions and then mapping to RDF is the same as first mapping to RDF and then performing the corresponding RDF updates.
+- **Explanation**:
+  - **Horizontal Arrows**: Represent morphisms (state transitions).
+  - **Vertical Arrows**: Represent functors mapping tasks and morphisms to symlink operations (FS) and RDF updates.
+  - **Commutativity**: The diagram shows that applying the morphisms and then the functors yields the same result as applying the functors and then the corresponding morphisms in the target categories.
+- **Why This Representation Ensures Design Requirements**:
+  - **Consistency**: Changes in task states are consistently reflected in both the file system and the RDF representations.
+  - **Integrity**: By preserving morphisms through functors, we maintain the integrity of task data across different representations.
+  - **Scalability**: The model allows for extension without altering the underlying structure.
 
 ---
 
@@ -231,53 +254,33 @@ null ---------------> backlog -----------> active ----------------> completed
 
 ### Prerequisites
 
-- **Git**: For version control (optional but recommended).
 - **Python 3**: For scripts and RDF generation.
 - **Bash**: For CLI scripting.
 - **RDF Tools**: Such as Apache Jena for advanced RDF handling.
 
-### Phase 1: Environment Setup
-
-**Objective**: Establish the directory structure and initialize the system.
-
-#### Steps
-
-1. **Create Project Directory**
-
-   ```bash
-   mkdir -p project/{tasks,backlog,active,completed,scripts,rdf}
-   ```
-
-2. **Initialize Git Repository (Optional)**
-
-   ```bash
-   cd project
-   git init
-   ```
-
-   - **Why**: Using Git allows tracking changes, facilitating collaboration, and integrating commits with task management.
-
-### Phase 2: Task Creation and Representation
+### Phase 1: Task Generation
 
 **Objective**: Implement task creation and initial representation.
 
-#### Task Creation Script (`scripts/tasks`)
+#### Task Creation Script (`bin/oa`)
 
 ```bash
 #!/bin/bash
 
-TASK_DIR="tasks"
+TASK_DIR="data/tasks"
+BIN_DIR="$(dirname "$0")"
+PROJECT_ROOT="$(dirname "$BIN_DIR")"
 
 generate_task_id() {
-    last_id=$(ls $TASK_DIR | grep -Eo 'OA-TASK-[0-9]+' | sort | tail -n 1 | grep -Eo '[0-9]+$')
+    last_id=$(ls $TASK_DIR | grep -Eo 'OA_TASK-[0-9]+' | sort | tail -n 1 | grep -Eo '[0-9]+$')
     next_id=$((last_id + 1))
-    printf "OA-TASK-%03d" $next_id
+    printf "OA_TASK-%03d" $next_id
 }
 
 create_task() {
     task_id=$(generate_task_id)
     task_file="$TASK_DIR/$task_id.yaml"
-    cat > "$task_file" <<EOF
+    read -r -d '' TASK_YAML <<EOF
 task_id: $task_id
 summary: "$1"
 status: "backlog"
@@ -292,23 +295,47 @@ metadata:
     - state: "backlog"
       timestamp: "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 EOF
-    ln -s "../$task_file" "backlog/$task_id.yaml"
+    echo "$TASK_YAML" > "$task_file"
+    ln -s "../$task_file" "$PROJECT_ROOT/backlog/$task_id.yaml"
     echo "Task $task_id created."
 }
 
 # Command parsing
-if [ "$1" == "create" ]; then
-    create_task "$2" "$3"
-else
-    echo "Usage: ./tasks create \"Task Summary\" \"Priority\""
-fi
+case "$1" in
+    task)
+        shift
+        case "$1" in
+            create)
+                shift
+                create_task "$@"
+                ;;
+            *)
+                echo "Unknown task command."
+                ;;
+        esac
+        ;;
+    *)
+        echo "Usage: oa task create \"Task Summary\" \"Priority\""
+        ;;
+esac
 ```
 
-- **Why**:
-  - **Composable**: Functions like `generate_task_id` and `create_task` can be reused or extended.
-  - **Self-Documenting**: The script's structure and comments make it easier to understand and maintain.
+- **Notes**:
+  - **CLI Name**: `oa`
+  - **Extensibility**: Can be extended with `oa-task`, `oa-requirement`, etc.
+  - **Arguments**: Supports arguments and piping.
 
-### Phase 3: State Transitions and Morphisms
+#### Usage Examples
+
+```bash
+# Create a new task
+echo "Design the project management subsystem" | oa task create - "high"
+
+# Or directly with arguments
+oa task create "Design the project management subsystem" "high"
+```
+
+### Phase 2: State Transitions and Morphisms
 
 **Objective**: Implement state transitions as morphisms.
 
@@ -318,7 +345,7 @@ fi
 change_task_state() {
     task_id="$1"
     new_state="$2"
-    task_file="tasks/$task_id.yaml"
+    task_file="data/tasks/$task_id.yaml"
 
     # Find current state
     current_state=$(find . -type l -name "$task_id.yaml" | xargs dirname | xargs basename)
@@ -337,14 +364,14 @@ change_task_state() {
 }
 
 # Usage example:
-# change_task_state OA-TASK-001 active
+# oa task start OA_TASK-001
 ```
 
-- **Why**:
-  - **Composable**: The function can be used for any state transition.
-  - **Interface-Based**: Defines a clear interface (`task_id`, `new_state`) for changing task states.
+- **Notes**:
+  - **Deletion Morphism**: Removing the symlink effectively "deletes" the task from that state.
+  - **Preservation**: Morphisms preserve the structure by accurately reflecting state changes.
 
-### Phase 4: Functors and System Integration
+### Phase 3: Functors and System Integration
 
 **Objective**: Map morphisms to external systems using functors.
 
@@ -358,7 +385,7 @@ functor_symlink_update() {
 
 functor_rdf_update() {
     task_id="$1"
-    ./generate_rdf.sh "$task_id"
+    ./bin/generate_rdf.sh "$task_id"
 }
 
 functor_api_update() {
@@ -381,40 +408,54 @@ change_task_state() {
 }
 ```
 
-- **Why**:
-  - **Extendable**: New functors can be added without modifying existing code.
-  - **Composable**: Functors can be composed to perform complex mappings.
+- **Preservation of Morphisms**:
+  - **Source Category**: Task state transitions.
+  - **Target Categories**: File system symlinks, RDF representations.
+  - **Functors** ensure that the structure of morphisms (state transitions) is preserved across representations.
 
-### Phase 5: Command-Line Interface (CLI) Development
+### Phase 4: Command-Line Interface (CLI) Development
 
-**Objective**: Develop a user-friendly CLI with fuzzy matching and flexible commands.
+**Objective**: Develop a user-friendly CLI with flexible commands.
 
-#### Extend `tasks` Script with Commands
+#### Extend `oa` Script with Commands
 
 ```bash
+# In bin/oa
+
 case "$1" in
-    create)
-        create_task "$2" "$3"
-        ;;
-    start|stop|complete)
-        task_id=$(fuzzy_match_task_id "$2")
+    task)
+        shift
         case "$1" in
-            start)
-                change_task_state "$task_id" "active"
+            create)
+                shift
+                create_task "$@"
                 ;;
-            stop)
-                change_task_state "$task_id" "backlog"
+            start|stop|complete)
+                shift
+                task_id=$(fuzzy_match_task_id "$1")
+                case "$1" in
+                    start)
+                        change_task_state "$task_id" "active"
+                        ;;
+                    stop)
+                        change_task_state "$task_id" "backlog"
+                        ;;
+                    complete)
+                        change_task_state "$task_id" "completed"
+                        ;;
+                esac
                 ;;
-            complete)
-                change_task_state "$task_id" "completed"
+            list)
+                shift
+                list_tasks "$@"
+                ;;
+            *)
+                echo "Unknown task command."
                 ;;
         esac
         ;;
-    list)
-        list_tasks "$2"
-        ;;
     *)
-        echo "Invalid command."
+        echo "Usage: oa task [command] [arguments]"
         ;;
 esac
 ```
@@ -424,23 +465,28 @@ esac
 ```bash
 fuzzy_match_task_id() {
     input="$1"
-    match=$(ls tasks | grep -E "OA-TASK-.*$input.*" | head -n 1)
+    match=$(ls data/tasks | grep -E "OA_TASK-.*$input.*" | head -n 1)
     echo "${match%.yaml}"
 }
 ```
 
-- **Why**:
-  - **User-Friendly**: Fuzzy matching simplifies task selection.
-  - **Composable**: Functions like `fuzzy_match_task_id` can be reused elsewhere.
+#### CLI Grammar and Usage
 
-### Phase 6: RDF/SPARQL Integration
+See [Appendix C](#appendix-c-cli-grammar-and-usage) for detailed CLI commands and usage.
+
+### Phase 5: RDF/SPARQL Integration
 
 **Objective**: Represent tasks semantically using RDF and enable querying with SPARQL.
 
-#### Generate RDF Representation
+#### Generate RDF Representation (`bin/generate_rdf.sh`)
 
 ```bash
-./generate_rdf.sh "$task_id"
+#!/bin/bash
+
+task_id="$1"
+task_file="data/tasks/$task_id.yaml"
+
+python3 bin/generate_rdf.py "$task_file" "data/rdf/$task_id.ttl"
 ```
 
 #### `generate_rdf.py` Script
@@ -453,11 +499,12 @@ from rdflib import Graph, Namespace, URIRef, Literal
 from rdflib.namespace import RDF
 
 task_file = sys.argv[1]
+rdf_file = sys.argv[2]
 with open(task_file, 'r') as f:
     data = yaml.safe_load(f)
 
 g = Graph()
-OA = Namespace("urn:oa:")
+OA = Namespace("oa:")
 
 task_uri = OA['task/' + data['task_id']]
 g.add((task_uri, RDF.type, OA.Task))
@@ -480,91 +527,12 @@ for state_change in data['metadata']['state_changes']:
     g.add((state_node, OA.state, Literal(state_change['state'])))
     g.add((state_node, OA.timestamp, Literal(state_change['timestamp'])))
 
-g.serialize(destination=f"rdf/{data['task_id']}.ttl", format='turtle')
+g.serialize(destination=rdf_file, format='turtle')
 ```
 
-- **Why**:
-  - **Interface-Based Design**: The script defines clear interfaces for data input and output.
-  - **Extendable**: Additional properties can be added without affecting existing functionality.
-
-### Phase 7: API and OpenAPI Schema Generation
-
-**Objective**: Define an API for the subsystem and generate an OpenAPI schema for integration.
-
-#### Define API Endpoints
-
-- **`GET /tasks`**: List all tasks.
-- **`POST /tasks`**: Create a new task.
-- **`GET /tasks/{task_id}`**: Retrieve task details.
-- **`PUT /tasks/{task_id}`**: Update a task.
-- **`DELETE /tasks/{task_id}`**: Delete a task.
-
-#### OpenAPI Schema (Excerpt)
-
-```yaml
-openapi: 3.0.0
-info:
-  title: Orchestration Architect Task API
-  version: 1.0.0
-paths:
-  /tasks:
-    get:
-      summary: List all tasks
-      responses:
-        '200':
-          description: A list of tasks
-    post:
-      summary: Create a new task
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Task'
-      responses:
-        '201':
-          description: Task created
-  /tasks/{task_id}:
-    get:
-      summary: Get task details
-      parameters:
-        - name: task_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Task details
-components:
-  schemas:
-    Task:
-      type: object
-      properties:
-        task_id:
-          type: string
-        summary:
-          type: string
-        status:
-          type: string
-        priority:
-          type: string
-        requirements:
-          type: array
-          items:
-            type: string
-        linked_tasks:
-          type: array
-          items:
-            type: string
-        description:
-          type: string
-        metadata:
-          type: object
-```
-
-- **Why**:
-  - **Extendable**: New endpoints can be added as needed.
-  - **Interface-Based**: Defines a clear contract for external integrations.
+- **Notes**:
+  - **Growing the RDF Graph**: Each task and its state changes are added to the RDF graph, allowing it to grow over time.
+  - **Visualization**: RDF/Turtle files can be visualized using RDF visualization tools.
 
 ---
 
@@ -575,7 +543,7 @@ components:
 For quick CLI interactions and fuzzy finding:
 
 ```plaintext
-OA-TASK-001: Design the project management subsystem | Status: active | Priority: high
+OA_TASK-001: Design the project management subsystem | Status: active | Priority: high
 ```
 
 ### Card Format
@@ -584,7 +552,7 @@ For visual representation in task boards:
 
 ```plaintext
 +-------------------+--------------------------------------------------------+
-| TASK_ID           | OA-TASK-001                                            |
+| TASK_ID           | OA_TASK-001                                            |
 +-------------------+--------------------------------------------------------+
 | SUMMARY           | Design the project management subsystem                |
 +-------------------+--------------------------------------------------------+
@@ -592,9 +560,9 @@ For visual representation in task boards:
 +-------------------+--------------------------------------------------------+
 | PRIORITY          | high                                                   |
 +-------------------+--------------------------------------------------------+
-| REQUIREMENTS      | urn:oa:requirement:REQ-001                             |
+| REQUIREMENTS      | oa:requirement:OA_SRS-001                              |
 +-------------------+--------------------------------------------------------+
-| LINKED TASKS      | urn:oa:task:OA-TASK-002                                |
+| LINKED TASKS      | oa:task:OA_TASK-002                                    |
 +-------------------+--------------------------------------------------------+
 | DESCRIPTION       | This task involves designing and implementing the      |
 |                   | project management system for the Orchestration        |
@@ -613,18 +581,18 @@ For terminal-based interfaces, the TUI can display tasks in multiple modes:
 1. **Single-Line Mode**:
 
    ```plaintext
-   OA-TASK-001: Design the project management subsystem | Status: active | Priority: high
+   OA_TASK-001: Design the project management subsystem | Status: active | Priority: high
    ```
 
 2. **Expanded Block Mode**:
 
    ```plaintext
-   OA-TASK-001
+   OA_TASK-001
    Summary       : Design the project management subsystem
    Status        : active
    Priority      : high
-   Requirements  : urn:oa:requirement:REQ-001
-   Linked Tasks  : urn:oa:task/OA-TASK-002
+   Requirements  : oa:requirement:OA_SRS-001
+   Linked Tasks  : oa:task/OA_TASK-002
    Description   : This task involves designing and implementing the project management system.
    Metadata      : created_by=user, created_at=2024-10-02T12:00:00Z
    ```
@@ -640,27 +608,32 @@ For terminal-based interfaces, the TUI can display tasks in multiple modes:
 ### Category Diagram of Tasks and Morphisms
 
 ```plaintext
-               create_task            start_task             complete_task
-null ---------------> backlog -----------> active ----------------> completed
+                   create_task            start_task             complete_task
+    null --------------------> backlog ----------------> active ------------------> completed
+     |                          |                         |                          |
+     |                          |                         |                          |
+     v                          v                         v                          v
+    oa:task:null           oa:task:backlog          oa:task:active            oa:task:completed
 ```
 
-- **Objects**: `null`, `backlog`, `active`, `completed`
-- **Morphisms**:
-  - `create_task`: Creation morphism from `null` to `backlog`
-  - `start_task`: State change morphism from `backlog` to `active`
-  - `complete_task`: State change morphism from `active` to `completed`
+- **Explanation**:
+  - **Objects**: Represented by `oa:task:<state>` identifiers.
+  - **Morphisms**: State transitions between task objects.
+  - **Preservation**: Morphisms in the source category (tasks) are preserved in the target category (RDF) via functors.
 
 ### Functor Mapping Diagram
 
 ```plaintext
- Category of Tasks                Functor                Category of RDF Triples
-+-----------------+                                     +-----------------------+
-|     Tasks       |                                     |      RDF Graph        |
-|  and Morphisms  |  ------------------------------>    |   (Tasks as Triples)  |
-+-----------------+                                     +-----------------------+
+   Category of Tasks and Morphisms            Functor F                Category of RDF Graph
+   +--------------------------------+                                 +-----------------------+
+   |    Objects: Tasks in states    | --F(Objects)-->                 |    RDF Resources      |
+   |    Morphisms: State transitions| --F(Morphisms)-->               |    RDF Triples        |
+   +--------------------------------+                                 +-----------------------+
 ```
 
-- The functor maps tasks and morphisms to RDF representations, preserving the structure.
+- **Explanation**:
+  - **Functor F** maps each task and morphism to RDF resources and triples.
+  - **Preservation**: The structure of morphisms is preserved; state transitions correspond to updates in the RDF graph.
 
 ---
 
@@ -678,19 +651,15 @@ The **Project Management Subsystem** provides a flexible and extensible framewor
    - Implement complex SPARQL queries to filter tasks by metadata, relationships, and semantic context.
    - **Goal**: Enhance querying capabilities for better task management insights.
 
-3. **API Development**:
-   - Develop a RESTful API based on the OpenAPI schema, allowing integration with other tools and services.
-   - **Goal**: Facilitate interoperability with external systems.
+3. **API Development for OpenAI Function Calling**:
+   - Develop an API that provides standardized responses suitable for OpenAI function calling.
+   - **Goal**: Facilitate the generation of tasks from poorly formatted inputs.
 
-4. **Automated Indexing and Semantic Representation**:
-   - Implement indexing mechanisms to semantically represent each section of the documentation.
-   - **Goal**: Improve searchability and integration with knowledge bases.
-
-5. **Integration with Other Collections**:
-   - Link tasks with other collections like `oa:collection/orchestration_architect.containers`.
+4. **Integration with Other Collections**:
+   - Link tasks with other collections like `oa:collection:orchestration_architect.containers`.
    - **Goal**: Enable broader orchestration across different subsystems.
 
-6. **Composability and Extensibility**:
+5. **Composability and Extensibility**:
    - Continue to design components that are composable and extendable.
    - **Goal**: Ensure new features can be added without disrupting existing functionality.
 
@@ -700,11 +669,11 @@ The **Project Management Subsystem** provides a flexible and extensible framewor
 
 ### Appendix A: URN Naming Schema
 
-- **General Structure**: `urn:oa:<entity_type>:<identifier>`
+- **General Structure**: `oa:<entity_type>:<identifier>`
 - **Entity Types**:
-  - `task`: Tasks (e.g., `urn:oa:task:OA-TASK-001`)
-  - `requirement`: Requirements (e.g., `urn:oa:requirement:REQ-001`)
-  - `collection`: Collections (e.g., `urn:oa:collection:orchestration_architect.containers`)
+  - `task`: Tasks (e.g., `oa:task:OA_TASK-001`)
+  - `requirement`: Requirements (e.g., `oa:requirement:OA_SRS-001`)
+  - `collection`: Collections (e.g., `oa:collection:orchestration_architect.containers`)
 
 ### Appendix B: RDF Schema Definitions
 
@@ -728,9 +697,52 @@ Define RDF classes and properties for tasks.
 - `oa:timestamp`
 - `oa:state`
 
-### Appendix C: OpenAPI Specification
+### Appendix C: CLI Grammar and Usage
 
-Refer to the OpenAPI schema in the implementation guide for API definitions. This can be expanded to include additional endpoints and detailed parameter descriptions.
+#### Command Structure
+
+```bash
+oa <subsystem> <command> [arguments]
+```
+
+#### Subsystems
+
+- `task`: Manage tasks.
+- Additional subsystems can be added as `oa-<subsystem>`.
+
+#### Commands for `task`
+
+- `create`: Create a new task.
+  - **Usage**: `oa task create "Task Summary" "Priority"`
+- `start`: Move task to `active`.
+  - **Usage**: `oa task start <TASK_ID>`
+- `stop`: Move task back to `backlog`.
+  - **Usage**: `oa task stop <TASK_ID>`
+- `complete`: Move task to `completed`.
+  - **Usage**: `oa task complete <TASK_ID>`
+- `list`: List tasks.
+  - **Usage**: `oa task list [state]`
+- `delete`: Delete task (removes symlink).
+  - **Usage**: `oa task delete <TASK_ID>`
+
+#### Examples
+
+```bash
+# Create a new task
+oa task create "Implement the new feature" "medium"
+
+# Start a task
+oa task start OA_TASK-002
+
+# Complete a task
+oa task complete OA_TASK-002
+
+# List all active tasks
+oa task list active
+
+# Delete a task
+oa task delete OA_TASK-003
+```
 
 ---
 
@@ -738,48 +750,35 @@ Refer to the OpenAPI schema in the implementation guide for API definitions. Thi
 
 To ensure that each part of the implementation helps manage complexity and contributes to a self-documenting system, use the following checklist:
 
-1. **Environment Setup**
-   - [ ] Directory structure created.
-   - [ ] Git repository initialized (optional).
-   - **Goal**: Establish a solid foundation for the project.
-
-2. **Task Creation and Representation**
+1. **Task Generation**
    - [ ] Task creation script implemented.
    - [ ] YAML structure defined.
    - **Goal**: Enable easy creation and representation of tasks.
 
-3. **State Transitions and Morphisms**
+2. **State Transitions and Morphisms**
    - [ ] State transition functions implemented.
    - [ ] Morphisms modeled correctly.
    - **Goal**: Accurately represent state changes and manage task states.
 
-4. **Functors and System Integration**
+3. **Functors and System Integration**
    - [ ] Functors defined and invoked after state changes.
-   - [ ] Integration with external systems established.
+   - [ ] Integration with RDF established.
    - **Goal**: Ensure changes are reflected across all systems.
 
-5. **CLI Development**
+4. **CLI Development**
    - [ ] User-friendly CLI developed.
    - [ ] Fuzzy matching and flexible commands implemented.
    - **Goal**: Simplify task management and improve user experience.
 
-6. **RDF/SPARQL Integration**
+5. **RDF/SPARQL Integration**
    - [ ] RDF generation scripts implemented.
    - [ ] SPARQL queries tested.
    - **Goal**: Enable semantic querying and integration.
 
-7. **API Development**
-   - [ ] API endpoints defined.
-   - [ ] OpenAPI schema generated.
-   - **Goal**: Facilitate external integrations and interoperability.
-
-8. **Documentation and Self-Documentation**
+6. **Documentation and Self-Documentation**
    - [ ] README updated with detailed explanations.
    - [ ] Scripts and code commented thoroughly.
    - **Goal**: Create a self-documenting system that manages complexity.
 
 By checking off each item, you can track progress and ensure that the subsystem meets its goals at every stage.
 
----
-
-**Note**: This documentation combines the best elements from previous iterations, providing a comprehensive and structured guide. By explaining **why** each component is designed in a certain way and how it contributes to the overall system, we aim to manage complexity and facilitate a self-documenting approach.
