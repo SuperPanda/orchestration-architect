@@ -1,0 +1,12 @@
+# file: playbooks/Sandbox/Qemu_Test.yml
+- hosts: localhost
+  vars_files:
+    - /root/orchestration_architect/sandbox/container-project/pandabox.vars.yml
+  vars:
+      qemu_runtime_device_path: "{{ device_path }}"
+      qemu_runtime_state: present
+      qemu_runtime_port_forwarding: "-netdev user=net0,hostfwd=tcp::1234-:1234"
+  roles:
+    - role: qemu_runtime
+
+

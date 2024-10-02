@@ -26,15 +26,16 @@
       smp: "{{ qemu_runtime_params.smp }}"
       vga: "{{ qemu_runtime_params.vga }}"
       spice_socket: "{{ qemu_runtime_params.spice_socket }}"
-      port_forwarding: "{{ qemu_runtime_params.port_forwarding }}"
-      extras: "{{ qemu_runtime_params.extras }}"
-      machine_name: "{{ qemu_runtime_params.machine_name }}"
+      port_forwarding: "{{ (qemu_runtime_params.port_forwarding is defined and qemu_runtime_params != omit) | ternary(qemu_runtime_params.port_forwarding, '') }}"
+      extras: "{{ (qemu_runtime_params.extras is defined and qemu_runtime_params.extras != omit) | ternary(qemu_runtime_params.extras, '')  }}"
+      machine_name: "{{ qemu_runtime_params.machine_name | default('machine') }}"
 
 - name: Run the QEMU VM
   ansible.builtin.command: "/run/qemu_{{ qemu_runtime_params.machine_name }}"
   async: 60
   poll: 0
-  creates: "/run/qemu_{{ qemu_runtime_params.machine_name }}"  # Only create if the file doesn't already exist
+  args:
+    creates: "/run/qemu_{{ qemu_runtime_params.machine_name }}.pid"  # Only create if the file doesn't already exist
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content

@@ -82,6 +82,7 @@ roles_specifications:
         port_forwarding: {}
         extras: {}
       defaults:
+        qemu_runtime_machine_name: "machine"
         qemu_runtime_memory: "4G"
         qemu_runtime_cpu_cores: 4
         qemu_runtime_sockets: 1

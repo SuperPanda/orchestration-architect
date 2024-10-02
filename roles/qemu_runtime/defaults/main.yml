@@ -15,6 +15,7 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 31_managed_defaults
 directory_mode: "0770"
 file_mode: "0660"
+qemu_runtime_machine_name: "machine"
 qemu_runtime_memory: "4G"
 qemu_runtime_cpu_cores: "4"
 qemu_runtime_sockets: "1"

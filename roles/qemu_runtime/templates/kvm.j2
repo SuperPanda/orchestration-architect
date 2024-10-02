@@ -1,13 +1,13 @@
 #!/bin/bash
-DEVICE_PATH={{ template_variables.device_path }}
-MEMORY={{ template_variables.memory }}
-CPU_CORES={{ template_variables.cpu_cores }}
-SOCKETS={{ template_variables.sockets }}
-SMP={{ template_variables.smp }}
-VGA={{ template_variables.vga }}
-SPICE_SOCKET={{ template_variables.spice_socket }}
-PORT_FORWARDING={{ template_variables.port_forwarding }}
-EXTRAS={{ template_variables.extras }}
+DEVICE_PATH="{{ template_variables.device_path }}"
+MEMORY="{{ template_variables.memory }}"
+CPU_CORES="{{ template_variables.cpu_cores }}"
+SOCKETS="{{ template_variables.sockets }}"
+SMP="{{ template_variables.smp }}"
+VGA="{{ template_variables.vga }}"
+SPICE_SOCKET="{{ template_variables.spice_socket }}"
+PORT_FORWARDING="{{ template_variables.port_forwarding }}"
+EXTRAS="{{ template_variables.extras }}"
 
 qemu-system-x86_64 \
   -drive file="${DEVICE_PATH}",format=raw,cache=none \
@@ -24,6 +24,7 @@ qemu-system-x86_64 \
   -chardev spicevmc,id=spicechannel0,name=vdagent \
   -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
   -drive if=pflash,format=raw,file=/var/lib/libvirt/qemu/nvram/VM_VARS.fd \
-  {{ PORT_FORWARDING }} \
-  {{ EXTRAS }} & echo $! > /run/qemu_{{ template_variables.machine_name }}.pid
+  -pidfile /run/qemu_{{ template_variables.machine_name }}.pid \
+  $(PORT_FORWARDING) \
+  $(EXTRAS) 
 
