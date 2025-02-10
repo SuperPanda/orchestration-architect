@@ -1,9 +1,8 @@
 // file: src/handlers.rs
 use axum::{
     extract::{ws::WebSocketUpgrade, State},
-    response::Html,
+    response::{Html, IntoResponse},
 };
-use std::sync::Arc;
 use tokio::sync::broadcast;
 
 use crate::websocket::handle_websocket;
@@ -20,8 +19,8 @@ pub async fn index() -> Html<String> {
 // WebSocket handler with shared broadcast channel
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
-    State(state): State<Arc<broadcast::Sender<String>>>,
-) -> impl axum::response::IntoResponse {
+    State(state): State<broadcast::Sender<String>>,
+) -> impl IntoResponse {
     // Upgrade to WebSocket connection
-    ws.on_upgrade(|socket| handle_websocket(socket, state.clone()))
+    ws.on_upgrade(move |socket| handle_websocket(socket, state.clone()))
 }

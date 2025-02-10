@@ -14,14 +14,16 @@ pub async fn handle_websocket(socket: WebSocket, tx: broadcast::Sender<String>) 
     // Task: Forward WebSocket messages to broadcast channel
     let send_task = async move {
         while let Some(Ok(Message::Text(text))) = ws_rx.next().await {
-            let _ = tx.send(text);
+            // Convert the received text to a String before sending.
+            let _ = tx.send(text.to_string());
         }
     };
 
     // Task: Forward broadcast messages to WebSocket
     let recv_task = async move {
         while let Ok(msg) = rx.recv().await {
-            if ws_tx.send(Message::Text(msg)).await.is_err() {
+            // Convert the String message into the expected type.
+            if ws_tx.send(Message::Text(msg.into())).await.is_err() {
                 break;
             }
         }

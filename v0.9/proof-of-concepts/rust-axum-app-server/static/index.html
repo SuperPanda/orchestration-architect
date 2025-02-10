@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: rgb(255, 255, 255);
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    #input {
+      padding: 1rem;
+      border-top: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <input id="input" autocomplete="off" placeholder="Type a message...">
+  <div id="messages"></div>
+  <script>
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+
+    input.onkeypress = e => {
+      if (e.key === 'Enter' && input.value.trim()) {
+        ws.send(input.value);
+        input.value = '';
+      }
+    };
+
+    ws.onmessage = ({data}) => {
+      const p = document.createElement('p');
+      p.textContent = `MSG: ${data}`;
+      messages.appendChild(p);
+      messages.scrollTop = messages.scrollHeight;
+    };
+  </script>
+</body>
+
+</html>

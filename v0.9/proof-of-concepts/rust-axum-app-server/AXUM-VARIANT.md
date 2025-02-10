@@ -6,13 +6,9 @@
 
 === START OF FILE: src/main.rs ===
 // file: src/main.rs
-use axum::{
-    routing::{get, get_service},
-    Router,
-    response::Html
-};
-use std::sync::Arc;
+use axum::{ routing::get, Router };
 use tokio::sync::broadcast;
+use std::net::SocketAddr;
 
 mod handlers;
 mod websocket;
@@ -24,9 +20,9 @@ async fn main() {
     
     // Build our application with the routes and shared state
     let app = Router::new()
-.route("/", get(handlers::index))
+        .route("/", get(handlers::index))
         .route("/ws", get(handlers::ws_handler))
-        .with_state(Arc::new(tx));
+        .with_state(tx);
 
     // Run the server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3030").await.unwrap();
@@ -38,9 +34,8 @@ async fn main() {
 // file: src/handlers.rs
 use axum::{
     extract::{ws::WebSocketUpgrade, State},
-    response::Html,
+    response::{Html, IntoResponse},
 };
-use std::sync::Arc;
 use tokio::sync::broadcast;
 
 use crate::websocket::handle_websocket;
@@ -57,10 +52,10 @@ pub async fn index() -> Html<String> {
 // WebSocket handler with shared broadcast channel
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
-    State(state): State<Arc<broadcast::Sender<String>>>,
-) -> impl axum::response::IntoResponse {
+    State(state): State<broadcast::Sender<String>>,
+) -> impl IntoResponse {
     // Upgrade to WebSocket connection
-    ws.on_upgrade(|socket| handle_websocket(socket, state.clone()))
+    ws.on_upgrade(move |socket| handle_websocket(socket, state.clone()))
 }
 === END OF FILE: src/handlers.rs ===
 
@@ -81,14 +76,16 @@ pub async fn handle_websocket(socket: WebSocket, tx: broadcast::Sender<String>) 
     // Task: Forward WebSocket messages to broadcast channel
     let send_task = async move {
         while let Some(Ok(Message::Text(text))) = ws_rx.next().await {
-            let _ = tx.send(text);
+            // Convert the received text to a String before sending.
+            let _ = tx.send(text.to_string());
         }
     };
 
     // Task: Forward broadcast messages to WebSocket
     let recv_task = async move {
         while let Ok(msg) = rx.recv().await {
-            if ws_tx.send(Message::Text(msg)).await.is_err() {
+            // Convert the String message into the expected type.
+            if ws_tx.send(Message::Text(msg.into())).await.is_err() {
                 break;
             }
         }
