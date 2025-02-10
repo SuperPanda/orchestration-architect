@@ -1,9 +1,15 @@
-use warp::{Reply, reply::html, Filter};
+use warp::{reply::{html, Html}, Filter, Reply, Rejection};
 use tokio::sync::broadcast;
 use crate::websocket::handle_websocket;
+use futures::FutureExt;
+// pub fn index() -> impl Reply {
+//    html(include_str!("../static/index.html"))
+//}
+//
 
-pub fn index() -> impl Reply {
-    html(include_str!("../static/index.html"))
+pub async fn index() -> Result<Html<String>,Rejection> {
+        tokio::fs::read_to_string("static/index.html")
+        .   await.map(html).map_err(|_| warp::reject::not_found())
 }
 
 pub fn ws_route() -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {

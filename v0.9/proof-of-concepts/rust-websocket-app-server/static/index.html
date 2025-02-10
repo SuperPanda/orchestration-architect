@@ -30,23 +30,34 @@
   <input id="input" autocomplete="off" placeholder="Type a message...">
   <div id="messages"></div>
   <script>
-    const ws = new WebSocket(`ws://${location.host}/ws`);
     const messages = document.getElementById('messages');
     const input = document.getElementById('input');
-
-    input.onkeypress = e => {
-      if (e.key === 'Enter' && input.value.trim()) {
-        ws.send(input.value);
-        input.value = '';
-      }
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    let messageHistory = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
+    messageHistory.forEach(msg => {
+      const p = document.createElement('p');
+      p.textContent = 'MSG: ${msg}';
+      messages.appendChild(p);
+    });
     };
 
-    ws.onmessage = ({data}) => {
+    ws.onmessage = ({data} => {
+      // Update storage and DOM
+      messageHistory.push(data);
+      sessionStorage.setItem('chatMessages', JSON.stringify(messageHistory));
+
       const p = document.createElement('p');
-      p.textContent = `MSG: ${data}`;
+      p.textContent = "MSG: ${msg}';
       messages.appendChild(p);
       messages.scrollTop = messages.scrollHeight;
     };
+
+
+    input.onkeypress = e => {
+      if (e.key === 'Enter' && input.value.trim() {
+        ws.send(input.value);
+        input.value = '';
+      }
   </script>
 </body>
 

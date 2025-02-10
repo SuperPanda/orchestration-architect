@@ -1,7 +1,6 @@
 // file: src/main.rs
 use axum::{ routing::get, Router };
 use tokio::sync::broadcast;
-use std::net::SocketAddr;
 
 mod handlers;
 mod websocket;
