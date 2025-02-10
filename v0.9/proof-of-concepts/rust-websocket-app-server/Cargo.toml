@@ -1,0 +1,9 @@
+[package]
+name = "rust-websocket-app-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3.31"
+tokio = { version = "1.43.0", features = ["full"] }
+warp = "0.3.7"

@@ -25,8 +25,8 @@
 </head>
 
 <body>
+  <input id="input" autocomplete="off" placeholder="Type a message...">
   <div id="messages"></div>
-  <input id="input" autocomplete="off">
   <script>
     const ws = new WebSocket(`ws://${location.host}/ws`);
     const messages = document.getElementById('messages');
