@@ -1,2 +1,2 @@
 vars/environment.yml
-target/**
+**/target/**
