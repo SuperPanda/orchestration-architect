@@ -5,7 +5,7 @@ use std::{fs,
           path::Path};
 
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(version, about, long_about = None)]
 struct Args {
 
     // The system version the workspace should load into the workspace
