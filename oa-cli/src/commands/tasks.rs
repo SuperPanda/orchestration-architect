@@ -1,7 +1,8 @@
 // File: commands/tasks.rs
 use clap::{Args,Subcommand};
 use crate::commands::Command;
-use crate::resources::{resolver,constants::TASKS_NAMESPACE};
+use crate::resources::constants::TASKS_NAMESPACE;
+use crate::resources::resolver;
 
 
 #[derive(Subcommand)]
