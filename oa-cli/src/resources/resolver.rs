@@ -15,6 +15,8 @@ pub mod protocol {
         OA, // orchestration architect resource protocol
     }    
     pub mod core {
+        // Todo: Turn into Requirements that will be an example. 'oa:requirements:prototype#'
+        // Also need to be able to configure mappings.
         // Need to allow mapping between protocols. 
         // Example:
         //      use crate::resolver::{Protocol::{oa,fs}}
@@ -60,7 +62,33 @@ pub mod protocol {
             Symlink,
             Other,
         }
-    }
+
+        impl ToString for FileType {
+            fn to_string(&self) -> String {
+                match self {
+                    FileType::Directory => "Directory".to_string(),
+                    FileType::File      => "File".to_string(),
+                    FileType::Symlink   => "Symlink".to_string(),
+                    FileType::Other     => "Other".to_string(),
+                }
+            }        
+        }
+
+        impl Into<String> for FileType {
+            fn into(self) -> String {
+                self.to_string()
+            }        
+        }
+}       #[cfg(test)]
+        mod tests {
+            use super::*;
+            #[test]
+            fn test_file_type_into_string(){
+                let result: String = fs::FileType::File.into();
+                assert_eq!(result,"File".to_string());
+            }
+        }
+
 }
 
 use crate::resources::resolver::protocol::fs::FileType;
@@ -69,17 +97,6 @@ use crate::resources::resolver::protocol::fs::FileType;
 // ---------------------------------------------
 // 1. FileType: an enum that classifies a file system entry.
 // ---------------------------------------------
-
-impl ToString for FileType {
-    fn to_string(&self) -> String {
-        match self {
-            FileType::Directory => "Directory".to_string(),
-            FileType::File      => "File".to_string(),
-            FileType::Symlink   => "Symlink".to_string(),
-            FileType::Other     => "Other".to_string(),
-        }
-    }
-}
 
 // ---------------------------------------------
 // 2. ToFileType: a trait to “promote” fs::DirEntry into FileType.
@@ -130,42 +147,12 @@ impl ToFileName for fs::DirEntry {
         file_path
     }
 }
-// ---------------------------------------------
-// 3. CategoryItem Trait: Every item in our category must supply a unique key.
-// ---------------------------------------------
-//  pub trait CategoryItem: Debug {
-//      fn key(&self) -> String;
-//  }
 
-// ---------------------------------------------
-// 4. CObject: a generic container that holds a unique key (think “item” as a key/value pair)
-// ---------------------------------------------
 #[derive(Debug, Clone)]
 pub struct CObject<T> {
     pub key: String,
     pub value: T,
 }
-
-//  impl<T: Debug + Clone> CategoryItem for CObject<T> {
-//      fn key(&self) -> String {
-//          self.key.clone()
-//      }
-//  }
-
-// ---------------------------------------------
-// 5. Make fs::DirEntry and FileType CategoryItems.
-// ---------------------------------------------
-//  impl CategoryItem for fs::DirEntry {
-//      fn key(&self) -> String {
-//          self.file_name().to_string_lossy().into_owned()
-//      }
-//  }
-
-//  impl CategoryItem for FileType {
-//      fn key(&self) -> String {
-//          self.to_string()
-//      }
-//  }
 
 // ---------------------------------------------
 // 6. Domain: NamespacePath represents a namespace and its associated (relative) path.
