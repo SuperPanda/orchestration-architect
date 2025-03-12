@@ -5,18 +5,70 @@ use std::fs;
 use std::path;
 use std::fmt::Debug;
 
+// move target into crate::resources::namespaces and use macro for code gen
 use crate::resources::constants;
+// Prototype
+pub mod protocol {
+    pub enum Protocol {
+        FS, // filesystem resource protocol
+        // git, // git resource protocol
+        OA, // orchestration architect resource protocol
+    }    
+    pub mod core {
+        // Need to allow mapping between protocols. 
+        // Example:
+        //      use crate::resolver::{Protocol::{oa,fs}}
+        //          to provide impl for crate::resolver::core 
+        //      - let msg:<impl Protocol:fs> = resolver.message(oa::Command::List, "oa:notes?....#<to be specified>")
+        //        shhould list all the paths like Resource{ path, name, items: <impl fs.Resource> }
+        //      - based on the type of the 
+        //        noting that path is relative to the namespace of NOTES (all stem names is 
+        //        same resource under certain resources
+        //      - send message to protocol translator 
+        //
+        //      - let Message:<impl resolver::protocol::fs> = 
+        //      - send and receieve
+        //      
+        //      struct Message(Protocol,Command,Resource,Query,Fragment)
+        //      - Parse `OA LIST oa:notes?type=Idea#`
+        //        so that
+        //        Message(protocol::Protocol::oa, protocol::Protocol
+        //      Message(OA
+        //      Message(
+        //      OR  oa:tasks?status=wip
+        //
+        //         fs://<PATH TO OA NOTES>/
+        //          
+        // and      oa:notes#OA-NOTE-000
+        //
+        struct Protocol;
+        struct Resource;
+        struct Command;
+        struct Query;
+        struct Fragment;
+        pub enum ResourceCommand {
+            List            
+        }
+        //struct Command(ResourceCommand);        
+    }
+
+    pub mod fs {
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        pub enum FileType {
+            Directory,
+            File,
+            Symlink,
+            Other,
+        }
+    }
+}
+
+use crate::resources::resolver::protocol::fs::FileType;
+//
 
 // ---------------------------------------------
 // 1. FileType: an enum that classifies a file system entry.
 // ---------------------------------------------
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum FileType {
-    Directory,
-    File,
-    Symlink,
-    Other,
-}
 
 impl ToString for FileType {
     fn to_string(&self) -> String {
@@ -32,6 +84,7 @@ impl ToString for FileType {
 // ---------------------------------------------
 // 2. ToFileType: a trait to “promote” fs::DirEntry into FileType.
 // ---------------------------------------------
+// TODO: Make it so .into just works for DirEntry, etc.
 trait ToFileType {
     fn to_file_type(&self) -> FileType;
 }
@@ -80,9 +133,9 @@ impl ToFileName for fs::DirEntry {
 // ---------------------------------------------
 // 3. CategoryItem Trait: Every item in our category must supply a unique key.
 // ---------------------------------------------
-pub trait CategoryItem: Debug {
-    fn key(&self) -> String;
-}
+//  pub trait CategoryItem: Debug {
+//      fn key(&self) -> String;
+//  }
 
 // ---------------------------------------------
 // 4. CObject: a generic container that holds a unique key (think “item” as a key/value pair)
@@ -93,26 +146,26 @@ pub struct CObject<T> {
     pub value: T,
 }
 
-impl<T: Debug + Clone> CategoryItem for CObject<T> {
-    fn key(&self) -> String {
-        self.key.clone()
-    }
-}
+//  impl<T: Debug + Clone> CategoryItem for CObject<T> {
+//      fn key(&self) -> String {
+//          self.key.clone()
+//      }
+//  }
 
 // ---------------------------------------------
 // 5. Make fs::DirEntry and FileType CategoryItems.
 // ---------------------------------------------
-impl CategoryItem for fs::DirEntry {
-    fn key(&self) -> String {
-        self.file_name().to_string_lossy().into_owned()
-    }
-}
+//  impl CategoryItem for fs::DirEntry {
+//      fn key(&self) -> String {
+//          self.file_name().to_string_lossy().into_owned()
+//      }
+//  }
 
-impl CategoryItem for FileType {
-    fn key(&self) -> String {
-        self.to_string()
-    }
-}
+//  impl CategoryItem for FileType {
+//      fn key(&self) -> String {
+//          self.to_string()
+//      }
+//  }
 
 // ---------------------------------------------
 // 6. Domain: NamespacePath represents a namespace and its associated (relative) path.
@@ -132,11 +185,11 @@ impl NamespacePath {
     }
 }
 
-impl CategoryItem for NamespacePath {
-    fn key(&self) -> String {
-        format!("{}:{}", self.namespace, self.path)
-    }
-}
+//  impl CategoryItem for NamespacePath {
+//      fn key(&self) -> String {
+//          format!("{}:{}", self.namespace, self.path)
+//      }
+//  }
 
 // ---------------------------------------------
 // 7. CMorphism: a morphism (arrow) from Src to Tgt with a unique key.
