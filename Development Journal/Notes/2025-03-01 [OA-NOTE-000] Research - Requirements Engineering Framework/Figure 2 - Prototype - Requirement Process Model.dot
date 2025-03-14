@@ -1,0 +1,36 @@
+digraph G {
+  ranksep=2;  
+  nodesep=2;  
+  label="Exploring solutions"
+  labelloc=b;
+  fontname="Fira";
+  node [shape=box,fontname="Fira Code"];
+  rankdir="LR";
+
+  subgraph cluster_context {
+    labelloc=top;
+    label="«oa-concept:requirements»"
+    bgcolor="yellow";
+    color="orange"
+  subgraph cluster_concept {
+    labelloc="bottom";
+    bgcolor="snow"
+    label="Resources";
+    
+    "Start Elicit Action" -> "Project:Task" [label="Update activity"];
+    "Start Elicit Action" -> "Elicit Activity" [label="begins"];
+    "Start Elicit Action" -> "Document:Requirements" [label="creates"];
+    "Elicit Activity" -> "Document:Requirements" [label="updates"];
+    "Elicit Activity" -> "Document:Requirements#ProblemStatement" -> "Document:Requirements#Needs";
+    "Start Analyze Action" -> "Creates Study Notes";
+    "Analyze Activity" -> "Document:Notes" [label="creates"];
+    "Analyze Activity" -> "Document:Requirements#Structured_Requirement_Specification" [label="creates"];
+    "Document:Notes" -> "Document:Requirement" [label="references"];
+    "Document:Notes" -> "Document:Requirement" [label="references"];
+
+
+
+
+}
+}
+}

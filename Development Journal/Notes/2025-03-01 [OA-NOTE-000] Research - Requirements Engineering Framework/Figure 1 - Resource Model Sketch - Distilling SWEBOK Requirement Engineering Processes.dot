@@ -1,0 +1,32 @@
+digraph G {
+  ranksep=2;  
+  nodesep=2;  
+  label="A Category Theoretic Intepretation of SWEBOK Requirement Activities"
+  labelloc=b;
+  fontname="Fira";
+  node [shape=box,fontname="Fira Code"];
+  rankdir="LR";
+
+  subgraph cluster_context {
+    labelloc=top;
+    label="«oa-concept:requirements»"
+    bgcolor="lime";
+    color="seagreen"
+  subgraph cluster_concept {
+    labelloc="bottom";
+    bgcolor="snow"
+    label="Conceptual Lane";
+      e_i,e_t [shape="circle",label="",width=0.1,height=0.1];
+      e_t [color="black",style="filled"];
+      e_i -> Elicitation [taillabel="«Problem»",arrowhead="none"];
+      Elicitation -> e_t [headlabel="«Need»",arrowhead="none"];
+
+      Edge [arrowhead="none"];
+      a_i, a_t [shape="circle",label="",width=0.1,height=0.1];
+      a_t [style="filled",color="black"];
+      a_i -> Analysis [taillabel="«Need»"];
+      Analysis -> a_t [headlabel="«Requirement»"];
+  }
+  e_t -> a_i [style="invis"];
+  }
+}
