@@ -1,0 +1,170 @@
+Orchestration Architect: {
+  grid-columns: 1
+  Architecture: {
+    Self-Assembly
+    Self-Updating
+    Self-Modification
+    Self-Verification
+    Self-Documenting
+    Self-Versioning
+  }
+  Repository: {
+    grid-columns: 2
+    orchestration-architect: {
+      grid-columns: 1
+
+      topology: {
+        authoriative
+        mirror: github
+        system: local system bare repo
+        user: local user bare repo
+        workspace: user repo worktrees
+        workspace -> user
+        user -> system
+        system -> mirror: push
+        system -> authoriative: push
+        authoriative <-> mirror: sync
+      }
+
+      branches: {
+        initial -> documents
+        initial -> tests
+        initial -> tools
+        initial -> sandbox
+        initial -> seed: heads
+        initial -> pristine: heads
+        pristine -> develop: heads
+        develop -> pristine: rebase
+        seed -> pristine: patch of diff(pristine,bootstrap(seed))
+        develop -> seed: semantic cherry pick
+      }
+    }
+  }
+  Subsystem Components: {
+    grid-columns: 1
+    Collections: {
+      grid-columns: 1
+      Meta: {
+        grid-columns: 1
+        description: |md
+          Generates and orchestrates the meta specifications component.
+
+          Allows for component interactions to achieve generative effects (think synergy).
+
+          Used to generate other subsystem components.
+        |
+        components: {
+          meta_document
+          meta_test
+          meta_role -> meta_template: creates
+          meta_role -> meta_playbook: creates
+          meta_role -> meta_orchestrator: creates
+          meta_role -> meta_document: creates
+          meta_template -> meta_role: provides
+          meta_template -> meta_playbook: provides
+          meta_role -> meta_orchestrator: creates
+          meta_orchestrator -> meta_role: delegates
+          meta_orchestrator -> meta_playbook: delegates
+          meta_orchestrator -> meta_template: delgates
+          meta_orchestrator -> meta_playbook: delegates
+          meta_playbook -> meta_orchestrator: invokes
+        }
+      }
+      Storage: {
+        storage -> loop_device: delegates
+        storage -> partitions: delegates
+        storage -> luks: delegates
+        storage -> filesystem: delegates
+        storage -> btrfs_subvolumes: delegates
+        storage -> mounts: delegates
+      }
+      Network: {
+        openvswitch: |md
+          # OpenVSwitch
+          Allows network topologies
+          to be applied in a virtualised way
+        |
+      }
+
+      Container: {
+        nspawn
+        qemu
+      }
+    }
+    Infrastructure Components: {
+      grid-columns: 1
+      grid-rows: 3
+      OA000: |md
+        # OA000: Recovery System
+        ## Regenerate
+
+        Generates the system.
+
+        If existing, this process will regenerate broken parts.
+
+        Restores missing components of a system.      
+
+        ## Recover
+
+        This system allows you to
+        unlock the Encrypted Master System and
+        access the data partitions and backups
+
+        Used to access encrypted backups, data and systems.        
+
+        ## Restore
+
+        This system allows for migrations to new systems
+        and restoring from backups.        
+      |
+      OA001: |md
+        # OA001: Encrypted Portable Master Control System
+
+        Encrypted persistent portable bootable system.
+
+        Generate systems from configurations.
+
+        Deploys systems over network or onto physical media.        
+
+        **Encrypted**: Encrypted boot media
+
+        **Transisent**: Provide a secure environments to deploy ephemeral systems.
+
+        **Self-contained**: Design to deploy orchestrate architecture deployments
+
+        **Offline**: Designed to support deploying in air gapped environments
+
+        **Secure**: Stores the master keys to allow deployed systems to be generated
+        with new keys. 
+
+        Each deployment can rotate keys.
+      |
+
+      OA002: |md
+        # OA002: Live Ephemeral Immutable Nested Hypervisor
+
+        A system design to create a nested ephemeral PXE booted system that runs in memory.
+
+        Hardened system that creates OA001 Service worker account with rotated keys.
+
+        Configured PAM, SUDO, SSH to be restricted as possible.
+
+        Auto logins into an ephemeral guest account by default.
+
+        Requires no storage.
+
+        The OA001 embeds the secrets.
+
+        Used to allow systems to reboot without restarting system.      
+
+      |
+    }
+  }
+  Auxillary Components: {
+    terminal-ai
+    nvim-orchestration-architect
+    oa-cli
+    oa-semantic-resource-protocol
+    oa-motd
+  }
+}

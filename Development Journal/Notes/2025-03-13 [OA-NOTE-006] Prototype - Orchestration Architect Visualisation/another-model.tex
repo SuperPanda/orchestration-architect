@@ -1,0 +1,67 @@
+﻿\usetikzlibrary{shapes,arrows,positioning,graphs,fit,scopes,graphdrawing}
+\usegdlibrary{layered}
+%\pagecolor{yellow!20}
+\tikzstyle{role}=[draw=green!80,fill=green!20,thick,inner sep=2pt,anchor=base];
+\tikzstyle{spec}=[draw=red!80,fill=red!20,thick,inner sep=2pt,anchor=base];
+\begin{tikzpicture}[]
+\draw [draw opacity=0.2] (0,0) grid (24,20);
+\node (MetaCollection)  at (2,19) {$Collection_{Meta}$};
+%#edge [<-] node {} (MetaCollection)
+\draw (5,18) graph [layered layout, grow=south, branch right]{ 
+	"SPECIFICATION" --  {
+		"$SPEC_{Collection}$",
+		"$SPEC_{Template}$",
+		"$SPEC_{Role}$",
+		"$SPEC_{Playbook}$"
+	}
+};
+\draw (5,16) graph [layered layout, grow=south, branch right]{ 
+	"ROLE" -- {
+		"$ROLE_{MetaOrchestrator}$" [role],
+		"$ROLE_{MetaTemplate}$" [role],
+		"$ROLE_{MetaRole}$" [role],
+		"$ROLE_{MetaPlaybook}$" [role]
+	}
+};
+\draw (5,14) graph [layered layout, grow=south, branch right]{ 
+	"TEMPLATE" -- {
+		"$TMPL_{Collection}$",
+		"$TMPL_{Template}$",
+		"$TMPL_{Role}$",
+		"$TMPL_{Playbook}$"
+	}
+};
+
+\draw (5,12) graph [layered layout, grow=south, branch right]{ 
+	"PLAYBOOK" -- {
+		"$PB_{Collection}$",
+		"$PB_{Template}$",
+		"$PB_{Role}$",
+		"$PB_{Playbook}$"
+	}
+};
+
+\draw (5,10)  graph [layered layout, grow=down, branch down] {
+	"$SPECIFICATION_{Template}<Component>$" ->
+	"$ROLE_{MetaTemplate}$" [alias='meta_template',draw] -> {
+		"$Skeleton_{<Component>}$" -> {"$TEMPLATE_{<Component>}$"},
+		"$Fragment_{<Component>}$" -> {"$TEMPLATE_{<Component>}$"}
+	}
+};
+	%node at (-3,4) [spec] {template spec}
+	%node at (0,4) [spec] {roles spec}
+%	node at (3,4) [spec] {playbook spec}
+%	node at (0,5) [spec] {collection metadata}
+%	\draw [draw=black!20,thick, layered layout]
+%{
+%\%node at (-4,3) {Roles}
+%node [role] at (-3,2) (meta_template) {meta\_template}
+%node [role] at (0,2) (meta_role) {meta\_role}
+%node [role] at (3,2)  (meta_playbook) {meta\_playbook}
+%node [role] (meta_orchestrator) {meta\_orchestrator}
+%edge [->] node {$spec_{role}$} (meta_role) 
+%edge [->] node {$spec_{tmpl}$ } (meta_template)
+%edge [->] node {$spec_{playbk}$} (meta_playbook);
+%};
+%};
+\end{tikzpicture}
