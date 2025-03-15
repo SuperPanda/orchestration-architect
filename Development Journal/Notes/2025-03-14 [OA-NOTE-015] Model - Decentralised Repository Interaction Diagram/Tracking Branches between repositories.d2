@@ -1,0 +1,39 @@
+# Node definitions (content only)
+local_repo: "Repository (Toy Box)"
+tracking: "Tracking Branch (origin/main Note)"
+remote_repo: "Remote Repository (GitHub Mirror)"
+ephemeral: "Authoritative Server (Bear Den)"
+
+# Directed relationships (edges)
+local_repo -> tracking { label: "updates note" }
+tracking -> remote_repo { label: "points to" }
+tracking -> ephemeral { label: "optional config" }
+
+# Separated style definitions (styling & icons are composed as independent chunks)
+style local_repo {
+   icon: "toy_box.svg";
+   fill: "#F4F4F4";
+   stroke: "#333";
+   stroke-width: "1px";
+}
+
+style tracking {
+   icon: "note.svg";
+   fill: "#E8F5E9";
+   stroke: "#2E7D32";
+   stroke-width: "1px";
+}
+
+style remote_repo {
+   icon: "github.svg";
+   fill: "#E3F2FD";
+   stroke: "#1565C0";
+   stroke-width: "1px";
+}
+
+style ephemeral {
+   icon: "bear.svg";
+   fill: "#FFF3E0";
+   stroke: "#EF6C00";
+   stroke-width: "1px";
+}

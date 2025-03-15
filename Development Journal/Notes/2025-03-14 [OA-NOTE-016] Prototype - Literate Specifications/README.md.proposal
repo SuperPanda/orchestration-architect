@@ -1,0 +1,279 @@
+--------------------LATEST MESSAGE-----------------------------------
+--------------AI PROPOSAL--------------------------------------------------
+> [!proposal] **Reorder Document Structure for Clarity**  
+> **Explanation:** Currently, the document interleaves tasks, proposals, and content. To enhance readability and maintainability, I propose a clear separation into distinct sections: an overview/introduction, a dedicated tasks/checklist section, specifications (including DSL grammar and examples), and finally implementation notes (macros and scripts). This allows users to quickly locate the parts they need and supports a modular workflow.  
+> **Sample Fragment:**  
+> ```markdown
+> ## Overview
+> This document defines the literate specifications for our DSL and bootstrap system.
+> 
+> ## Tasks & Checklist
+> - [ ] **[!task] Create 'LITERATE BOOTSTRAP SPECIFICATIONS.md'**
+> - [ ] **[!task] Create 'LITERATE LANGUAGE SPECIFICATIONS.md'**
+> - [ ] **[!task] Create 'LITERATE DESIGN.md'**
+> 
+> ## Specifications
+> (Detailed literate specifications, DSL grammar, and examples)
+> 
+> ## Implementation Notes
+> (Macro definitions, script instructions, and integration notes)
+> ```  
+--------------------RESPONSE TO THE AI------------------------------------------
+> **Status:** Incomplete (Reason: Human reviewer not confident in provided response)
+> **Feedback:**:
+>     It needs to define a literate document specification.
+>     It is unclear if you understand this to be a task for approving found targets, or rather as a ...
+>     because that should not be done in specifications, as a task creates a specification. if i need to make changes,
+>     I create a note:
+>     `oa create note [--title="TITLE TO ADD -- DEFAULTS To 'Spec Title Attachment if attachment"]` [attach oa:spec:literate:<spec kind=grammar,syntax,vocab,snippets,macros>?<default version>[&<filter_parameters>]+#<target specification>]
+>     Note the urn name can be substituted by a more current command. Attaching something that already exists, should
+>     have the oa-resource-protocol should be like already exists, and just increatement the version
+>     the notes can be referenced by OA-NOTES-008 or something, and can make it so if it is in a link like [URI AS OA-NOTES-008]
+
+>     oa create spec:literate note f[attach oa:spec:doc:literate#]
+>     So these wont be in `«documentation workspace»/«NOTES_PATH=development journal/notes»/' instead it will need to be in
+>     «urn:oa:semantic:specification#core» which is wherever the resource resolver and protocol needs to be able to use.
+>     So using the specifications, it should be written so other systems can refer to the currently undefined search paths,
+>     with the goal of Orchestration Architect installed as a regular linux package on a system. So the {/var,/usr,...} etc.
+>     Or as a local user as `$XDG_{CONFIG,DATA,STATE,...}` etc, or in a users workspace local to the file(s), so 
+>     for development it will come with default installation paths for local development.
+>     But as a system the generates itself, on top of a self bootstrap Arch Environment, or deployed in various context,
+>     like nspawn or in some containers, with the goal of the information being able to read from either the resolution resolver,
+>     using warp to provide possible semantic web data for the local context.
+>     With the focus on making natural transformations by design first.
+>     Before complex work, we don't want necessarily all the snippets and macros, but to be like pluggable. So it would be like,
+
+>     I want to include Non-Normative material. 
+>     these will be placed "Literate Design CORE.md"
+>     Specification definition elements that 
+
+
+-----------------------------AI PROPOSAL BEGINS-----------------------------
+
+
+> [!proposal] **Define Standardized Macros for Definitions and Scripts**  
+> **Explanation:** To ensure consistency across the document, I propose introducing standardized macros—such as `[!definition]` and `[!script]`—that provide templates for common content. This standardization will simplify updating and reusing these snippets and provide clear instructions for contributors.  
+> **Sample Fragment:**  
+
+```markdown
+>
+> ```[!definition]
+> Macro: snippet_definition
+> Description: "Defines a template for code snippet blocks used in DSL specifications."
+> Instructions: "Use this macro to annotate and standardize definitions throughout the document."
+> ```
+> 
+> ```[!script]
+> Macro: bootstrap_script
+> Description: "Template for bootstrapping operations using VIM macros and shell commands."
+> Instructions: "Incorporate this template whenever a bootstrapping script is needed."
+> ```
+```
+
+```````````````````````````````HUMAN FEEDBACK--------------------------------------------------
+
+
+> **Status:** Incomplete (Reason: Needs Refinement)
+> **Feedback:**
+>   - The specification should be generate from different notes and resources through the project.
+>   - It might be good to define how extracted components should look, however, I want the derivable
+>     like a semantic web of notes. So ideas can be revised attaching a tag to a common vocubulary of tags.
+>     Perhaps we need a vocabulary. What would actually making the snippet_definition works with the markdown-oxide
+>     aompletions that have things like `>` starts the `> [!todo]` or others. I think you are basically correct. We should have all the macros and mini-vim scripts be able to autopopulate the literate specifications, which can be be picked up as new in git, triggering it to be added to a file which basically is like the checklist so the literate spec will have like identified tasks will automatically picked with git hooks and use git notes:
+
+>   **TASK**: Some Title
+>   When a task matches a pattern like this. It should use the notes to convert to a identifiable task.
+>   The macro should be available via completion/lsp/etc. Ensure to specify the standards to do this.
+
+> Also if I want to add a new type of non-normative reference 
+
+> It might be good to make it so I can simply record this type of snippet, so it just takes anything in this block prior the colon anduses like treesitter, but i will maybe want to consider yeah like place holders, so like using some prompts ranked in by first context and then frequency, we rejections of messages  I need you to work on the grammar and parsing and prodution rules of these things os it could be `«oa+tai:..:» .` as and make a naturally transformatable structure. All inter generated content needs to be clearly spefied, as i have designs to use yaml specifications to allow from to be able to remove or restructure things based on semantic constructs to ensure any changes is globally appliable even if the rust app is broken. 
+
+> ```[!tai-prompt:<PROMPT_TYPE fetchable via LSP or `oa prompts list`>]
+> Context: `<A LSP will try and recommend auto completion based on vocab and grammar rules later>`
+> Instruction: ....
+> SOMETHING TO THE AI. such the the document should contain enough implicit context the function call should be able to see,
+> in the git notes that this file is occuring during this, i can make local system for temporaal relevant or semantic domain. even other takes and stuff, or tf-idr can be used for ranking relevance. 
+> ```
+
+> which changes into simething like 
+
+> ```[!tai-response?from=terminal-ai&]#«MSG_ID»[:[«OPTIONAL_TOPIC»]/«YYYY-MM-DD»]]
+> «TAI RESPONSE»
+> > ...
+> > ...
+> ```
+
+> [!info] Non-Normative Resource
+> Title: (Co)algebraic analysis of social systems: from graphs to hypergraphs
+> Author: Nina Otter
+> URL: https://www.youtube.com/watch?v=nnBg4haKyF0
+> Relevance: Otter video exemplifies what quality higher ordder constructions can be made.
+
+
+-----------------------------------------------------------------------AI PROPOSAL---------------------------------------------
+
+> [!proposal] **Convert Tasks into a Semantically Linked Checklist**  
+> **Explanation:** The current list of tasks is loosely organized. By converting them into a semantically linked checklist—with statuses (e.g., No Status, Todo, Completed) and tags (e.g., #backlog)—we can ensure that all task objects are interconnected. This will help in tracking dependencies, changes, and updates over time, even if some tasks move or change.  
+> **Sample Fragment:**  
+> ```markdown
+> ### Task Checklist
+> - [ ] **[!task] Create 'LITERATE BOOTSTRAP SPECIFICATIONS.md'**
+>   - Add VIM notes and describe operations.
+>   - Tags: #bootstrap, #backlog
+> 
+> - [ ] **[!task] Create 'LITERATE LANGUAGE SPECIFICATIONS.md'**
+>   - Define vocabulary and structure elements.
+>   - Tags: #language, #backlog
+> 
+> - [ ] **[!task] Create 'LITERATE DESIGN.md'**
+>   - Link to Abstract Compositional Topology for Theory <-> Implementation mapping.
+>   - Tags: #design
+> ```  
+> **Status:** Rejected
+
+-------------------------------------------------------------HUMAN FEEDBACK--------------------------------------------------
+THIS IS AN ATTEMPT AT NOT PUTTING THINGS WHERE THEY CAN GET LOST DUE TO THE EPHEMERAL NATURE OF THE systeN
+
+WE ARE DESIGNING FOR CHAOTIC SYNCRONICITY. AND FOCUS ON DEFINING A SPECIFICATION IN THE Styles
+OF KNUTH TO BE ABLE TO BUILD A WEB OF SEMANTIC COMPONENETS THAT CAN BE BUILT. THIS IS MEANT TO ALLOW THE IDEAS THAT ARE NOT MOST RELEVANT TO FALL OFF, AND THOSE THAT STAY ARE ABLE TO BE TRACED BY LOOKING AT THE FUNCTORIAL RELATION BETWEEN 
+THE THE GIT IN THE GIT REPOSITORY STORED LOCALLY AND SYNCED TO THE TRANSIENT AUTHORIATIVE
+REPO THAT IS IDEALLY AIR GAPPED AND USED FOR KEY ROTATION AND PROVISIONING OF INTERMEDIIATE KEYS.
+
+THE GOAL IS TO ALLOW A SYSTEM WHERE NOTES CAN BE QUICKLY ADDED AND THE STRUCTURES RENAMED FOR THE PURPOSES
+OF BUILDING A SEMANTIC RESOURCE RESOLVER, SO THE SYSTEM CAN SELF 
+DESCRIBE ITSELF.
+
+THE POINT TO BUILD A GRAMMAR A PARSER SO THAT A SNIPPET CAN BE GENERATED BASED ON AN ABSTRACT SYNTAX 
+WHICH WILL CREATE THE STRUCTURE SO SEMANTIC INTENT CAN BE MAPPED BASED ON THE VALUES OF THE DOCUMENT, 
+AND ITS RELEATIVE OCNTXT.
+
+
+---
+------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+> [!proposal] **Reorder and Enhance DSL Grammar Section for Composability**  
+> **Explanation:** The current DSL grammar is presented in a single block. I propose to start by framing the problem—introducing clear start (<START_POINT>) and endpoint (<END_POINT>) markers—and then breaking the grammar into logical components. This reordering will emphasize the compositional nature (focusing on "what does it do" rather than "what is it made of") and integrate examples that illustrate the transformation from an object-free arrow model to a full diagram.  
+> **Sample Fragment:**  
+> ```markdown
+> ## DSL Grammar
+> 
+> <START_POINT>
+> 
+> diagram ::= { declaration }+
+> 
+> declaration ::= nodeDeclaration | edgeDeclaration | styleDeclaration
+> 
+> ... (other grammar rules)
+> 
+> <END_POINT>
+> ```  
+> **Status:** No Status
+
+---
+
+> [!proposal] **Enhance Example Section with Minimal and Extended Models**  
+> **Explanation:** The examples should clearly illustrate how to build a diagram starting with minimal (object-free arrow model) components and then extending to full specifications. I propose updating the example to include both a minimal model and a detailed, composable example that demonstrates how to integrate nodes, edges, and style definitions effectively.  
+> **Sample Fragment:**  
+> ```markdown
+> ## Example: Minimal Object-Free Arrow Model
+> 
+> ```d2,example
+> # Minimal Diagram
+> <START_POINT>
+> arrow_model { /* minimal structure for arrow-based composition */ }
+> <END_POINT>
+> ```
+> 
+> ## Extended Example: Full Composable Diagram
+> 
+> ```d2,example
+> # Extended Diagram with Nodes, Edges, and Styles
+> local_repo: "Repository (Toy Box)";
+> tracking: "Tracking Branch (origin/main Note)";
+> remote_repo: "Remote Repository (GitHub Mirror)";
+> 
+> local_repo -> tracking { label: "updates note" };
+> tracking -> remote_repo { label: "points to" };
+> 
+> style local_repo {
+>   icon: "assets/toy_box.svg";
+>   fill: "#F4F4F4";
+>   stroke: "#333";
+>   stroke-width: 1;
+> }
+> ```
+> ```  
+> **Status:** Rejected (This is not a subset of d2 lang i already had this fight with the d2lang compile, i have provided a sample that is formated correctly Use the One in examples. also hard to run from script while im moving everything around.
+
+---
+
+> [!proposal] **Integrate Semantic Linking and Task Dependency Functions**  
+> **Explanation:** Introduce a function API schema for task updates that enables dynamic embedding of markers, linking tasks to related objects (such as Git notes). This change will allow instructions for document sections to be updated dynamically via function calls, ensuring that the self-bootstrap process is testable and that any semantic dependencies are maintained.  
+> **Sample Fragment:**  
+> ```markdown
+> ## Function API Schema for Task Management
+> 
+> Function: updateTask(taskID: string, newStatus: string, dependencies: string[])
+> Description: "Updates the status of a task and links it to its dependencies."
+> Example:
+> 
+> ```js
+> updateTask("task-001", "Completed", ["dependency-01", "dependency-02"]);
+> ```
+> 
+> Use this API to dynamically link and update task objects in the Git notes.
+> ```  
+> **Status:** Rejected (Reason: Misunderstanding)
+> **Feedback**: I Mean define a function Schema for AI Tool Use 
+>               The only thing the API should do is to point to where they want to put there responses so....
+>               It is not a marker in that sense, I mean i will allow multiple rounds of comparing ais, and providing feedback 
+                on the snippets, and distilling missed context into like a vocabulary, or add a context marker, which
+                can be used to improve the naturally resulting embeddings. since solving a thing correctly, 
+                is a quick way to improve the deisgn.
+
+---
+
+These proposals aim to standardize the document's structure, clarify the DSL grammar, and establish a consistent and semantically rich approach to task and specification management. Each proposal is modular so that you can accept, reject, or amend them individually based on your project needs.
+
+
+
+## Next Stage
+You will consider the feedback you have gotten. Consider that the existing information and new contexts can be converted in to tasks, since it is written down I can copy and place into relevant sections in the system.
+I want you to not the prompts you have receieved and noted through the document and make the ones provide more clear and salient.
+You will not structure the document but rather cluster things togheter, in a way instead to keep the initial instruction.
+You will go through all the tasks and requirements and put them under groups of things like 
+
+
+and define mockups of how the implementation will look. so define what needs to be done. 
+
+also focus on actually working through some of the problems. I want you to get each part from the initial question, and the feedback to your response, you will split you response into two sections, the requirements and analysis bit. 
+
+And some technical design.
+
+```
+# example struct.. Literate Specifications: core
+
+...to be fair we might write a REQUIREMENTS.MD 
+with these..
+## requirements
+
+### **Requirement 0**: All actions must have an initial morphism [«ANCHOR TO HERE»]
+
+** Rationale**
+
+Without an initial morphism, the architurectural is based on things coming into existence.
+
+...description...
+...link to assets....
+
+
+```[!metadata@req#0]
+>   **Requirement**: SRS-000 All actions must have an initial morphism
+>   Rationale: [....]
+>   Identifier: None
+>   Status: No Status
+>   Relevant Tags:
+```
+

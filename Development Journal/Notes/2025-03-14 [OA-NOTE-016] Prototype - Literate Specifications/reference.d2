@@ -1,0 +1,36 @@
+local_repo: "Repository (Toy Box)";
+tracking: "Tracking Branch (origin/main Note)";
+remote_repo: "Remote Repository (GitHub Mirror)";
+ephemeral: "Authoritative Server (Bear Den)";
+
+local_repo -> tracking { label: "updates note" };
+tracking -> remote_repo { label: "points to" };
+tracking -> ephemeral { label: "optional config" };
+
+local_repo {
+   icon: "assets/toy_box.svg";
+   style.fill: "#F4F4F4";
+   style.stroke: "#333";
+   style.stroke-width: 1;
+}
+
+tracking {
+   icon: "assets/note.svg";
+   style.fill: "#E8F5E9";
+   style.stroke: "#2E7D32";
+   style.stroke-width: 1;
+}
+
+remote_repo {
+   icon: "assets/github.svg";
+   style.fill: "#E3F2FD";
+   style.stroke: "#1565C0";
+   style.stroke-width: 1;
+}
+
+ephemeral {
+   icon: "assets/bear.svg";
+   style.fill: "#FFF3E0";
+   style.stroke: "#EF6C00";
+   style.stroke-width: 1;
+}

@@ -1,0 +1,43 @@
+// ==== Diagram: Core Definitions ====
+
+// Node declarations (Content definitions)
+local_repo: "Repository (Toy Box)";
+tracking: "Tracking Branch (origin/main Note)";
+remote_repo: "Remote Repository (GitHub Mirror)";
+ephemeral: "Authoritative Server (Bear Den)";
+
+// Edge declarations (Directed relationships with attributes)
+local_repo -> tracking { label: "updates note" };
+tracking -> remote_repo { label: "points to" };
+tracking -> ephemeral { label: "optional config" };
+
+// ==== Styles: Presentation Definitions ====
+// Style definitions are defined separately to allow for modular composition.
+
+local_repo {
+   icon: "toy_box.svg";
+   style.fill: "#F4F4F4";
+   style.stroke: "#333";
+   style.stroke-width: 1;
+}
+
+tracking {
+   icon: "note.svg";
+   style.fill: "#E8F5E9";
+   style.stroke: "#2E7D32";
+   style.stroke-width: 1;
+}
+
+remote_repo {
+   icon: "github.svg";
+   style.fill: "#E3F2FD";
+   style.stroke: "#1565C0";
+   style.stroke-width: 1;
+}
+
+ephemeral {
+   icon: "bear.svg";
+   style.fill: "#FFF3E0";
+   style.stroke: "#EF6C00";
+   style.stroke-width: 1;
+}
