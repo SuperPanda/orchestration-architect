@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use shellexpand::tilde;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -59,7 +60,7 @@ impl AppState {
     }
 }
 
-async fn run_app() -> Result<()> {
+async fn run_app(watch_path: PathBuf) -> Result<()> {
     enable_raw_mode()?;
     let mut stdout = std::io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
@@ -83,9 +84,21 @@ async fn run_app() -> Result<()> {
         },
         Config::default(),
     )?;
+  // Validate and canonicalize path
+    let watch_path = watch_path.canonicalize()
+        .context("Failed to resolve watch path")?;
 
-    watcher.watch(PathBuf::from(".").as_path(), notify::RecursiveMode::Recursive)
-        .context("Failed to watch directory")?;
+    if !watch_path.exists() {
+        anyhow::bail!("Path does not exist: {}", watch_path.display());
+    }
+
+    if !watch_path.is_dir() {
+        anyhow::bail!("Path is not a directory: {}", watch_path.display());
+    }
+
+    // Update watcher setup
+    watcher.watch(&watch_path, notify::RecursiveMode::Recursive)
+        .with_context(|| format!("Failed to watch path: {}", watch_path.display()))?;
 
     let state_clone = state.clone();
     tokio::spawn(async move {
@@ -183,5 +196,14 @@ fn ui(frame: &mut Frame, state: &AppState) {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    run_app().await
+    // Parse command line arguments
+    let args: Vec<String> = std::env::args().collect();
+    
+    // Expand ~ in paths and handle no-arg case
+    let watch_path = match args.get(1) {
+        Some(path) => PathBuf::from(tilde(path).to_string()),
+        None => std::env::current_dir()?,
+    };
+
+    run_app(watch_path).await
 }
