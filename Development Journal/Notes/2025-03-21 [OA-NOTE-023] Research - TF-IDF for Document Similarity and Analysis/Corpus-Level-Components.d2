@@ -1,0 +1,23 @@
+Component data flow: {
+  doclist: {shape: cylinder}
+  termcount: {shape: rectangle}
+  termtsv: {shape: cylinder }
+  docfreq: {shape: rectangle}
+  dftsv: {shape: cylinder}
+  tfidf: {shape: rectangle;}
+  output: {shape: cylinder; }
+
+  doclist: Document List\n(documents.list)
+  termcount: Term Counts\n(term_counts.jl)
+  termtsv: Term TSV\n(term_counts.tsv)
+  docfreq: Document Frequency\n(doc_freq.jl)
+  dftsv: Document Frequency TSV\n(doc_freq.tsv)
+  tfidf: TF-IDF\n(tfidf.jl)
+  output: TF-IDF Scores\n(tfidf_scores.tsv)
+
+  doclist --> termcount --> termtsv --> docfreq
+  docfreq --> dftsv
+  dftsv --> tfidf 
+  termtsv --> tfidf 
+  tfidf --> output
+}
