@@ -1,76 +1,194 @@
-# Literate Specifications: A Prototype
+# Literate Specifications Notes: Self-Assembling Conceptual Web Prototype
+
+
+<!--toc:start-->
+- [Literate Specifications: A Prototype /](#literate-specifications-a-prototype)
+  - [[OA-NOTE-016][../2025-03-14 [OA-NOTE-016] Prototype - Literate Specifications/]snip-expand-or-jump](#oa-note-0162025-03-14-oa-note-016-prototype-literate-specificationssnip-expand-or-jump)
+  - [Overview](#overview)
+  - [Activities](#activities)
+  - [Composable D2 Diagram DSL Specifications](#composable-d2-diagram-dsl-specifications)
+  - [Literate Specification](#literate-specification)
+    - [Self-Bootstrapping Specifications](#self-bootstrapping-specifications)
+  - [Design](#design)
+  - [Grammar](#grammar)
+  - [Example](#example)
+<!--toc:end-->
+
+## Document Scope
+
+The scope of this document is to have a self assembling 
+'literate' specifications for specifications in Orchestration Architect. 
+
+The purpose of the document is a proof of concept that a web of literate 
+writing that is able to construct the explained concept embues 
+a semantic context for the parts.
+
+The structure of the document should take a `Arrow` theoeretic approach.
+
+The reference implementation should create a pristine `Specification/....Meta Specification.md`.
+that generates a `
+
+
+facilitate a specification that allows for literate writing 
+to allow constructions and explanations of concepts, 
+such that the specification is able to produce a reference 
+implementation.
+
+The purpose 
+
 
 ## Overview
 
 This literate specification aims to collect all the elements we will need to define.
-A DSL GRAMMAR is defined to practice making a grammar. And working through making things that we need to achieve the goal 
-of an arrow based model, where I can design transformations to achieve a goal, as all interactions are defined by the relations. The goal is to setup the specifications so there is enough information to rename semantic and move semantic things, and be able to ensure all things meet the following rules. If something doesn't exist, theres a way for it to exist, for everything, it can have its name changed by most preserve its identity. so when it comes to existence, from being scanned, the **TASK** Transforms into TASK#<ID> always having things that won't change on the left, a TASK will be a TASK WILL BE A TASK so instead of Oa:spec:doc:literate, it should be SPEC# should enumber all specs, and specs will be delegated a type, so like SPEC#000 could be accessed using oa:spec:literate?v=0#examples or from an LSP).
 
-You need to refine prompts that perform each tasks, so the prompts you design for literate spec are made to perform narrow tasks
+- A DSL Grammar is provided to facilitate the production of a arrow perspective category theoretic design process..
 
-Use the following example to make a better prompt template and system message. Add the types of things you would wnat to see by writintg prompts for everything after reorganising everything.
+- The grammar will be used to act as a parser and generator. 
+
+- The goal is to be able to compose steps without defining the objects that achieve it. 
+
+- The a transformation composition model will mean any object that can attach to the composition will 
+  intberact in a natural and coherent ways. 
+
+- The goal is to set up the specifications so there is enough information to rename semantic and move semantic things, and be able to ensure all things meet the following rules.
+
+>   **REQUIREMENT**: The Initial Morphism Constraint
+
+>   **REQUIREMENT**: Grammar Rules need to allow for semantic relations needs to be preserved.
+
+>   **REQUIREMENT**: Map urn:OA entities to other resoureces
+
+>   **REQUIREMENT**: Officially specify how Orchestration Architect system specifications.
+
+>   **REQUIREMENT**: A Literate Specification able to regenerate the system.
+
+>   **REQUIREMENT**: Specifications must enable the structure of the document is sufficient
+
+>   **REQUIREMENT**: Specification for Documents SHOUD ensure strict guidance for preamble and EOF
+
+>   **TASK**: Use Semantic Metadata in a Git Repository via `git note`
+
+>   **IDEA**: Ensure that Architectural Design supports regenerative capabilities.
+>             Links are to be bifunctors. That is a change in a task name, will update the referencing, or applied 
+>             by a git hook, etc.
+
+>   **TASK**: Implement a Functor Map to Semantic fields
+>   
+>             1. A file path can be created
+>          
+>             2. A change to a field internal to a semantic token must update all objects that are named semantically.
+>          
+>             3. If a path and directory are paired `FILE.md` and `FILE/`, is renamed to `NEW_FILE`, 
+>                 should also map naturally `NEW_FILE/`. A child->referenes parenet relatively, so 
+>                 regeneration needs to come from within the directory. Thus the functor is needed.
+>             4. Implement a Functor To map the changes the shape of semantic fields change 
+       the grammar specification then a new minor version is required.
+
+>   **REQUIREMENT**: Ensure good formatting of mark down by requiring line breaks are separated by an empty line.
+>
+>   **REQUIREMENT**: Define the OA Compatible YAML GRAMMAR of the OA restricted yaml specification for correctness yaml operation.
+
+>   **REQUIREMENT**: Define how a URI, URN and URL can is generated via pluggable arrow-based compostions.
+                     Such that the file contains a semantic unique identifier in its name. If a file needs to 
+                     break the structure, it should just be superceded.
+                    
 
 
-```
-bash -c cat ./README.md ./README.md.proposal | wl-copy
-```
-
-
----- AN EXAMPLE USING THE PREVIOUS PROMPT ------
-```
-> [!prompt] This is the prompt the feedback was for.
-
-> Context: You are helping me structure this consistently.
-> Objective: You are to demonstrate you know what to do.
-> Instructions: You are agoing to read the document. And provide what you will change and why.
-
-> Your responses, will include a sample fragment for each change class you are consider.
-> And it will provide a succinct fragment of the relevant contexts. and what it will change.
-> for changes that involve big structure changes, or outlines, refer to how changes chunks would be changed..
-> so that it would be like 'Under [#Coomposable ...], In order to achieve ... currently structured as «this section»,«that section»...  I will do modification at '--SOMETHING--' as it will be .... 
-> and you can define for each section, what you are to change and why, so for example in tasks checklist you be deciding which to turn into tasks and not. define what you are going to do declaratively. you will respond as 
------------------------------------------
-> [!proposal] TITLE OF PROPOSED
-> ....
-> ...
-> Status: Reopened (Reason: This needs to be integrated into a comprehensive response)
-```
------------PROVIDE CONTENT HERE--------
-
---------------------------------------
-You Should Define Tasks as being define as having a vocabulary 
-as In Progress, No Status, Completed, Backlog. Assume this cannot be varied,
-as instead of adding more attributes, okay add a Discarded pile. Focus on  definiing the initial morphism, what makes it initial, what happens when each thing occurs, and to create a new task, define instead of adding a test step, it would just add test task, and attach itself.
-
-Make a simple GRAMMAR for the `oa cli` tool which is being designed in rust.
-
-and make a URI,URN,URL grammar, and propose some spec, 
-
-Use the simplified D2 LANG SPEc, to MAKE IDENTIFIER LABELS, WITH THE IDEA THAT USING a set amount of digits, will allow it easy to update an epoch or verision system.
+Use the purpose pf a simplified D2 LANG SPEc, to MAKE IDENTIFIER LABELS, WITH THE IDEA THAT USING a set amount of digits, will allow it easy to update an epoch or verision system.
 
 Describe how when different tasks are done, or when a note is added or removed the functional role of whats happening and group things that way. and describe the idea of a semantic web of notes. With authoriative specs, being embeedded via git notes, and being able to use git as a possible namespace documents and schema location, which can be updates, list all the commands.
 
-And provide a configuration of 
+And provide a a sample of the oa namespace being used:
 
 
-and the Idea is instead of adding more tasks to pipeline, that I can make a task an activity the follows from another.
+
+the Idea is instead of adding more tasks to pipeline, that I can make a task an activity the follows from another.
 Rere
 
 ------------MACROS AND STUFF HERE ------------------------------
 
+Define certain structures 
+such as patterns of matching by breaking identifying some hieararchiy whether it is defined by indent levels 
+to yaml (the you do a dep first search so filter the column of the matches, and for each start point, you can find all the height things, as we define everything as a structure.
+
+
+The 
+
+```
+rg fold {~/archived,~/repos/orchestration-architect*} | cut -f1-2 -d\: | sed -e 's/^\([^:]*\):\([1-9]*\)/\1,\2/''
+#| sed -e 's/^([^:]*):([1-9]*).*/\1:\2/g'
+
+
+```
+# Do `rg -n {{SEARCH_TERM}} {{PATH_GLOBS}} | ...etc...` to get file and line numbers of contextual matches
+MATCHED_RESOURCES=$(rg -n fold {~/archived,~/repos/orchestration-architect*} | cut -f1-2 -d\: | sed -e 's/^\([^:]*\):\([1-9]*\).*/\1,\2/g')
+echo 
+```
+
+---
+
+## Literate Specification Bootstrap
+### Definitions 
+
+>  **Definition**: Token
+
+   A `Token Fragment` is a refers to a representation of a concept.
+
+>  **Definition**:
+
+    A '
+
+>  **Terminology**: `Fragment Macro Placeholder`
+
+   A `Fragment Macro Token`
+
+
+```sh,build
+cat <<<'EOF' > bootstrap.sh
+#!/bin/sh
+```
+
+## 
+
+>  **TASK**: Create a Semantic Literate Task Spec
+
+becomes:
+
+>  [**TASK** Create a Semantic Literate Spec](<urn:oa:tasks#OA-TASK-001>)
+
+and the git notes will store a triple that represents (action,predicate, 
+
+> <Task Refspec:
+
+>  Create Self-Assembl Literate Specification
+>
+>   Bo
+
+>  Bootstrap
+
+    cat <<<'EOF' > bootstrap.sh
+    #!/bin/sh
+    rg -n «SEARCH_TERM» «PATH_GLOBS» | «extract file and line positions»
+    EOF
+
+
+also python is slow
+Define snippets used by IDEs and (Neo)vim that can be used.
+
+Define ways for things to be done
+
 The snippet layout should use with vim lsp and snippets like nvim-cmp and STUFF
 
--------------ADDED CONFIGURATIONS FOR VIM HERE THAT ARE RELEVANT--------------------------------
-
-----------------------------------------------------------------
 
 
+-------------EXAMPLE OF SPECS----------------------------------
+
+> [!task]
+    ----------------------------------------------------------------
 > [!task] Make the last templated like this with a snippet layout.
 > and write a ```[!definition]``` macro and script macro. and provide instructions to add.
 
------------ REWRITE TASKS BASED ON FEED BACK ------------
 >  **TASK**:
->   Create file 'LITERATE BOOTSTRAP SPECIFICATIONS.md'
 >   - Add the VIM Notes 
 >   - Describe the operations and monoidal operations.
 
@@ -83,7 +201,7 @@ The snippet layout should use with vim lsp and snippets like nvim-cmp and STUFF
 >  - Link to 'Abstract Compositional Topology'
 >    so that Theory <-> Implementation Mappings.
 
-> [!todo] Make all the following into like tasks that a ordered so that if i move them they will be linked.
+
 > the goal is to make everything semantically linked, so even if things go missing, all objects can be inferred at a later
 > date based on there arrows. So if a tree falls in the forrest and no one sees it, well if i lose a task, and i dont need 
 > to find it (so i would change its status, etc. and it would link all the hooks. the meta data will be stored in git notes.
@@ -92,13 +210,16 @@ The snippet layout should use with vim lsp and snippets like nvim-cmp and STUFF
 > [!todo] Figure out the depenency like markdown-oxide and etc. providing the snippets and properly configure LSP.
 >        need to migrate my existing tool. and really need the ai script and term frequency tools and tagging scripts to be collated. For status and etc. we can add definitions with a define snippet. define snippets and structure specifications.
 
-> [!todo] Define a function api schema for certain tasks to fields to be provided. so lets say i provide instructions for a certain section of this document to be edited, the schema will allow changes to be mapped via dynamically embedding markers, and the function call can fetch linked information permitted, and can allow for updates to be applied, or running tests of change results of the self bootstrap process and see if it works. Keep all the tasks.
+>   *TASK**: Define a function api schema for certain tasks to fields to be provided. so lets say i provide instructions for a certain section of this document to be edited, the schema will allow changes to be mapped via dynamically embedding markers, and the function call can fetch linked information permitted, and can allow for updates to be applied, or running tests of change results of the self bootstrap process and see if it works. Keep all the tasks.
 
-> [!important] Not for this task
-> Description: The following is for you to convert into tasks for me, not for you to do.
+>   **TASK**: Ensure that Vocabuary and Terms are clearly defined with consistent communication and
+              reusability of meaning throughout discourse between Lannguage Mdoels and meatbags.
 
-**TASK CHECKLIST**:
-> Make tasks status be no status,todo,completed (#tasks)
+>   Make a specification for Tasks in the literate document. The literate document will conform to itself,
+and will define the tasks name space, such that the the definition of the literate specs, 
+generates the initial morphisms of the tasks, so the development cycle and process can be replayed through history in meatspace.
+
+tasks status be no status,todo,completed (#tasks)
 >   - add #backlog tag to hide from todo 
 >   - instead making more steps, map 
 > Gather the Literate Prototypes.
@@ -264,7 +385,7 @@ In summary, this DSL is designed to be:
 
     Mathematically Sound:
     The demonstrated properties, including the identity morphism and slice-based ordering, provide a robust mathematical grounding for ensuring that all order and containment invariants are maintained.
-```
+``
 
 ----------------- ATTEMPT TO DRAW A ENOUGH SO THE EARLIER COMMANDS GENERATE THE SPECIFICATION ASSETS ------------------
 MAKE TWO DIAGRAMS, THE GENERATION VIEW AND THE RESOURCE VIEW, WHERE I WILL USE THE GENERATION VIEW TO FIGURE out
@@ -284,39 +405,9 @@ EXPLORE HOW WOULD YOU ASSIGNED SEPARATE AGENTS SOLELY RESPONSE FROM READING A SP
 TASKS AND SCOPED AND LIMITED CONTEXT BOUNDARY, WITH THE USEFUL INFORMATION BEING ABLE TO BE DERIVED FROM THE TEXT, SO IF I RUN TAI, WHICH ADD TO THE LIST NEEDS PORTING TO RUST, BUT I WANT GOING TO DO A MESSAGE/SIGNALS BASED APPROACH, I WANT YOU TO ADD TASKS TO SERVE THE SEMANTIC SCHEMAS VIA WARP, THE DOCUMENTATION AND SPECIFICCATION AND NOTES VIA WARP TOO, FOR LOCAL USE ANYWAY. AND I WANT YOU TO ADD THE D2LANG VIM PACKAGE
 WOULD YOU 
 
-ALSO HELP ME ORGANISE
-...
-├── 2025-03-14 [OA-NOTE-016] Prototype - Literate Specifications
-│   ├── assets
-│   │   ├── bear.svg
-│   │   ├── github.svg
-│   │   ├── note.svg
-│   │   ├── reference.svg
-│   │   └── toy_box.svg
-│   ├── bootstrap.sh
-│   ├── example.d2
-│   ├── Ideas.md
-│   ├── README.md
-│   ├── README.md.proposal
-│   ├── reference
-│   ├── reference.d2
-│   └── reference.svg
-└── 2025-03-15 [OA-NOTE-017] Command - Note Actions.md
-
-14 directories, 60 files
-...
-FOR MY REFERENCE I NEED TO RUN
-```
-cat README.md README.md.proposal
-
-
-```
-
 
 ## Design
-
 ## Grammar
-
 
 Also make the two perspectives, as a product is usually a graph bnased resulting from it,
 a core product is getting the things that make the graph or system, and putting htem together in an enum.
@@ -327,18 +418,6 @@ I use the triples, to triple my point on the differences. One is for me the othe
 
 > [!todo] Need to define a simple abstract grammar for the semantic structure. 
 > So something like  `diagram ::= { diagram_kind }` ` digram_kind ::= generative_diagram,resource_diagram and maybe one that allows me to focus on transformations by have like a bipartite vie.` and something the categories like the arrow/morphism/interactions so like generative_perspective, the connections generate something, and the other is like showing what resources was generated provided by the semantic resolution servicce
-
--------------------- ADD A LIST OF ACTIONS THAT AN LLM COULD HELP WITH -----------------
-
---------------------PROPOSE WHOLE TO USE THE LEVI.. OR A CUSTOM LINT THING THAT CAN BOOTSTRAP... SO YOU WOULD HAVE A FIX POSITION FOR THE BOOTSTRAP LOCATION, MAYBE IN THE LAST THREE LINES, THAT CAN POINT TO THE RANGE OF THE REST OF THE BOOTSTRAP SYSTEM THINK OF A BOOTSECTOR FLOPPY, WE WILL MAKE A COMMON PATTERN TO JUST GO TAIL -N4 AND AND HEAD -N+1
-```
-    -5:```[!bootstrap,ls]
-    -4: #/bin/sh
-    -3: ...'bootstrap the code that will be directly have such that find a location of [!build,ls]
-    -2: ...'make it so the specification means it will gneerate a script that will provide a way to build the rest in a very basic way. Using by getting all the locations of a tag, and by making it so it then when it matches, it returns the lowest triple backticks to the region used.
-    -1:```
-
-
 ```DSL
 (*
   Composable D2 Diagram DSL Specification
