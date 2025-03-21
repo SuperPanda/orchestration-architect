@@ -1,0 +1,34 @@
+grid-columns: 1
+classes._in: {
+  shape: circle
+  label: ""
+  width: 10
+  style.stroke: black
+  style.fill: white
+}
+classes._out: {
+  shape: circle
+  label: ""
+  width: 10
+  style.stroke: black
+  style.fill: black
+}
+
+Tasks: {
+  Task 1: @task1.d2
+  Task 2: @task2.d2
+}
+
+Overview: {
+  label: "Overview"
+  Task 1: @task1.d2
+  Task 2: @task2.d2
+}
+
+Tasks: {
+  _in.class:_in;
+  _out.class:_out;
+  T*: {_in.class: _in; _out.class: _out; _in -- T* -- _out}
+  _in -- T*._in
+  T*._out -- _out
+}
