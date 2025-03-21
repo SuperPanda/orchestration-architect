@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds, positioning, arrows.meta, graphs, trees, graphdrawing}
+\usegdlibrary{layered, trees}
+
+\begin{document}
+\centering
+\centering
+\begin{tikzpicture}[scale=1.0, red!100, draw=white!100, node distance=1cm, thick, every node/.style={draw, rectangle}, text height=.7em, text depth=.2em, draw=purple!50, thick, fill=yellow!50]
+\begin{tikzpicture}
+    % Draw a grid for reference
+    \draw [help lines] (0,0) grid (7,7);
+
+    % Define two layered graphs
+    \graph [green!100] [layered layout, grow=down] {
+        i [y=7.5, x=-0.5] -> {1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7};
+    };
+    \graph [layered layout, grow=down] {
+        j [x=3.5, y=8.5] -> {a, b, c, d, e, f, g};
+    };
+
+    % Add a label at the specified coordinates
+    \draw (3.5, 9.5) node {The domain and system layer are defined iteratively through generative adjunctions};
+\end{tikzpicture}
+
+\end{tikzpicture}
+\captionof{figure}{}
+\vspace{5ex}
+
+\end{document}
