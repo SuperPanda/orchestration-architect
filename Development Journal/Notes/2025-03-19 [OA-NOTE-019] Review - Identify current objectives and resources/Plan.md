@@ -14,13 +14,17 @@ The new seed will require:
 
 This will involve moving all the roles, playbooks, templates and specifications etc. under a new collection.
 
+---
+
 Let's start by making a collection and see if it works.
 
 >   [Ansible Dev Guide - Creating Collections](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections_creating.html#creating-new-collections)
 
-> [Collection Structure](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections_structure.html#collection-structure)
+>   [Collection Structure](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections_structure.html#collection-structure)
 
-The current seed workspace [Seed Workspace](~/repos/orchestration-architect/seed/)
+---
+
+The current seed workspace [Seed Workspace](../../../../seed/)
 
 So I can copy the seed directory and copy the 0.8.1 specifications to 0.9.0.
 
@@ -42,18 +46,7 @@ Let's start by creating a BTRFS loop device to hold the seed environment in ephe
 
 
 
-
-
-
-
-
-
-
-
-
-
 **Current Workspace**
-
 
 ## Appendix A: Seed Branch
 The output of `tree ~/repos/orchestration-architect/seed -L3`
@@ -94,23 +87,59 @@ The output of `tree ~/repos/orchestration-architect/seed -L3`
 20 directories, 10 files
 ```
 
+**Monitoring and Recording**:
+
+Use oa-monitor to monitor bootstrap.
+
+Use asciinema to record the changes.
+
+
+**Tips**:
+
+Check which bootstrap operations imports from the external environment.
 
 ### Tasks 
 
-Collate Tasks. Then add tasks.
+Collate Tasks
 Gather tasks, search julia notepads.
 
 ```sources
-curl https://github.com/SuperPanda/orchestration-architect/issues/3
+- https://github.com/SuperPanda/orchestration-architect/issues/
+- Repos: orchestration-architect, orchestration-architect-old
+        - repos/orchestration-architect
+            - documentation
+            - sandbox
+        - repos/orchestration-architect-old/Feb-2025-OA-Repo
+            - ...
+        - repos/orchestration-architect-old/Dec-2023-Ansible-Repo        
+            - ...
+- Branches: sandbox, documentation
+- Wiki: repos/oa-wiki-old
+- Documents/Orchestration Architect/
+- Transcripts from Artifacts on OA001
+
+```
+
+Other resources
+```
+orchestration-architect-prototype
+sandbox-test
 
 ```
 
 
-### Development Spaces 
+
+### Resourcefulness
+
+The tools to help work on generating resources.  (See Minksy, The Emotion Machine, Chapter 6. Common Sense - Section on Goals)
+
+Development Spaces 
 
 Need to build in ephemeral container-like environment.
 
 Need network re-introduced.
+
+Semantic connection between components.
 
 Need to support the following tooling:
 
@@ -122,24 +151,61 @@ Need to support the following tooling:
 
 - Go: PXE Boot 
 
-### Purpose
-
-Needs to be able to generate systems for reasons of infrastructure.
-
 Needs to be able to use components individually for reasons of organ-isation.
 
-META Collection needs to build the rest of resourcefulness.
+### Purposeful
+
+The problem that the `resources` utilised to achieve aims are ineffective.(See Minksy, The Emotion Machine, Chapter 6. Common Sense - Section on Goals)
+Needs to be able to generate systems for reasons of infrastructure.
+
+META Collection needs to build the rest of the collections (thus being a resource).
 
 Need TASKS for remember context.
 
+>   **Aim**: Natural Task Management from Needs
 
+## Comprehensibility 
 
-
-
-
-## Understandable / Visibility 
+The `context overload` problem (this needs to be minimised to achieve this aim).
 
 Needs to demonstrate the bootstrap tasks.
 
+>   **Aim**: Have Tooling to Find Information
+
+
+>   **Aim**: Visualisation of Architecture
+
+
+>   **Task**: Create a book summary based on existing diagrams. 
+
+
 Needs documentation. 
+
+### Visibility 
+
+The `out of sight, out of mind` problem with recall when needed (this gap is required to achieve the sub-aim).
+
+
+Run `fd ".d2" ../..` to find diagrams
+
+The file `../2025-03-19 [OA-NOTE-018] Prototype - Generic Diagram Modelling of Encapsulated Context/Wire-Diagram.d2` should be used as a useful starting diagram structure for complex behaviours.
+
+The file `../2025-03-13 [OA-NOTE-006] Prototype - Orchestration Architect Visualisation/architecture.d2` can begin with:
+
+**Repository**
+
+1. Repository Topology 
+
+2. Branches 
+
+3. Worktrees and Workspaces 
+
+**Collections** 
+
+1. Collections Summary 
+
+2. Collection Components 
+
+**Auxillary Components and Tools**
+
 
