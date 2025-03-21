@@ -1,0 +1,50 @@
+ID_PREFIX="OA-NOTE"
+NOTES_DIR=".."
+
+function list() {
+  ls "$NOTES_DIR"
+}
+
+function get_date(){
+  date --iso-8601
+}
+
+function to_identity() {
+  input="$1"
+  identifier_regex="$ID_PREFIX-[0-9]{3}"
+  echo "$input" | grep -oP "$identifier_regex"
+}
+
+function next_id() {
+  local current_files="$(list)"
+  identities=$(to_identity "$current_files")  
+  most_recent=$(echo "$identities" | sort | tail -n 1)
+  most_recent_num=$(echo "$most_recent" | grep -oP "[0-9]{3}")
+  unpadded=$(echo "$most_recent_num" | sed -r "s/^[0]*(.*)/\1/g")
+  # echo "$unpadded"
+  next_number_unpadded="$((unpadded+1))"
+  next_number_padded="$(printf '%0.3d' "$next_number_unpadded")"
+  echo "$ID_PREFIX-$next_number_padded"
+  
+
+}
+
+function generate_next_filename() {
+  local note_type_field="$1"
+  local title_field="$2"
+  local suffix_field="$3" # make this default to '/' directory
+  current_files=$(list) # current files  
+  id_field=$(next_id "$current_files")
+  date_field=$(get_date)
+  echo "$date_field [$id_field] $note_type_field - $title_field$suffix_field"
+}
+
+
+
+notes=$(list)
+# echo "$notes"
+# to_identity "$notes"
+# next_id "$notes"
+generate_next_filename "Note" "Example Note" "/"
+# get_date
+

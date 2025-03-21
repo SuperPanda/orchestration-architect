@@ -1,0 +1,72 @@
+#!/bin/bash
+
+ID_PREFIX="OA-NOTE"
+NOTES_DIR=".."
+
+function list() {
+  ls "$NOTES_DIR"
+}
+
+function get_date() {
+  date --iso-8601
+}
+
+function to_identity() {
+  input="$1"
+  identifier_regex="$ID_PREFIX-[0-9]{3}"
+  echo "$input" | grep -oP "$identifier_regex"
+}
+
+function next_id() {
+  local current_files="$(list)"
+  identities=$(to_identity "$current_files")  
+  most_recent=$(echo "$identities" | sort | tail -n 1)
+  most_recent_num=$(echo "$most_recent" | grep -oP "[0-9]{3}")
+  unpadded=$(echo "$most_recent_num" | sed -r "s/^[0]*(.*)/\1/g")
+  # echo "$unpadded"
+  next_number_unpadded="$((unpadded+1))"
+  next_number_padded="$(printf '%0.3d' "$next_number_unpadded")"
+  echo "$ID_PREFIX-$next_number_padded"
+
+}
+
+function create_note() {
+  local note_type="$1"
+  local title="$2"
+  local suffix="${3:-}"
+  
+  local id_field=$(next_id)
+  local date_field=$(get_date)
+  local filename="${date_field} [${id_field}] ${note_type} - ${title}${suffix}"
+  
+  if [[ -z "$suffix" ]]; then
+    mkdir -p "$NOTES_DIR/$filename"
+    #echo "make directory $NOTES_DIR/$filename"
+  else
+    touch "$NOTES_DIR/$filename"
+    #echo "touch $NOTES_DIR/$filename"
+  fi
+  echo "Created: $filename"
+}
+
+function rename_note() {
+  local target_id="$1"
+  local new_type="$2"
+  local new_title="$3"
+  local new_suffix="$4"
+  
+  local old_entry=$(find "$NOTES_DIR" -maxdepth 1 -name "*[${target_id}]*" -print -quit)
+  [[ -z "$old_entry" ]] && { echo "ID not found"; return 1; }
+  
+  local old_name=$(basename "$old_entry")
+  local date_part=$(grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}' <<< "$old_name")
+  local new_name="${date_part} [${target_id}] ${new_type} - ${new_title}${new_suffix}"
+  
+  # mv -n "$old_entry" "$NOTES_DIR/$new_name" || echo "Rename failed"
+  echo "Renamed to: $new_name"
+}
+
+# Example usage:
+# create_note "Note" "Example Title" ".md"
+# rename_note "OA-NOTE-001" "Updated" "New Title" ""
+create_note "$1" "$2" "$3"
