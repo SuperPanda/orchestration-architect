@@ -1,0 +1,58 @@
+FUNCTION_START_PATTERN="^\w+\(\)\{"
+FUNCTION_END_PATTERN="^}$"
+extract_region(){
+    local start="$1"
+    local end="$2"
+    head -n+$((end)) | tail -n+$((start))
+}
+extract_file_region(){
+    local file="$1"
+    local start="$2"
+    local end="$3"
+    head -n+$((end)) "$file" | tail -n+$((start))
+}
+
+find_line_matches(){
+  local pattern="$1"
+  grep -E $pattern --line-number | cut -d: -f1
+}
+
+find_next_match_offset(){
+  local pattern="$1"
+  local cursor_start="${2:-1}"
+  tail -n+$((cursor_start)) |  grep -m 1 -E $pattern --line-number| cut -d: -f1
+}
+
+find_region_boundary(){ 
+  local start_boundary_pattern="$1"
+  local end_boundary_pattern="$2"
+  state=`cat`
+  start_positions_matches=$( cat <<< $state | find_line_matches $start_boundary_pattern)
+  for start_position in $start_positions_matches; do
+    offset=$( cat <<< $state  | find_next_match_offset $end_boundary_pattern $start_position)
+    end_position=$((start_position+offset))
+    echo $start_position $end_position
+  done
+}
+
+echo "Find Line Matches"
+echo "-----------------"
+cat ./test.sh | find_line_matches $FUNCTION_START_PATTERN
+echo 
+
+echo "Find Region Boundaries"
+
+region_boundary="$(cat ./test.sh | find_region_boundary $FUNCTION_START_PATTERN $FUNCTION_END_PATTERN)"
+
+while read start end; do 
+  echo range $start $end
+  cat ./test.sh | extract_region $start $end
+done <<< "$region_boundary"
+
+
+
+#$cat ./test.sh | find_region_boundary $FUNCTION_START_PATTERN $FUNCTION_END_PATTERN
+#| extract_region
+
+
+
