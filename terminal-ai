@@ -19,7 +19,8 @@
 #   - Add GPT response metadata to the metadata field.
 #
 #
-LOG_STORAGE_PATH="/root/artifacts/logs/terminal-ai/transcripts"
+#LOG_STORAGE_PATH="/root/artifacts/logs/terminal-ai/transcripts"
+LOG_STORAGE_PATH="$HOME/repos/terminal-ai-transcripts/default"
 LOG_FILE="`date --rfc-3339=date`.md"
 mkdir -p "$LOG_STORAGE_PATH"
 touch "$LOG_STORAGE_PATH/$LOG_FILE"
