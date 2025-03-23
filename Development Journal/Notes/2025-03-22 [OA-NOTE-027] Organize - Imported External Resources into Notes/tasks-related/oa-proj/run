@@ -1,0 +1,56 @@
+
+#!/bin/bash
+
+# Ensure the jinja2-cli and rapper are installed
+if ! command -v j2 &> /dev/null; then
+    echo "jinja2-cli is not installed. Please install it with pip."
+    exit 1
+fi
+
+if ! command -v rapper &> /dev/null; then
+    echo "rapper is not installed. Please install it via your package manager."
+    exit 1
+fi
+
+# Define variables for the graph
+graph_name="MyGraph"
+nodes=(
+    '{"id":"Task","label":"Task","comment":"A task in the project"}'
+    '{"id":"Requirement","label":"Requirement","comment":"A requirement that must be met by the task"}'
+)
+node_ids="oa-graph:Task, oa-graph:Requirement"
+source_id="oa-graph:Task"
+target_id="oa-graph:Requirement"
+relationship="derived_from"
+
+# Render the template to generate Turtle RDF
+echo "Rendering RDF to Turtle format..."
+j2 graph_template.j2 <<< EOF
+{
+    "graph_name": "$graph_name",
+    "nodes": [
+        ${nodes[0]},
+        ${nodes[1]}
+    ],
+    "node_ids": "$node_ids",
+    "source_id": "$source_id",
+    "target_id": "$target_id",
+    "relationship": "$relationship"
+}
+EOF
+
+# Output the generated Turtle file to check if it’s correct
+echo "Generated Turtle File:"
+cat generated_graph.ttl
+
+# Validate the generated RDF using Rapper
+echo "Validating RDF with Rapper..."
+rapper -i turtle generated_graph.ttl -c
+
+# Convert the Turtle RDF to RDF/XML (or any other format) using Rapper
+rapper -i turtle -o rdfxml generated_graph.ttl > generated_graph.rdf
+
+# Output the serialized RDF/XML
+echo "Generated RDF/XML:"
+cat generated_graph.rdf
+

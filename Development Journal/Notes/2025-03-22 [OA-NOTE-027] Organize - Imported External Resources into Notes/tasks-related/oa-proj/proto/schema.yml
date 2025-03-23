@@ -1,0 +1,12 @@
+namespace: "urn:oa:schema:graph"
+entities:
+  - category: "Object"
+    description: "An abstract entity."
+    relationships:
+      - type: "relatedTo"
+        target: "Morphism"
+  - category: "Morphism"
+    description: "A directional relationship."
+    relationships:
+      - type: "mapsTo"
+        target: "Object"

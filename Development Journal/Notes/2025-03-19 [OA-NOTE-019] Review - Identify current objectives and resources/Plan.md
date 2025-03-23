@@ -1,6 +1,23 @@
 # Strategy
 
-## The `OA.META` collection?
+- [ ] 1. Import Tasks
+    - [ ] 1.2. Identify Resources and populate children of 1.3
+    - [ ] 1.3 Gather Resources 
+    - [ ] 1.4 Add Gathered Tasks to `documentation/Tasks/`
+    - [ ] 1.5 Move the tasks below to `documentation/Tasks/`
+
+## Separate collection component specifications 
+
+### Create ephemeral build target environment.
+
+Create roles to setup build containers.
+
+### Separate `OA.META` from `Base` specifications in specifications develop branch `vars/specifications/0.9.0`.
+
+Convert `{roles,templates,playbooks}.spec.yml` to `{base,meta}.{roles,templates,playbooks}.spec.yml` and ensure bootstrap works self-verification works.
+
+Allow for other specifications to be per collection. `vars/specs/<version>/{meta,storage,base}.roles.yml`.
+
 
 The `OA.META` collection is used to build everything else.
 
@@ -44,7 +61,7 @@ So the plan is, create a new directory to be the next iteration of the seed bran
 
 Let's start by creating a BTRFS loop device to hold the seed environment in ephemeral storage. I will use nspawn to just create a filesystem namespace from the existing system. And mount the loop device to the nspawn container.
 
-
+This is the bootstrap overview `grep -P "- name:" ~/repos/orchestration-architect/seed/playbooks/Meta/Bootstrap_Workspace.yml`
 
 **Current Workspace**
 
@@ -98,6 +115,7 @@ Use asciinema to record the changes.
 
 Check which bootstrap operations imports from the external environment.
 
+
 ### Tasks 
 
 Collate Tasks
@@ -119,6 +137,11 @@ Gather tasks, search julia notepads.
 - Transcripts from Artifacts on OA001
 
 ```
+Also check out the tag formats I have used and add them to the tags.
+
+
+check github: `gists api`, `github project` and `github issues`
+
 
 Other resources
 ```

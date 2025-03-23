@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schema Documentation</title>
+    <script src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+    <script>
+        var respecConfig = {
+            specStatus: "unofficial",
+            inlineCSS: true,
+            maxTocLevel: 4,
+            shortName: "schema",
+            subtitle: "Orchestration Architect",
+            edDraftURI: "https://superpanda.github.io/orchestration-architect/0.9/schema",
+            prevRecURI: "https://superpanda.github.io/orchestration-architect/0.8/schema",
+            issueBase: "https://github.com/SuperPanda/orchestration-architect/issues",
+            otherLinks: [
+                {
+                    key: "Repository",
+                    href: "https://github.com/SuperPanda/orchestration-architect",
+                    text: "Source code"
+                }
+            ],
+            localBiblio: {
+                "OA-SCHEMA": {
+                    title: "Ontology for OA Schema",
+                    href: "https://github.com/SuperPanda/orchestration-architect",
+                    authors: ["Amdrew Nroscpe"],
+                    date: "2024"
+                }
+            }
+        };
+    </script>
+</head>
+<body>
+    <section>
+        <h1>OA Schema Documentation</h1>
+        <p>This document provides an overview of the OA Schema, including its entities, relationships, and namespaces.</p>
+
+        <section id="entities">
+            <h2>Entities</h2>
+            <p>The following entities are defined within the OA Schema:</p>
+            <ul>
+                
+                <li><strong>Object</strong>: An abstract entity.
+                    <ul>
+                    
+                        <li>relatedTo &rarr; Morphism</li>
+                    
+                    </ul>
+                </li>
+                
+                <li><strong>Morphism</strong>: A directional relationship.
+                    <ul>
+                    
+                        <li>mapsTo &rarr; Object</li>
+                    
+                    </ul>
+                </li>
+                
+            </ul>
+        </section>
+
+        <section id="namespace">
+            <h2>Namespace</h2>
+            <p>The following namespace is used in this schema:</p>
+            <pre>urn:oa:schema:graph</pre>
+        </section>
+
+        <section id="references">
+            <h2>References</h2>
+            <p>Refer to the following resources for additional information:</p>
+            <dl>
+                <dt><cite>OA-SCHEMA</cite></dt>
+                <dd>Ontology for OA Schema. Available at: <a href="https://yourwebsite.com/oa-schema">https://yourwebsite.com/oa-schema</a></dd>
+            </dl>
+        </section>
+    </section>
+</body>
+</html>
+

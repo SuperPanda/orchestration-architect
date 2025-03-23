@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Map PWA</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        svg { width: 100%; height: 600px; border: 1px solid #ddd; }
+        .node { fill: #88c; stroke: #555; cursor: pointer; }
+        .node.focused { fill: #d55; }
+        .node.selected { fill: #55d; stroke: #000; }
+        .edge { stroke: #aaa; stroke-width: 2px; }
+        .drawing-edge { stroke: #f00; stroke-width: 2px; stroke-dasharray: 5,5; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Mind Map PWA</h1>
+    <svg id="mindmap-container"></svg>
+    <button id="add-node-btn">Add Node</button>
+
+    <script type="module">
+        import { fromEvent, Subject } from 'https://cdn.jsdelivr.net/npm/rxjs@7/+esm';
+        import { map, filter, tap, withLatestFrom } from 'https://cdn.jsdelivr.net/npm/rxjs@7/+esm';
+
+        // ---------------------
+        // ACTION TYPES
+        // ---------------------
+        const ADD_NODE = 'ADD_NODE';
+        const ADD_EDGE = 'ADD_EDGE';
+        const FOCUS_NODE = 'FOCUS_NODE';
+        const START_EDITING_NODE = 'START_EDITING_NODE';
+        const FINISH_EDITING_NODE = 'FINISH_EDITING_NODE';
+        const START_DRAWING_EDGE = 'START_DRAWING_EDGE';
+        const FINISH_DRAWING_EDGE = 'FINISH_DRAWING_EDGE';
+        const TOGGLE_COLLAPSE_NODE = 'TOGGLE_COLLAPSE_NODE';
+
+        // ---------------------
+        // ACTION CREATORS
+        // ---------------------
+        const addNode = (id, label, x, y) => ({
+            type: ADD_NODE,
+            payload: { id, label, x, y },
+        });
+
+        const addEdge = (from, to, startPosition, endPosition) => ({
+            type: ADD_EDGE,
+            payload: { from, to, startPosition, endPosition },
+        });
+
+        const focusNode = (id) => ({
+            type: FOCUS_NODE,
+            payload: { id },
+        });
+
+        const startEditingNode = () => ({
+            type: START_EDITING_NODE,
+        });
+
+        const finishEditingNode = (newText) => ({
+            type: FINISH_EDITING_NODE,
+            payload: { newText },
+        });
+
+        const startDrawingEdge = (fromNodeId, startPosition) => ({
+            type: START_DRAWING_EDGE,
+            payload: { fromNodeId, startPosition },
+        });
+
+        const finishDrawingEdge = (toNodeId, endPosition) => ({
+            type: FINISH_DRAWING_EDGE,
+            payload: { toNodeId, endPosition },
+        });
+
+        const toggleCollapseNode = (id) => ({
+            type: TOGGLE_COLLAPSE_NODE,
+            payload: { id },
+        });
+
+        // ---------------------
+        // REDUCERS
+        // ---------------------
+        const nodesReducer = (state = {}, action) => {
+            switch (action.type) {
+                case ADD_NODE:
+                    const { id, label, x, y } = action.payload;
+                    return {
+                        ...state,
+                        [id]: { id, label, x, y, collapsed: false },
+                    };
+                case FOCUS_NODE:
+                    return {
+                        ...state,
+                        focusedNode: action.payload.id,
+                    };
+                case FINISH_EDITING_NODE:
+                    return {
+                        ...state,
+                        [state.focusedNode]: {
+                            ...state[state.focusedNode],
+                            label: action.payload.newText,
+                        },
+                    };
+                case TOGGLE_COLLAPSE_NODE:
+                    return {
+                        ...state,
+                        [action.payload.id]: {
+                            ...state[action.payload.id],
+                            collapsed: !state[action.payload.id].collapsed,
+                        },
+                    };
+                default:
+                    return state;
+            }
+        };
+
+        const edgesReducer = (state = [], action) => {
+            switch (action.type) {
+                case ADD_EDGE:
+                    return [
+                        ...state,
+                        {
+                            from: action.payload.from,
+                            to: action.payload.to,
+                            startPosition: action.payload.startPosition,
+                            endPosition: action.payload.endPosition,
+                        },
+                    ];
+                default:
+                    return state;
+            }
+        };
+
+        const drawingReducer = (state = null, action) => {
+            switch (action.type) {
+                case START_DRAWING_EDGE:
+                    return action.payload;
+                case FINISH_DRAWING_EDGE:
+                    return null;
+                default:
+                    return state;
+            }
+        };
+
+        const rootReducer = (state = {}, action) => ({
+            nodes: nodesReducer(state.nodes, action),
+            edges: edgesReducer(state.edges, action),
+            focusedNode: state.nodes?.focusedNode,
+            drawingEdge: drawingReducer(state.drawingEdge, action),
+        });
+
+        // ---------------------
+        // STORE CREATION
+        // ---------------------
+        const createStore = (reducer) => {
+            let state = JSON.parse(localStorage.getItem('mindmap')) || reducer(undefined, {});
+            const listeners = [];
+            const getState = () => state;
+            const dispatch = (action) => {
+                state = reducer(state, action);
+                localStorage.setItem('mindmap', JSON.stringify(state));
+                listeners.forEach(listener => listener());
+            };
+            const subscribe = (listener) => {
+                listeners.push(listener);
+                return () => {
+                    const index = listeners.indexOf(listener);
+                    listeners.splice(index, 1);
+                };
+            };
+            dispatch({}); // initialize the state
+            return { getState, dispatch, subscribe };
+        };
+
+        const store = createStore(rootReducer);
+
+        // ---------------------
+        // SELECTORS
+        // ---------------------
+        const selectNodes = (state) => state.nodes || {};
+        const selectEdges = (state) => state.edges || [];
+        const selectFocusedNode = (state) => state.focusedNode;
+        const selectDrawingEdge = (state) => state.drawingEdge;
+
+        // ---------------------
+        // SVG RENDERING
+        // ---------------------
+        const renderMindMap = () => {
+            const container = document.getElementById('mindmap-container');
+            container.innerHTML = '';
+
+            const nodes = selectNodes(store.getState());
+            const edges = selectEdges(store.getState());
+            const focusedNode = selectFocusedNode(store.getState());
+            const drawingEdge = selectDrawingEdge(store.getState());
+
+            // Render edges
+            edges.forEach(({ from, to, startPosition, endPosition }) => {
+                const fromNode = nodes[from];
+                const toNode = nodes[to];
+                if (fromNode && toNode && !fromNode.collapsed) {
+                    const edgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    edgeElement.setAttribute('x1', fromNode.x + startPosition.x);
+                    edgeElement.setAttribute('y1', fromNode.y + startPosition.y);
+                    edgeElement.setAttribute('x2', toNode.x + endPosition.x);
+                    edgeElement.setAttribute('y2', toNode.y + endPosition.y);
+                    edgeElement.setAttribute('class', 'edge');
+                    container.appendChild(edgeElement);
+                }
+            });
+
+            // Render nodes
+            Object.values(nodes).forEach(({ id, label, x, y, collapsed }) => {
+                const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                nodeGroup.setAttribute('transform', `translate(${x}, ${y})`);
+                nodeGroup.setAttribute('class', `node${id === focusedNode ? ' focused' : ''}`);
+
+                const nodeRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                nodeRect.setAttribute('width', 100);
+                nodeRect.setAttribute('height', 50);
+                nodeGroup.appendChild(nodeRect);
+
+                const nodeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                nodeText.setAttribute('x', 50);
+                nodeText.setAttribute('y', 25);
+                nodeText.setAttribute('dominant-baseline', 'middle');
+                nodeText.setAttribute('text-anchor', 'middle');
+                nodeText.textContent = label;
+                nodeGroup.appendChild(nodeText);
+
+                nodeGroup.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    store.dispatch(focusNode(id));
+                });
+
+                nodeText.setAttribute('contentEditable', id === focusedNode && store.getState().isEditing ? 'true' : 'false');
+
+                nodeGroup.addEventListener('dblclick', () => {
+                    store.dispatch(toggleCollapseNode(id));
+                });
+
+                container.appendChild(nodeGroup);
+            });
+
+            // Render drawing edge
+            if (drawingEdge) {
+                const fromNode = nodes[drawingEdge.fromNodeId];
+                const mousePosition = drawingEdge.mousePosition;
+
+                if (fromNode && mousePosition) {
+                    const drawingEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    drawingEdgeElement.setAttribute('x1', fromNode.x + drawingEdge.startPosition.x);
+                    drawingEdgeElement.setAttribute('y1', fromNode.y + drawingEdge.startPosition.y);
+                    drawingEdgeElement.setAttribute('x2', mousePosition.x);
+                    drawingEdgeElement.setAttribute('y2', mousePosition.y);
+                    drawingEdgeElement.setAttribute('class', 'drawing-edge');
+                    container.appendChild(drawingEdgeElement);
+                }
+            }
+        };
+
+        store.subscribe(renderMindMap);
+
+        // ---------------------
+        // EVENT HANDLING
+        // ---------------------
+        const handleKeyDown = (event) => {
+            const state = store.getState();
+            const focusedNode = selectFocusedNode(state);
+
+            if (event.key === 'Enter' && focusedNode) {
+                if (state.isEditing) {
+                    const newText = document.querySelector(`text`).textContent;
+                    store.dispatch(finishEditingNode(newText));
+                } else {
+                    store.dispatch(startEditingNode());
+                }
+            }
+
+            if (event.key === 'Insert' && focusedNode) {
+                const id = `node${Object.keys(store.getState().nodes).length + 1}`;
+                const label = `Node ${Object.keys(store.getState().nodes).length + 1}`;
+                const x = Math.random() * 500;
+                const y = Math.random() * 500;
+                store.dispatch(addNode(id, label, x, y));
+                store.dispatch(addEdge(focusedNode, id, { x: 50, y: 25 }, { x: 50, y: 25 }));
+            }
+        };
+
+        fromEvent(document, 'keydown').subscribe(handleKeyDown);
+
+        fromEvent(document.getElementById('mindmap-container'), 'click').subscribe(event => {
+            const drawingEdge = selectDrawingEdge(store.getState());
+            if (drawingEdge) {
+                const targetNode = Object.values(selectNodes(store.getState())).find(node =>
+                    event.clientX >= node.x &&
+                    event.clientX <= node.x + 100 &&
+                    event.clientY >= node.y &&
+                    event.clientY <= node.y + 50
+                );
+
+                if (targetNode) {
+                    store.dispatch(finishDrawingEdge(targetNode.id, { x: event.clientX - targetNode.x, y: event.clientY - targetNode.y }));
+                    store.dispatch(addEdge(drawingEdge.fromNodeId, targetNode.id, drawingEdge.startPosition, { x: event.clientX - targetNode.x, y: event.clientY - targetNode.y }));
+                }
+            }
+        });
+
+        fromEvent(document, 'mousemove').subscribe(event => {
+            const drawingEdge = selectDrawingEdge(store.getState());
+            if (drawingEdge) {
+                drawingEdge.mousePosition = { x: event.clientX, y: event.clientY };
+                renderMindMap();
+            }
+        });
+
+        // ---------------------
+        // INITIAL SETUP
+        // ---------------------
+        document.getElementById('add-node-btn').addEventListener('click', () => {
+            const id = `node${Object.keys(store.getState().nodes).length + 1}`;
+            const label = `Node ${Object.keys(store.getState().nodes).length + 1}`;
+            const x = Math.random() * 500;
+            const y = Math.random() * 500;
+            store.dispatch(addNode(id, label, x, y));
+        });
+
+        // Initial render
+        renderMindMap();
+    </script>
+</body>
+</html>
+

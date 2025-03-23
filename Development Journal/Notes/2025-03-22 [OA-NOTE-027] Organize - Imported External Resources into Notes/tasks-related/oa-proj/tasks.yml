@@ -1,0 +1,11 @@
+tasks:
+  - name: Task 1
+    description: This is the first task.
+    status: To Do
+  - name: Task 2
+    description: This is the second task.
+    status: In Progress
+  - name: Task 3
+    description: This is the third task.
+    status: Done
+

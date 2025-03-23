@@ -1,0 +1,32 @@
+digraph {
+	rankdir = LR;
+	charset="utf-8";
+
+	"Rproject:Task_1" -> "Rproject:Task" [ label="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" ];
+	"Rproject:Task_1" -> "LThis is the first task." [ label="project:description" ];
+	"Rproject:Task_1" -> "LTo Do" [ label="project:status" ];
+	"Rproject:Task_2" -> "Rproject:Task" [ label="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" ];
+	"Rproject:Task_2" -> "LThis is the second task." [ label="project:description" ];
+	"Rproject:Task_2" -> "LIn Progress" [ label="project:status" ];
+	"Rproject:Task_3" -> "Rproject:Task" [ label="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" ];
+	"Rproject:Task_3" -> "LThis is the third task." [ label="project:description" ];
+	"Rproject:Task_3" -> "LDone" [ label="project:status" ];
+
+	// Resources
+	"Rproject:Task_1" [ label="project:Task_1", shape = ellipse, color = blue ];
+	"Rproject:Task" [ label="project:Task", shape = ellipse, color = blue ];
+	"Rproject:Task_2" [ label="project:Task_2", shape = ellipse, color = blue ];
+	"Rproject:Task_3" [ label="project:Task_3", shape = ellipse, color = blue ];
+
+	// Anonymous nodes
+
+	// Literals
+	"LThis is the first task." [ label="This is the first task.", shape = record ];
+	"LTo Do" [ label="To Do", shape = record ];
+	"LThis is the second task." [ label="This is the second task.", shape = record ];
+	"LIn Progress" [ label="In Progress", shape = record ];
+	"LThis is the third task." [ label="This is the third task.", shape = record ];
+	"LDone" [ label="Done", shape = record ];
+
+	label="\n\nModel:\n(Unknown)\n\nNamespaces:\nproject: urn:oa:project#\n";
+}

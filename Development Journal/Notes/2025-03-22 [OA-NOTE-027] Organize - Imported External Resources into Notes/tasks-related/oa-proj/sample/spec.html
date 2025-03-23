@@ -1,0 +1,75 @@
+<!-- Documentation Layer: ReSpec Example -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Ontology :: Orchestration Architect</title>
+  <script src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+  <script>
+    var respecConfig = {
+      specStatus: "unofficial",
+      shortName: "OA",
+      editors: {
+        name: "Andrew Briscoe",
+        company: "Orchestration Architect"
+      },
+      github: "SuperPanda/orchestration-architect",
+      inlineCSS: "true",
+      maxTocLevel: 3,
+      noRecTrack: true,
+      group: ['none'],
+      isPreview: true,
+      logos: [],
+
+    };
+  </script>
+</head>
+<body>
+
+<section id="abstract">
+  <h2>Abstract</h2>
+  <p> Abstract</p>
+</section>
+
+<section>
+  <h2>Introduction</h2>
+  <p>This document defines the core schema for the Orchestration Architect (OA), focusing on the concepts of Object, Category, and Morphism, and their application in a mind map structure.</p>
+</section>
+
+<section>
+  <h2>Core</h2>
+  <dl>
+    <dt><code>oa:Object</code></dt>
+    <dd>An abstract entity foundational to the OA schema.</dd>
+
+    <dt><code>oa:Category</code></dt>
+    <dd>A structure consisting of objects and morphisms between them.</dd>
+
+    <dt><code>oa:Morphism</code></dt>
+    <dd>A directional relationship between objects in a category.</dd>
+  </dl>
+</section>
+
+<section>
+  <h2>Example Graph Structure</h2>
+  <pre><code>@prefix oa: &lt;urn:oa:ns#&gt; .
+
+oa:ExampleCategory a oa:Category ;
+    rdfs:label "Example Category" ;
+    oa:hasObject oa:Node1, oa:Node2 ;
+    oa:hasMorphism oa:Edge1 .
+
+oa:Node1 a oa:Object ;
+    rdfs:label "Node 1" .
+
+oa:Node2 a oa:Object ;
+    rdfs:label "Node 2" .
+
+oa:Edge1 a oa:Morphism ;
+    rdfs:label "Link from Node 1 to Node 2" ;
+    oa:source oa:Node1 ;
+    oa:target oa:Node2 .
+</code></pre>
+</section>
+</body>
+</html>
+

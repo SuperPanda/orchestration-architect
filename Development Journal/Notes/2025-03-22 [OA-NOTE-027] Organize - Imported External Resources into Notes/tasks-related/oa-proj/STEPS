@@ -1,0 +1,2 @@
+echo '{{ template_variable }}' >> test.j2
+echo 'template_variable: a_var_name' | j2 -fyaml  test.j2 -
