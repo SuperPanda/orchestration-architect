@@ -1,0 +1,15 @@
+[package]
+name = "oa"
+version = "0.8.0"
+edition = "2024"
+
+[[bin]]
+name = "oa"
+path = "src/main.rs"
+
+[build]
+target-dir = "../target"
+
+[dependencies]
+clap = { version = "4.5.31", features = ["derive"] }
+lazy_static = "1.5.0"
