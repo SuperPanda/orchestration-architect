@@ -1,0 +1,60 @@
+
+classes {
+  value: {
+    shape: none 
+  }
+}
+
+
+vars: {
+    resource_name: Literate Specifications
+    resource_id: "oa:lit-spec"
+    resource_path: OA_LIT_SPEC_PATH
+    competency_name: Literate Spec Competency Model
+}
+
+
+view: {
+  grid-columns: 1
+  label: ${resource_name}
+
+  Resource: {
+    label: Literate Specification Resource Model
+    
+
+  }
+
+  
+  Competency: {
+    grid-columns:1
+    label: ${competency_name}
+
+    # Literate Resource 
+    core.label: "Core Capability"
+    core.environment: "Environment Capability"
+    core.literate.label: "Literate Capability"
+    vim.label: "VIM Capability"
+
+    core.environment.*.setting.class: value
+    core.environment.capability0: { label: "Resolution Capability"; setting: "config.oa.resource.paths" }
+
+   core.environment.capability1: { label: "Referential Capability"; setting: "config.oa.resource.names" }
+ 
+ core.environment.capability2: { label: "Integrity Preservation Capability"; setting: "config.oa.resource.uri" };
+
+    # "config.oa.resource.location" "Resolution Capability"}; resource.name: "Referential Capability"; resource_identifer: "Integrity Capability"; }
+    core.literate -> vim.execute_line: "self-executable capability"
+    vim: {
+      # execute_line can run all vim.*_session capabilities
+      execute_line -> *_session: triggers
+      save_session; load_session; 
+      save_session -> restore_session <- load_session: generates;
+    }
+    vim.execute_line -> core.environment: "idiopotent capability"
+    core.environment <- core.literate: "bootstrap capability"
+    core.literate: { a1: vim; a2: sh; b1: d2; b2: md; a* -> *: a modifier; a* -- b*: an executor; }
+    vim.execute_line 
+    core.environment -> vim: context capability
+}
+}
+
