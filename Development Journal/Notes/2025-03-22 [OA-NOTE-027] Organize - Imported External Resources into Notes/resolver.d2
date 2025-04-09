@@ -1,0 +1,40 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+    theme-id: 300
+  }
+}
+
+resolver: {
+  namespace: {
+    object: {
+       namespace; path
+    }
+  }
+  namespace ->  filesystem: "F: NS -> FS"
+  filesystem ->  namespace: "G: FS' -> NS'"
+
+    filesystem: {
+      object: {
+        entry: {
+          file_name;file_type
+        }
+        resource: {
+          name;
+          type;
+        };        
+        entry {style.multiple:true}
+        resource {style.multiple:true}
+     entry.file_type->resource.type: {style:{stroke-dash:3}}
+     entry -> resource: map
+     entry.file_name->resource.name: {style:{stroke-dash:3}}
+      } 
+
+  }
+  namespace.resource: {
+    name; path; items     
+  }
+  namespace.resource.items -> filesystem.object.resource: {style:{stroke-dash:3}};
+  namespace.object -> filesystem.object: {style:{stroke-dash:3}};
+
+}
