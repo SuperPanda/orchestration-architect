@@ -4,11 +4,9 @@ version = "0.8.0"
 edition = "2024"
 
 [[bin]]
-name = "oa"
+name = "oa-journal"
 path = "src/main.rs"
 
-[build]
-target-dir = "../target"
 
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
