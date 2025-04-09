@@ -1,8 +1,0 @@
-PREFIX project: <urn:oa:project#>
-
-SELECT ?task ?description ?status WHERE {
-  ?task a project:Task ;
-        project:description ?description ;
-        project:status ?status .
-}
-

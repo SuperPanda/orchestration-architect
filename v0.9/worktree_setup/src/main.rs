@@ -57,8 +57,8 @@ fn main() {
                             let branch = branch;
                             let branch_type = format!("{:?}",branch_type);
                             let name = branch.name();
-                            let name = format!("{:?}",name);
-                            println!("[{}] {}",branch_type,name);
+                            let name = format!("{0}",name);
+                            println!("[{0}] {1}",branch_type,name);
                         },
                         Err(e) => {
                             eprintln!("error: {}",e);
