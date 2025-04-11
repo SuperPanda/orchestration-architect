@@ -1,5 +1,10 @@
 # Specification: VIM Capability
 
+---
+**
+
+---
+
 **Document Scope**
 
 This document provides an executable literate specification for resources that provide:
@@ -31,15 +36,9 @@ The `vim session capability` allows `vim` to `restore session`.
 
 The `vim session capability` was elicited when an issue in the `nvim` needed to be restarted and `realised` the `potiential` using a `vim session` as a resource.
 
-### Specification
+## Specification
 
 The resource, named `oa:lit-spec#vim`, can be located at `$HOME/.config/orchestration-architect/conf.d/oa.resource.yml`.
-
-#### 
-
-**TODO** NEED TO ADD THE CREATION OF THIS FILE IF IT DOESN'T EXIST NEEDS TO BE MOVED TO `urn:oa-spec:lit
-
-**TODO** Need to put the ideals in, such that i can replace it with my current implementation.
 
 ```yml,«oa resource config»
 Resource:

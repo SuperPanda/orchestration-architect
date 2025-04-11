@@ -7,52 +7,6 @@
 
 ## Active Tasks 
 
-### **Task 004**: Check progress and take inventory
-
-**Created**: 2025-04-09
-
-**Description**
-
-> Prepare the project so that work can be continued later.
-
-**Pause Thoughts**
-
-> there is a **backlog of potential literate capability**
-
-> need to be able to bootstrap a **literate capability** from a specification 
-
-> need for `literate specs` to be **capable of self-actualisation**
-
->  this is to allows extensions to the specifications to autogenerate the capabilities 
-
-> **leverage emergent literate capability**: *actualise* a literate capability
-
->   this is done by achieve an emergent capability from the composition of literate resources
-
-
-**A Good place to resume**
-
- *Literate Spec:Core* `LIT-SPEC#Core`.
-
-Project Summary
-    
-> Sub Task **Execute a Literate Specification: Set Environment Variables**:
-
->   This will allow for environment variables to be executable from the literate specifications  
-
->   This will enable `«oa project docs from env vars»/Kanban/LIT-SPEC Self-Bootstrap Literate Specifications.md`
-
-**DEV JOURNAL ACTIONS**
-
-> Sub Task **Create `LIT-SPEC Development Journal` Literate Commands** 
-
-> Sub Task **Add `Structure Preserving Composition Operation Primitives ` Literate Specification
-
-- [LIT-SPEC Kanban](<<NEED ENV VARS>>/Kanban/LIT-SPEC Self-Bootstrap Literate Specifications.md)
-
-- [CONFIG-SPEC Kanban]("./CONFIG-SPEC Configurations Literate Spec.md")
-
-
 
 ### **Task 003**: Focus Literate Spec Development 
 
@@ -235,3 +189,50 @@ Some interesting experiments should allow things like:
 
 
 ## Completed Tasks
+
+### **Task 004**: Check progress and take inventory
+
+**Created**: 2025-04-09
+
+**Description**
+
+> Prepare the project so that work can be continued later.
+
+**Pause Thoughts**
+
+> there is a **backlog of potential literate capability**
+
+> need to be able to bootstrap a **literate capability** from a specification 
+
+> need for `literate specs` to be **capable of self-actualisation**
+
+>  this is to allows extensions to the specifications to autogenerate the capabilities 
+
+> **leverage emergent literate capability**: *actualise* a literate capability
+
+>   this is done by achieve an emergent capability from the composition of literate resources
+
+
+**A Good place to resume**
+
+ *Literate Spec:Core* `LIT-SPEC#Core`.
+
+Project Summary
+    
+> Sub Task **Execute a Literate Specification: Set Environment Variables**:
+
+>   This will allow for environment variables to be executable from the literate specifications  
+
+>   This will enable `«oa project docs from env vars»/Kanban/LIT-SPEC Self-Bootstrap Literate Specifications.md`
+
+**DEV JOURNAL ACTIONS**
+
+> Sub Task **Create `LIT-SPEC Development Journal` Literate Commands** 
+
+> Sub Task **Add `Structure Preserving Composition Operation Primitives ` Literate Specification
+
+- [LIT-SPEC Kanban](<<NEED ENV VARS>>/Kanban/LIT-SPEC Self-Bootstrap Literate Specifications.md)
+
+- [CONFIG-SPEC Kanban]("./CONFIG-SPEC Configurations Literate Spec.md")
+
+

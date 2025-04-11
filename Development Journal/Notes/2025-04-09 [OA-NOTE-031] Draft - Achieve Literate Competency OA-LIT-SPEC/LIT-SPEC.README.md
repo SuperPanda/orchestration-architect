@@ -1,5 +1,0 @@
-# Literate Specification: README
-
-
-```bash,
-# 

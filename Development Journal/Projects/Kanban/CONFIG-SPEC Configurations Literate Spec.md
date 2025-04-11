@@ -24,12 +24,7 @@ To achieve the emergent capability of bootstrapping of literate specifications, 
 - OA-NOTE-30 
 - OA-NOTE-16 
 
-
-
 RIGHT NOW CREATE A NOTE TO COPY OA-NOTE-31 
-
-
-
 
 
 ## Inactive Tasks 
@@ -68,4 +63,4 @@ Prepare to create a `Configurations Literate Specification` updating `OA-NOTE-30
 
 > **TODO** ADD DELIVERABLES FOR `CONFIG-SPEC.001`
 
-## Completed Tasks
+## Completed (or Discontinued) Tasks

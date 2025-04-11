@@ -6,7 +6,7 @@
 
 - [Self-Bootstrapping Literate Specifications]("Kanban/LIT-SPEC Self-Bootstrapping Literate Specifications.md")
 
-- [Configuration Literate Specification]("Kanban/CONFIG-SPEC Configurations Literate Specification.md")
+- [Configuration Literate Specification]("Kanban/CONFIG-SPEC Configurations Literate Spec.md")
 
 ## Inactive Projects 
 
@@ -14,36 +14,32 @@
 
 - [Misc Improvements]("Kanban/MISC Miscallenous Improvements.md")
 
-- [Terminal AI Rebuild](Kanban/TAI-REBUILD nvim-orchestration-architect )
+- [Terminal AI Rebuild]()
 
-- [`nvim-orchestration-architect`]()
+- [nvim-orchestration-architect rebuild]()
 
 - [Migrate to version 0.9]("Kanban/REBUILD V0.9 Migration.md")
 
 
 - [D2 Diagram Rendering for Web and Mobile]("Kanban/D2-APP D2 Diagram Rendering for Web and Mobile.md")
 
-- [Knowledge Management Experiments]("Kanban/UI-DEMO Prototype Knowledge Managment ESCO Experiment.md")
+- [UI-DEMO Knowledge Management Experiments]("Kanban/UI-DEMO Prototype Knowledge Managment ESCO Experiment.md")
 
-- [Component Subsystem Collections v0.9]()
+- Version 0.9 Migration 
 
-- [Infrastructure Component Collections v0.9]()
+    - [Component Subsystem Collections v0.9]()
 
+    - [Infrastructure Component Collections v0.9]()
 
-
-- [Git Repo Manager with Gitolite and Gitslave]()
-
+- [REPO_MGMT Git Repo Manager with Gitolite and Gitslave]()
 
 - [Sandbox: Resource Resolution Experiment]()
 
-- [Semantic Retrieval and Enrichment?] 
+- Semantic Retrieval and Enrichment
 
-- [TF-IDF Experimental Tools]()
+    - [TF-IDF Experimental Tools]()
 
 - [Ephemeral Filesystems and NSpawn Runners]()
 
-## Completed Projects 
-
-
-
+## Completed/Discontinued Projects 
 
