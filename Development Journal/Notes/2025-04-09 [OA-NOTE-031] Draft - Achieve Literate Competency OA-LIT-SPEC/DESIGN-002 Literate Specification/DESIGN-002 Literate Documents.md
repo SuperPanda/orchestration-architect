@@ -1,6 +1,6 @@
 # `DESIGN-000` Literate Documents
 
-**Unique Identifier**: DESIGN.000
+**Unique Identifier**: DESIGN-000
 
 **Created**: 2025-04-12
 
@@ -20,7 +20,11 @@ The supplied command should `tail` a document from the last heading (enriched us
 
 ### Problem Statement
 
-The challenge of keeping documentation update to date with changing specifications due to the architectural decision to embrace chaos and to facilitate a repeatable transisent structure, and the need to reduce dependence on third-party dependencies has lead to difficulties keep track of the monitoring of different components and systems. Furthermore, the development team size of myself, and intricate concepts, have lead to challenges with cognitive overload.
+The challenge of keeping documentation update to date with changing specifications due to the architectural decision to embrace chaos and to facilitate a repeatable transisent structure.
+
+The need to reduce dependence on third-party dependencies has lead to difficulties keep track of the monitoring of different components and systems. Furthermore, the development team size of myself, and intricate concepts, have lead to challenges with cognitive overload. Though work has been made on designing the project managmeent system naturally cohere, with the natural transclusion (tasks split by project, naturally hide the tasks not being worked on), and the preorders that arise from the manner in which things are worked on, keeping a temporal structure allowing for cognitive mapping to what it important, and the ability to capture potential resources, should the need come. However, the benefits of this is under utilised due to the complex domain logic, which represents naturality, and it is best explained as a document. However, the notes system has shown that more documents is not the answer, it is quality that counts.
+
+### Goals and Objectives
 
 Since the system has been designed to be able to assemble itself from specifications, it just makes sense to embrace Knuth's Literate Writing concepts. As work has already been done in making a set of primitives that is able to compose operations, and match regions it will allow for these category theoretic concepts to demonstrate its generality.
 
@@ -49,17 +53,32 @@ Further experimental work, where the developer was exploring how to use componen
 
 Furthermore, having literate documentation provides LLM more context when looking at an implementation, in fact, the goal is to be able to use literate writing, to describe AI functions and tools, such that a literate document can be used to iterate amongst different agents, that have different goals, such that the AI agents can achieve retrospective self-reflection, and apply the concepts from Minksky (2008).
 
-The idea that changes in the process need to occur at the layer at which the problem pertains, so that swapping out a higher level subsystems implementation should be made much easier with a document the is able to rebuild by creating a variant of the literate document. 
+The idea is that changes in the thought processes need to occur at the layer at which the problem pertains, such that the underlying structures naturally transform.
+
+The swapping out of a higher level order structure should be made much easier with each component semantically linked via a web of documents, and the compositionality required for literate writing should facilitate migrations as it provides a literal literate blueprint that needs to be updated. 
 
 Furthermore, the use of literate documents achieves the goal of turning certain aspects of the system to become more instinctual and provides a form of resource development. As more resources are needed, the process of generating the necessary resources to complete a task, will become a core competency, with the compositional nature lending itself to achieve a dynamic capability. 
+
+### Challenges 
+
+The challenges with literate writing is a skill issue. Fortunately, the nature of doing literate writing, with self-assembly, ensures that a step backwards, is that all changes must occur through the writing. Thus, it provides a clear way to analyse what is going wrong through the use of diffs that show in natural language the problem.
+
+This may make development take longer, this may reduce agility in the short term, but agility has been the problem of late. Furthermore, this will provide a wide range of data for fine tuning LLMs, though ideally LLMs will be required, by should be able to assist by requiring careful consideration. 
+
+A recent challenge has been context switching between different architectural perspectives. However, this `DESIGN-002 Literate Documents` has covered a lot of the high level challenges, and will this allow for coherence between documents, as it provides a framework which provides natural language explanation of the thought process that led to the current state of development. 
 
 ### Possible Solutions 
 
 ✘ **Use a database**: That goes against the principles of having minimal dependencies, and a specification based, human readable and transparent system, that is able to regenerate itself.
 
+The system has requirements of being able to generate systems in air-gapped environments, and needs to reduce the risk of supply chain attacks. Furthermore, databases are not composable, and are not the direction to find the emergent effects. The system can use databases, but not as its core, it must be able to generate the environment and the database; but using a database (at this point), would detract from the goal of discovering the ideal and universal solution. Furthermore, can you imagine Knuth using a database to build TeX, the modern developer would try, however the structures that seem most promising, and a path to strategic capabilities (such that they are not emulatable by humans or AI, is slowly working through and implementing the components needed as they arise. 
+
+
 ✘ **Use AI**: AI cannot at this stage, be useful until the architectural framework clearly defines the boundary of the context. Furthermore, this will generate more problems than it will solve.
 
-✘ **Do something else**: Possible, but there is a broader vision. This is under consideration.
+The ideas being explored are deep ideas, that AI struggles with, such that it is more of a burden to provide it with context than it is worth. Furthermore, the work is based on readings and research, that to provide to the AI would be a waste of time, if I could just implement it literately, thereby killing two birds with one hatchet.
+
+✘ **Give up on the project**: I wish this was the correct answer, but there is much to discover, this journey continues...
 
 ✔ **Use Literate Writing**: This works, because as ideas from people much smarter than us are explored, the literate writing works 3-fold: it forms the study notes, which are put into practice, which describes the implementation, which is the implementation. The goal is the achieve the last step, such that the literate documents have a structure, that it can use the web of ideas, to bootstrap itself. These will include macro resolution, ensuring designs are composable, and even embedding tooling in the document itself, such as vim plugins, the ability to generate bash tools, and link different systems in a natural way.
 
@@ -67,134 +86,200 @@ Furthermore, the use of literate documents achieves the goal of turning certain 
 
 The most important part of the system to ensure consistency and coherence is the ability to be able to access PATHS of the different documents and components easily. There is a lot of work to migrate the past iterations, but by ensuring that each component will be turned into a literate document, and properly defined, the self-assembly will prove essential in future migrations.
 
-- The system will use `XDG Standards` by default, and if not available, will use the default locations for placement of user space configurations.
 
-These facilitates the goal of achieving of an internal semantic web, because more realisable, as everything, can be embedded proximal to its specification.
+### Systen Design 
 
+### Implementation Strategy
 
------------------------------------
+The project `urn:oa:project#LIT-SPEC` will combine the `urn:oa:project#CONFIG-SPEC` project. Such that following objectives will be prioritised:
 
-Furthermore, it allows for the ....
-DIAGRAM SHOWING THE LITERATE TOOLS GENERATING MULTIPLICATIVE CAPABILITY.
-SUPPORTS THE REGENERATIVE CAPABILITIES. 
+- **Configuration Management**: Setting up the environment variables from a bootstrapped specification.
 
-------------------------------------
+- **Document Structure**: The `Specification` needs to be minimal but extensible. The literate document capabilities, are a mainly an effort of diving through the projects history and backups.
 
+- **Environment Setup**: The configuration management should be able to bootstrap the environment, and other environments, will need to be put on the backlog. Though after bootstrapping the configuration specification, the most useful capabilities, will be to integrate the shell and nvim to the project via the specifications.
 
-This will also bridge the final morphism in the Repository Evolution Model (the `dev` branch will be able to generate the next `seed`. 
+These will be used to create the minimal `SPEC-000 Literate Specification` that can bootstrap `SPEC-001 Configuration Specification` which will generate the configurations needed to setup the environment variables. As there exists a solution that works with `bash` and `fish`, other shells will be added as needed. This will be done at the adjunction of the sheafs.
 
+The system will use `XDG Standards` by default, and if not available, will use the default locations for placement of user space configurations. However, these will be described by the Literate `SPEC-001 Configuration Specification`.
 
+    ## Visual Representation
 
---------------------------------
+    - Include or reference diagrams that illustrate the interplay of tools, document regeneration, and adaptive capabilities.
+      
+    ## Design Components
 
-PUT GIT COMMUTATIVE DIAGRAM HERE. NEVER MIND PUT IT IN REPO SPECIFICATION. NEED TO DESCRIBE DOCUMENTS FIRST.
+    - **Tools and Libraries**: Specify any crucial tools or libraries, including vim plugins and bash tools.
+    - **Integration with Existing Systems**: Explain how the new design will integrate with existing systems seamlessly.
+    - **Variability Management**: Discuss how variants will be managed and interchanged within the framework.
 
-DOCUMENTS < THIS
+    ## Documentation and Compositionality
 
----------------------------------
+    Discuss methods for keeping documentation aligned with the implementation and how compositionality facilitates manageable and adaptive variance within systems.
 
+    ## Future Work
 
-----------
-CONFIGURATION
-- The first system to build is the configurations needed. 
+    - **To Do**: Outline tasks necessary for extending this framework, including adding synchronization features and enhancing readability in terminal environments.
+    - **Next Steps**: Identify critical next steps, such as mapping specification changes to DSLs and refining templates for widespread adoption.
 
-CONFIGURATION < DOCUMENTS 
------------
+    ## Appendix
 
-----------------
+    - **References**: Include any significant references, resources, or tools used.
 
-DOCUMENTATION 
-ARCHITECTURE
+    Minsky (2008) The Emotion Machine  ...
+    Minsky ()  The Society of Mind  ...
+    Knuth (Mathematical Writing) ...
+    Seven Sketches in Compositionality 
+    A rosetta stone: Topology, Computation, ....
+    SWEBOK...
+    PMBOK...
+    
+    - **Glossary**: Define any terms or jargon critical to understanding the document.
 
-THE INTERPLAY AND INTERACTION. 
+    
 
----------------
+    ------
+    THE GIT COMMUTATIVE MODEL, SHOW THE LAST LINK TO BE IMPLEMENTED.
+    ------
 
-
----------------------
-DESIGNING VIM PLUGINS 
-
-DOCUMENTS <= VIM
-VIM <= DOCUMENTS 
----------------------
-
-
----------------------
-GRAMMARS AND PARSERS
-
-DIAGRAMS < GRAMMAR 
-
----------------------
-
---------------------
-USE DESIGN AS A BASE FOR specifications
-
-TEMPLATE 
--------------------
+    ------
+    SHOW THE INTERPLAY BETWEEN THE 
+    -----
 
 
---------------------
-Using Literate Writing to implement the REQUIREMENTS model from SWEBOK
 
-TEMPLATE, PROJECT 
+    ## Future Work 
 
------------------------
-
------------------------
-USE the PMBOK, to identify the useful components 
-
-DEFINITIONS,IDEAS 
-
-------------------------
+    **META_DOCUMENT**: Provides the grammars, the types of documents 
+    **META_TEMPLATE**: Prpvodes the skeletons, fragments management, and templates 
+    **META_TEST**: Generate tests based on the Specifications, Requirements and Designs 
+    **SEMANTIC SUBSYSTEM**: Generate a semantic layer on the entire codebase and system
+        This will be useful for generating LSPs, Augmented Retrieval Tools, and AI 
+        toolchain.
+    **TUI/WEB/API/...**: Functor Interfaces
+    ...
 
 
-------------------------
-USE the society of mind as a resource, the implemented page, can be provided as an abstract reference.
 
-------------------------
-
-------------------------
-DIAGRAMMING WITH D2/TIKZ-PGF/etc. DECLARATIELY AND COMPOSITIONALLY 
-
------------------------
-
-----------------------
-DOCUMENTING THE ADJUNCTIVE SEED-GROWTH-SEED Cycle BUILD PROCES, 
-ACROSS THE DIFFERENT SYSTEMS THAT IMPLEMENT IT 
-
----------------------
-
---------------
-ACHIEVE BOTH HETERARCHIAL AND Hierarchical (minskys abandoned the frame concept due to the lack of heterarchical and hierarchical explanatory capability ) 
+    These facilitates the goal of achieving of an internal semantic web, because more realisable, as everything, can be embedded proximal to its specification.
 
 
--------------
+    -----------------------------------
+
+    Furthermore, it allows for the ....
+    DIAGRAM SHOWING THE LITERATE TOOLS GENERATING MULTIPLICATIVE CAPABILITY.
+    SUPPORTS THE REGENERATIVE CAPABILITIES. 
+
+    ------------------------------------
 
 
--------------
-GENERATE LITERATE REPORTS 
-
--------------
+    This will also bridge the final morphism in the Repository Evolution Model (the `dev` branch will be able to generate the next `seed`. 
 
 
------------------
-META DOCUMENT AND META TEMPLATE, should ALLOW FOR THE AUTOMATIC SYNCRONISATION OF SPEC-ROLE ROLE-TEMPLATE ROLE-PLAYBOOK, such that fragments can naturally be generated that expose the new capabilities of a role (it already does this most via meta orchestrator).
 
-But to have a document that describes the system, will be able to generate the META_TEST SYSTEM.
+    --------------------------------
 
-WE WILL PUT <COMPONENT>.SPEC.YML IN THE XDG_BASE_DIR like in /usr/share/ and the system can have its share in /etc, and the userspace can have their XDG_CONFIG_PATHS.
-------------------
+    PUT GIT COMMUTATIVE DIAGRAM HERE. NEVER MIND PUT IT IN REPO SPECIFICATION. NEED TO DESCRIBE DOCUMENTS FIRST.
 
-- **TODO**: Add how it keeps the documentation and implementation in sync
+    DOCUMENTS < THIS
 
-- **TODO**: Facilitates compositionality allows for variants to be easily interchangable.
+    ---------------------------------
 
-- **TODO**: Next Section - Provide A Visual Representation (DESIGN) of the capabiltiy.
 
-- **TODO**: Add the need for a ruleset for markdown due to parsing issues
+    ----------
+    CONFIGURATION
+    - The first system to build is the configurations needed. 
 
-- **TODO**: Add the design requirement of needing to be easy to read in terminal
+    CONFIGURATION < DOCUMENTS 
+    -----------
 
-- **TODO**: The design should end with providing a `SPECIFICATION` base specification document. Add that the `SPECIFICATION.DOC_TYPE.DESIGN`... It should allow for different regex pattern matching for tags, and other such things, that could be used by ctag. It will also form the basis of the DSL which will define a strict subset of grammar of the DSL d2lang. This will allow for bifunctor mapping between the specifications describing the subject, and provides changes to the subject.
+    ----------------
+
+    DOCUMENTATION 
+    ARCHITECTURE
+
+    THE INTERPLAY AND INTERACTION. 
+
+    ---------------
+
+
+    ---------------------
+    DESIGNING VIM PLUGINS 
+
+    DOCUMENTS <= VIM
+    VIM <= DOCUMENTS 
+    ---------------------
+
+
+    ---------------------
+    GRAMMARS AND PARSERS
+
+    DIAGRAMS < GRAMMAR 
+
+    ---------------------
+
+    --------------------
+    USE DESIGN AS A BASE FOR specifications
+
+    TEMPLATE 
+    -------------------
+
+
+    --------------------
+    Using Literate Writing to implement the REQUIREMENTS model from SWEBOK
+
+    TEMPLATE, PROJECT 
+
+    -----------------------
+
+    -----------------------
+    USE the PMBOK, to identify the useful components 
+
+    DEFINITIONS,IDEAS 
+
+    ------------------------
+
+
+    ------------------------
+    USE the society of mind as a resource, the implemented page, can be provided as an abstract reference.
+
+    ------------------------
+
+    ------------------------
+    DIAGRAMMING WITH D2/TIKZ-PGF/etc. DECLARATIELY AND COMPOSITIONALLY 
+
+    -----------------------
+
+    ----------------------
+    DOCUMENTING THE ADJUNCTIVE SEED-GROWTH-SEED Cycle BUILD PROCES, 
+    ACROSS THE DIFFERENT SYSTEMS THAT IMPLEMENT IT 
+
+    ---------------------
+
+    --------------
+    ACHIEVE BOTH HETERARCHIAL AND Hierarchical (minskys abandoned the frame concept due to the lack of heterarchical and hierarchical explanatory capability ) 
+    -------------
+
+
+
+    -----------------
+    META DOCUMENT AND META TEMPLATE, should ALLOW FOR THE AUTOMATIC SYNCRONISATION OF SPEC-ROLE ROLE-TEMPLATE ROLE-PLAYBOOK, such that fragments can naturally be generated that expose the new capabilities of a role (it already does this most via meta orchestrator).
+
+    But to have a document that describes the system, will be able to generate the META_TEST SYSTEM.
+
+    WE WILL PUT <COMPONENT>.SPEC.YML IN THE XDG_BASE_DIR like in /usr/share/ and the system can have its share in /etc, and the userspace can have their XDG_CONFIG_PATHS.
+    ------------------
+
+    - **TODO**: Diagram of how the object can be used bootstrap is a functor for the initial morphism for the construction of the implementation in d2 (simple) naturally keeps the documentation and implementation in alignment
+
+    - **TODO**: Quickly show how using a ..monodial category diagram... Facilitates compositionality allows for variants to be easily interchangable. MAybe jsut do a poset, and then swap out some sub structure that has a unique terminal and initial meet and join 
+
+    - **TODO**: Provide A Visual Representation (DESIGN) of the capabiltiy. Show the diagram of capbailities. Show how a wire diagram can be used to show a small part of the system, and its composability.
+
+    - **TODO**: Define the need for a markdown specification, based on token and rules. This will be added to the Specification: Literate Specifications, which will include a parser, it will also hold the rules. Add the need for a ruleset for markdown due to parsing issues
+
+    - **TODO**: Detail the components that need to be done 
+
+    - **TODO**: The design should end with providing a `SPECIFICATION` base specification document. Add that the `SPECIFICATION.DOC_TYPE.DESIGN`... It should allow for different regex pattern matching for tags, and other such things, that could be used by ctag to find regions of a document easily. Also later we define a DSL to be a subset of D2LANG, YAML for specification files, and markdown. This will allow for bifunctor mapping between the specifications describing the subject, and provides changes to the subject. We want to keep the specification files small as possible.
 
 

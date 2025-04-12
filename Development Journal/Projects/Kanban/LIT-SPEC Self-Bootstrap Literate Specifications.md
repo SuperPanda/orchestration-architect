@@ -11,8 +11,52 @@
 
 ## Active Tasks 
 
+### **Task LIT-SPEC.006**: Create `DESIGN-000 Literate Document`
 
-### **Task 003**: Focus Literate Spec Development
+**Created**: 2025-04-12
+
+**Related Resources**:
+
+**Description**
+
+Complete the `DESIGN-000 Literate Document` so that it can be used to organsied development.
+
+This will generate a backlog of tasks. However, the goal is to resume [`**Task LIT-SPEC.003**]
+
+```
+[ ] Added Diagrams
+[ ] Review Content 
+[ ] Generated a Template with descriptions
+```
+
+## Inactive Tasks 
+### **Task LIT-SPEC.007**: Reorganise LIT-SPEC Tasks 
+
+**Created**: 2025-04-12
+
+**Description**
+
+- Move 'Tasks Notes' to Notes.
+
+- Find all references to OA-NOTES, and rename them. Also track them.
+
+- Combine project **CONFIG-SPEC** 
+
+- Create a prototype tool to quickly view projects, and tasks.
+  Refer to Daily Notes for example. Use prototype tool to check each Kanban is consistent. At the very least, be able to see the next numeric id easily.
+
+- Consider adding a "DESIGN-001 PROJECT".   
+
+
+**Deliverables**
+
+```
+[ ] Create Task Template 
+```
+
+
+
+### **Task LIT-SPEC.003**: Focus Literate Spec Development 
 
 **Created**: 2025-04-09
 
@@ -106,9 +150,7 @@ Applying the difference engine process to achieve literate capability between th
 
 - [NOTE.16]()
 
-## Inactive Tasks 
-
-### **Task 001**: Generate a Demonstrative Literate Specification
+### **Task LIT-SPEC.001**: Generate a Demonstrative Literate Specification
 
 **Description**
 
@@ -158,7 +200,7 @@ end
 Also note, I need to move the entry for fish config for terminal ai to`.
 
 
-### **Task 002**: Generate Literate Specification for Literate Specifications 
+### **Task LIT-SPEC.002**: Generate Literate Specification for Literate Specifications 
 
 **Description**
 
@@ -180,7 +222,7 @@ The literate specification should define architectural structure be able to scaf
 - [ ] The literate specification that can scaffold new literate specification
 - [ ] The literate specification generates tools that can 
 
-### **Task 003**: Add recursive macro resolution for `urn:oa:spec#oa.literate-specs`
+### **Task LIT-SPEC.005**: Add recursive macro resolution for `urn:oa:spec#oa.literate-specs`
 
 **Description**
 
@@ -205,7 +247,7 @@ Some interesting experiments should allow things like:
 
 ## Completed Tasks
 
-### **Task 004**: Check progress and take inventory
+### **Task LIT-SPEC.004**: Check progress and take inventory
 
 **Created**: 2025-04-09
 
