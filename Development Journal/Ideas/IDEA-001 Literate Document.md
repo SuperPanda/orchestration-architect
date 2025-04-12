@@ -20,9 +20,9 @@ In my prototyping I have found that by writing each segment that can be run in i
 The idea is that by following a common structure such that regexes can apply pattern matching on the relevant structures.
 
 
-**Architectural Design Record**: Ensure the system is bootstrappable such that the system self-assembles (achieve local isle of stability in a sea of chaos).
+**Architectural Decision Record**: Ensure the system is bootstrappable such that the system self-assembles (achieve local isle of stability in a sea of chaos).
 
-**Architectural Design Record**: Ensure that all output and configuration can be intuitive and readable without any tools (resilience against entropy).
+**Architectural Decision Record**: Ensure that all output and configuration can be intuitive and readable without any tools (resilience against entropy).
 
 **Architectural Design Record**: Ensure naturally coherent structures (embrace compositionality to achieve functionality through combinatorial interactions from linearly developed resources)
 
@@ -37,7 +37,6 @@ In order to achieve universal propertie is, each document should support the fol
 **A modificaton to a document can be modified such that the identity is preserved** (composition with identity morphism maintains commutativity).
 
 **A document has an default initialised state** (universal construction): brings it into existence that works such that it is able to compose with other operations within the hom-set.
-
 
 ### Worked Example 
 
