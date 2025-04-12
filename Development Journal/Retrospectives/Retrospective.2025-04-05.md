@@ -187,11 +187,12 @@ Whatever this was is no good.
 Run the following command on the file to see all the action items.
 
 ```bash
-tail -n2 Developmnet_Journal.md  | head -n 1 | sh
+tail -n2 *2025-04-05.md  | head -n 1 | sh
 ```
 
 which will call the following:
 
 ```bash
-grep -P "^>\W{1,8}\_\*\*Actionable\*\*\_" --after=1 $HOME/Documents/Orchestration\ Architect/Retrospectives/2025-04-05.md
+OA_RETROSPECTIVES_PATH="$HOME/repos/orchestration-architect/documentation/Development Journal/Retrospectives"
+grep -P "^>\W{1,8}\_\*\*Actionable\*\*\_" --after=1 "$OA_RETROSPECTIVES_PATH/OA-RETROSPECTIVE-002 2025-04-05.md"
 ```
