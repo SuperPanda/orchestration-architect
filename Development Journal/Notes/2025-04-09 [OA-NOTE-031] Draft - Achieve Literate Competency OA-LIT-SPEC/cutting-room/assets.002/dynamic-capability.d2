@@ -1,70 +1,98 @@
 grid-columns: 1
+vars: {
+  d2-config: {
+    layout-engine: elk
+    theme-id: 300
+}}
 
+#t1 -- t2: specification
 # literate: { a1: vim; a2: sh; b1: d2; b2: md; a* -> b*: generates; b* -> *: instructs; a* -> md: bootstrap}
 region: {
   label: "PLANE REGION"
-
-  plane {
+  plane: {
     d1; s2
   }
-
-}
-
-#t1 -- t2: specification
-
-  t2 { 
+t2: { 
   terminal -- literate spec: invoked
   spec -- spec: resolve macros
-   spec -- script
-
+  spec -- script
   script: potential capability (whats possible)
   terminal -- potential capability (whats possible)
   spec <- potential capability (whats possible)
   spec -> script: realised capability (whats conceivable)
   spec <- script: self-actualise capability (achieved)
 }
+}
+notes: |md
+ 
+     ## title
+     the *head* command from initial object 
+     is at top of file,
 
+     'head' will always be 
+     'less than or equal'
+     to the file. 
 
-t3 
+     the tail operation
+     this allows a dual operation that has less than relationsthat
+     cohere with head.
 
- notes:| md
-     the `head` command from initial object is at top of file, so it is `equal`.
+     So the tail has a preorder,
+     and the head that remains valid up to an operation leavingwith
+     a terminal object.
 
-     `head` will always be `less than or equal` to the file. 
+     This means the head and tail operation 
+     are preserved.
+    
+     In order to maintain this operation, 
+     both head and tail with use the +
+     operation so that the morphism to the boundary position can compose. 
 
-     the `tail` operation, this allows a dual operation that has less than relations that cohere with `head`.
+     Add the *primitive operation* 'concat'.
 
-     So the `tail` has a preorder, and the `head` that remains valid up to an operation leaving with a terminal object.
-
-     this means the `head` and `tail` operation are preserved. in order to maintain this operation, both head and tail with use the `+` operation so that the morphism to the boundary position can compose. 
-
-     Add the *primitive operation* `concat`.
-
-     These operations are abstract enough toe be like 'head or tail' in functional programming, 
-     however, category theory allows you to more naturally define all operations as closed symmetric monoidial category.
+     These operations are abstract enough toe be like 
+     'head or tail' in functional programming, 
+ 
+     however, category theory allows you to more naturally define all operations 
+     as closed symmetric monoidial category.
 
      need to verify
- |
+|
 
-desired capabilities: |md 
+desired capabilities: {
+  grid-columns: 2
+    title: |md 
+      ### Literate Capabilities
+    |
 
-  ### Literate Capabilities
+    test: |md "" |
+    SPEED OF THOUGHT: |md
 
     **Capability: Document Explainations at the speed of thought**
 
     - use fragments of source files (markdown, code, etc) to be easily added as nodes to a diagram
-            
-    - actualise diagrams in markdowns from within vim... render d2 codeblock and add as an image block 
 
+    - actualise diagrams in markdowns from within vim
+      render d2 codeblock and add as an image block 
+
+    |
+
+    LITERATE SPEC: |md 
     **Capability: Literate Specification**
 
     - a system to define a catalogue of coherent literate objects that can be composed
 
-  
-  literate goals: 
+
+    literate goals: 
 
     - allow natural writing workflow to map realisation to actualisation 
 
-  communication capabilities: describe an action and what it does, this gets map to providing an example, and is documented 
-                              such that it can be played with 
-|
+    
+    communication capabilities: describe an action and what it does, 
+    this gets map to providing an example, 
+
+    and is documented 
+    such that it can be played with 
+    |
+  
+  }

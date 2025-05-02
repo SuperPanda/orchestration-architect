@@ -1,14 +1,11 @@
 # `DESIGN-000` Literate Documents
 
-**Unique Identifier**: DESIGN.000
+    **Unique Identifier**: DESIGN.000
+    **Created**: 2025-04-12
+    **Location**: Development Journal/Designs/DESIGN-000 Literate Documents.md
+    **Status**: Draft
 
-**Created**: 2025-04-12
-
-**Location**: Development Journal/Designs/DESIGN-000 Literate Documents.md
-
-**Status**: Draft
-
-**Related Resources**: [**IDEA-001** Literate Document]()
+**Related Resources**
 
 ## Introduction
 

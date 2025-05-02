@@ -5,7 +5,7 @@
     **Created**: 22/03/2025
     **Status**: Draft
     **Tags**: #Journal #Requirements #Tasks #Kanban #Notes 
-    **Related Resources**: OA-PROJECT.LIT-SPEC OA-IDEA.001
+    **Related Resources**: OA:PROJECTS#LIT-SPEC OA:IDEA:000
 
 **Related Resources**:
 
@@ -42,7 +42,7 @@ A `SUMMARY.md` that will be updated via a function that uses a functor inspired 
 
 ### The `Ideas` Journal
 
-The `Ideas` Journal contain a `SUMMARY.md` and the `Ideas` Entry will be separed into parts,
+The `Ideas` Journal contain a `SUMMARY.md`, and the `Ideas` Entry will be separed into parts,
 The `Ideas` should cite possible resources to work on the tasks, by referring to Notes.
 The `Ideas` Journal Entries will be checkmarks/crosses or blanks.
 
@@ -76,8 +76,7 @@ Dev Journal {
 
         ## Active Projects
 
-        - [PROJECT_TAG Kanban](./Kanban/PROJECT_TAG)
-        - ...
+        - [PROJECT_TAG Kanban](./Kanban/PROJECT_TAG)        
     
         ## Inactive Projects 
         
@@ -85,7 +84,7 @@ Dev Journal {
         - [PROJECT_TAG Paused Project Kanban](./Kanban/PROJECT_TAG)
         ...
     
-        ## Completed Projects 
+        ## Concluded Projects 
         
         - [PROJECT_TAG Completed Project Kanban](./Kanban/PROJECT_TAG)
         
