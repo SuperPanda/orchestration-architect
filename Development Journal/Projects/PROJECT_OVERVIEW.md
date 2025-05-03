@@ -6,12 +6,9 @@
 
 - [MISC Chores and Improvements]("Kanban/MISC Miscallenous Improvements.md")
 
-
-**MERGING**
-
 - [LIT_SPEC Self-Actualisation of Literate Specifications]("Kanban/LIT_SPEC Self-Bootstrapping Literate Specifications.md")
 
-    - [Configuration Literate Specification *PENDING MIGRATION*]("Kanban/CONFIG-SPEC Configurations Literate Spec.md")
+- [CONFIG OA Configuration]("Kanban/CONFIG Configuration Specifications.md")
     
 ## Inactive Projects 
 
@@ -20,23 +17,21 @@
 
 - [**nvim-orchestration-architect**: The Orchestration Architect Neovim experience]()
 
-- [OA Tools: Utility scripts and tools](oa://resources/oa-tools/project#SUMMARY)
+- [OA Tools: Utility scripts and tools]()
 
-    - [OA Resource Tools: Functions, Template Generations, Web/Gui/Terminal]() 
+- [OA Resource Tools: Functions, Template Generations, Web/Gui/Terminal](tools.resources.orchestration-architect#OVERVIEW) 
 
-- [OA Sandbox: Experiments, Prototypes and Proof of Concepts](urn:oa:kanban:sandbox)
+- [OA Sandbox: Experiments, Prototypes and Proof of Concepts]()
 
 
     
 - [Observility Resources: monitor behaviour and trace events]()
 
-# **CHANGE TO OA_UXUI**
-
     - [D2 Diagram Rendering for Web and Mobile]("Kanban/D2-APP D2 Diagram Rendering for Web and Mobile.md")
 
     - [UI-DEMO Knowledge Management Experiments]("Kanban/UI-DEMO Prototype Knowledge Managment ESCO Experiment.md") **MOVE TO SANDBOX**
 
-    - [Sandbox: Resource Resolution Experiment]() **MOVE TO SANDBOX**
+    - [OA-RESOLVE Resource Resolution Experiment]() **MOVE TO SANDBOX**
     
     - [OA Semantics Project: Grammar Parsing/Generation, Augmented Retrieval and Resource Enrichment]()
 
