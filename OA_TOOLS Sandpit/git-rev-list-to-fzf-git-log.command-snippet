@@ -1,0 +1,1 @@
+git rev-list --all --remotes | tac | fzf-tmux --preview="git log --oneline --pretty {} | bat --color=always --decorations=always"

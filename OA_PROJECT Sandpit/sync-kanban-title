@@ -1,0 +1,1 @@
+function sync_kanban_title(){ local target_path="${1:-}"; echo SEMANTIC_INTERFACE Semantic Web Sandpit Project Kanban

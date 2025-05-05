@@ -1,9 +1,9 @@
-# Prototyping Knowledge Management using ESCO Kanban
+# Semantic Web Sandpit Project Kanban
 
     **Document Type**: Kanban
     **Creation Date**: 2025-04-03
-    **Project Code**: UI-DEMO    
-    **Resource Identifer**: urn:oa:docs:kanban#UI-DEMO
+    **Project Code**: SEMANTIC_WEB    
+    **Resource Identifer**: urn:oa:sandbox:kanban#SEMANTIC_WEB
 
     
 

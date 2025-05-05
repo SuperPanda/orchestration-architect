@@ -1,0 +1,1 @@
+head -n 1 UI-DEMO\ Prototype\ Knowledge\ Managment\ ESCO\ Experiment.md | sed 's/# \([^$]*\)$/SEMANTIC_INTERFACE \1/g'

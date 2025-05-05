@@ -1,4 +1,4 @@
-# D2 Tool for Web and Mobile Kanban
+# D2 Tool for Web and Mobile Kanban [PROJECT NEEDS RESCOPE]
 
     **Document Type**: Kanban 
     **Creation Date**: 2025-04-04
