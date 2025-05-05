@@ -10,7 +10,10 @@
 
 ### **Positive :)**
 
-- Holy crap splitting different things into Projects, and having a single Kanban for Project; the best idea ever. I think the Project and Tasks where I can control the size of each project, since a project is meant to achieve an overall goal, but there are parts where I can use them, and so I can have big ambitions, but once the task from the project is useful, I can move to the task that was relying on it.
+- Holy crap splitting different things into Projects,
+  and having a single Kanban for Project; the best idea ever.
+  I think the Project and Tasks where I can control the size of each project,
+  since a project is meant to achieve an overall goal, but there are parts where I can use them, and so I can have big ambitions, but once the task from the project is useful, I can move to the task that was relying on it.
 
 - Starting to see some alignment 
 
@@ -149,7 +152,6 @@ I still want to track this.
 
 >   _**Actionable**_
     Add subtree clustering operations in a notebook (Knowledge Management and Retrieval) Project
-
 
 
 ### Action Item Review: Ensure the term 'Literate Programming' is used instead of 'Literate Document' in the Specification
