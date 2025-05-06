@@ -1,0 +1,1 @@
+ls -t1 | grep -n '^[0-9].*$' | sed -e 's/^\([0-9]*\):/\1,/g' | tabulate -s '\,|\ \[|\]\ |\ -\ ' -f fancy_grid
