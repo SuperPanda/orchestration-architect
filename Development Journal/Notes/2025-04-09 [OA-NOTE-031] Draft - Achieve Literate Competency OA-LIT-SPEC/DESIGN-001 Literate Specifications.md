@@ -1,18 +1,12 @@
 # DESIGN-001 Literate Specifications
 
-**Unique Identifier**: DESIGN-001
-
-**Status**: Working Draft
-
-**Created**: 2025-04-12
-
-**Location**: Development Journal/Designs/DESIGN-001 Literate Specifications.md
-
-**Related Resources**: 
-
-> [**IDEA-000** Development Journal]()
-
-> [**IDEA-001** Literate Document]()
+    **Unique Identifier**: DESIGN-001
+    **Status**: Working Draft
+    **Created**: 2025-04-12
+    **Location**: Development Journal/Designs/DESIGN-001 Literate Specifications.md
+    **Related Resources**: 
+    > [**IDEA-000** Development Journal]()
+    > [**IDEA-001** Literate Document]()
 
 ## Introduction
 
@@ -281,6 +275,8 @@ works with `bash` and `fish`, other shells will be added as needed.
 This will be done at the adjunction of the sheafs.
 
 The system will use `XDG Standards` by default, and if not available, will use the default locations for placement of user space configurations. However, these will be described by the Literate `SPEC-002 Configuration Specification`.
+
+##### BELOW IS THE BITS I NEED TO FINISH
 
 ```
 ### Visual Representation
