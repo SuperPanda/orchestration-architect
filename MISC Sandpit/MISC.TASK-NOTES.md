@@ -67,7 +67,7 @@
 
 - [ ] Specify sandboxes 
 
-- [ ] Import tasks from  OA-NOTE-19 ... 
+- [ ] Import tasks from OA-NOTE-19 ... 
 
 - [ ] add notes and tasks
 

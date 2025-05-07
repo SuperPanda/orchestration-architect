@@ -1,0 +1,81 @@
+  grid-columns: 2
+NOTES: {
+  label: "Notes"
+  grid-columns: 1
+  LIT_TOOLS: |md
+
+  # Embedded Literate Tools
+  ## LOAD INSTRUCTIONS
+  ## LOAD DATA
+
+  ```bash «IMPORT DATA»
+  #!/bin/bash
+  # Import Data
+  ```
+
+  ## CONTROLS
+  ```lua «LITERATE COMMANDS»
+  -- Usage
+  ```
+
+
+  |
+
+  TODO: |md
+
+    # Todo
+    
+    **I might need to look at the arrow category**
+    
+    **This is not going as smoothly as I hoped**
+
+    **THEN USE THE RESOURCES BETWEEN MORPHISMS 
+    TO DEFINE THE OBJECTS**
+
+    **AND TAKE A LITERATE APPROACH**
+
+  |
+}
+
+
+WORKING OUT: {
+REPOSITORY: {
+  
+}
+
+DOCUMENTS: {
+
+}
+
+CONFIG: {
+
+}
+
+FILESYSTEM: {
+  label: "FILESYSTEM"
+  
+}
+
+
+  DOCUMENTS: {
+    label: "DOCUMENTS"
+  }
+  DOCUMENTS.PROJECTS SUMMARY: {ACTIVE PROJECTS;INACTIVE PROJECTS;}
+  DOCUMENTS.PROJECTS SUMMARY -- PROJECT
+  # DOCUMENTS.PROJECTS SUMMARY.ACTIVE --> PROJECT
+  SANDBOX.PROJECT SUMMARY -- PROJECT 
+  PROJECT --> SANDBOX.PROJECT WORKSPACE
+  PROJECT --> KANBAN
+
+  DOCUMENTS.PROJECTS SUMMARY -- KANBAN: Link Project Kanban
+  KANBAN: { ACTIVE TASKS; INACTIVE TASKS }
+  KANBAN --> TASK
+  SANDBOX: { PROJECT WORKSPACE }
+  KANBAN --> SANDBOX.PROJECT WORKSPACE
+  PROJECT --> SANDBOX.PROJECT WORKSPACE
+  PROJECT WORKSPACE --> TASK NOTES 
+  TASK --> PROJECT WORKSPACE
+
+  
+
+}

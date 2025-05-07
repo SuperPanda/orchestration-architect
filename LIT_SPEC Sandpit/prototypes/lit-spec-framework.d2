@@ -1,0 +1,70 @@
+grid-rows: 2
+
+literate_document: {
+  # section_tools: {icon: "toolbox"}
+  # section_main: {icon: "book"}
+
+  section_tools -> tools.sum: defines
+  section_tools -> tools.greet: defines
+  section_main -> tools.sum: uses
+  section_main -> tools.greet: uses
+  section_main -> display: prints
+}
+
+codeblocks: {
+  conversation <- greet: initiates
+
+  conversation <- farewell: terminates
+
+  greet: |md
+    ## The `«greet»` codeblock
+
+    ```sh «greet»
+    name=$1
+    echo "Hello, $name!"
+    ```
+    This is a conversation initiator.
+  |
+
+  farewell: |md
+
+    ## The `«farewell»` codeblock
+
+    ```sh «farewell»
+    name=$1
+    echo "Goodbye, $name!"
+    ```
+
+    This is a conversation terminator.
+  |
+
+  conversation: |md
+
+    ## The `«conversation»` codeblock
+
+    ```sh «conversation»
+    echo "Starting conversation"
+    $(«greet» Alice)    
+    echo "Mid conversation"
+    $(«farewell» Bob)
+    ```
+    This is the conversation.
+  |
+}
+
+framework: {
+  grid-rows: 2
+
+  shape: cylinder
+  components: {
+    grid-columns: 1
+    SWEBOK Alignment: {Requirements Modeling; Architectural Design; Verification}
+    Category Theory: {Monomorphisms; Preorders; Universal Properties}
+    Literate Core: {Macro System; POSIX Bootstrapping; D2 Visualization}
+  }
+  implementation: {
+    Toolchain: {Parser, Expander, Validator}
+    Document Types: {SPEC; DESIGN; IDEA}
+  }
+}
+

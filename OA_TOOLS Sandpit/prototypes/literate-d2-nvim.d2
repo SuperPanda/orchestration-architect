@@ -1,0 +1,96 @@
+
+NOTES: |md
+
+  ```lua
+  --start literate command--
+  local M = _G.d2_lens = _G.d2_lens or {
+    tmp = vim.fn.tempname() .. '.d2',
+    lens = function() return vim.api.nvim_buf_get_lines(0, 0, -1, false) end
+  }
+
+  -- Lens metatable for composition
+  setmetatable(M, {
+    __call = function(self)
+      local content = self.lens()
+      local f = io.open(self.tmp, 'w')
+      f:write(table.concat(content, '\n'))
+      f:close()
+      if not self.watcher then
+        self.watcher = vim.fn.jobstart(
+          'd2 --watch --browser=0 '..self.tmp,
+          { detach = true }
+        )
+      end
+    end
+  })
+
+  -- Update lens from visual selection
+  function M.set_visual_lens()
+    vim.cmd('noau normal! "vy')
+    local lines = vim.split(vim.fn.getreg('v'), '\n')
+    M.lens = function() return lines end
+    M()
+  end
+
+  -- Reset to whole buffer lens
+  function M.reset_lens()
+    M.lens = function() return vim.api.nvim_buf_get_lines(0, 0, -1, false) end
+    M()
+  end
+
+  -- Reload this command block
+  function M.reload_literate_command()
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local start, finish
+    for i, line in ipairs(lines) do
+      if line:match('%-%-start literate command%-%-') then start = i + 1 end
+      if line:match('%-%-end literate command%-%-') then finish = i - 1 end
+    end
+    if start and finish then
+      loadstring(table.concat(lines, '\n', start, finish))()
+    end
+  end
+
+  -- Automatic lens update on save
+  vim.api.nvim_create_autocmd('BufWritePost', {
+    pattern = '*.d2',
+    callback = M.reset_lens
+  })
+
+  -- Keymaps
+  vim.keymap.set('n', '<leader>ad', M.reset_lens, {desc = "D2: Render full document"})
+  vim.keymap.set('x', '<leader>as', M.set_visual_lens, {desc = "D2: Set visual lens"})
+  vim.keymap.set('n', '<leader>ar', M.reload_literate_command, {desc = "D2: Reload literate command"})
+  --end literate command--
+  ```
+|
+
+REPOSITORY: {
+  label: "oa-repo"
+
+}
+
+LIT_SPEC: {
+
+}
+
+CONFIG: {
+
+}
+
+FILESYSTEM: {
+  label: "fs"
+  
+}
+
+NAMESPACE: {
+
+  DOCUMENTS: {
+    label: "oa-doc"
+  }
+
+  PROJECTS: { label: "oa-project"
+
+  }
+
+}

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# __Simple JQ Explorer__
+# Category: Tree Coalgebra (Anamorphism)
+# Objects: JSON nodes | Morphisms: Path extensions
+
+TMP_FILTER="${TMPDIR:-/tmp}/jqfilter.$$.txt"
+
+explore_json() {
+  local file="$1"
+  local path="." stack=() current_type
+  trap 'rm -f "$TMP_FILTER"' EXIT
+  
+  while true; do
+    current_type=$(jq -r "try $path | type" "$file")
+    
+    case $current_type in
+      "object")
+        echo "Object keys:"
+        jq -r "try $path | keys[]" "$file"
+        ;;
+      "array")
+        echo "Array indices:"
+        jq -r "try $path | to_entries | .[].key" "$file"
+        ;;
+      *)
+        echo "Primitive value:"
+        jq -C "try $path" "$file"
+        path="${stack[-1]}"
+        unset 'stack[-1]'
+        continue
+        ;;
+    esac
+
+    echo -n "Path: $path > "
+    read -r input
+    
+    case "$input" in
+      b)  # Back comonad (extract from history)
+          path="${stack[-1]}"
+          unset 'stack[-1]'
+          ;;
+      q)  # Quit and save final filter
+          echo "$path" > "$TMP_FILTER"
+          echo "Saved filter to $TMP_FILTER"
+          return
+          ;;
+      *)  # Compose paths monoidally
+          if [[ $current_type == "array" ]]; then
+            new_path="${path}[$input]"
+          else
+            new_path="${path}.$input"
+          fi
+          # Verify path exists
+          if jq -e "try $new_path" "$file" >/dev/null; then
+            stack+=("$path")
+            path="$new_path"
+          else
+            echo "Invalid path!"
+          fi
+          ;;
+    esac
+  done
+}
+
+# Usage: explore_json file.json
+explore_json "$1"

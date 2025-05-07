@@ -1,3 +1,8 @@
 vars/environment.yml
 **/target/**
 
+LIT_SPEC Sandpit/prototypes/DESIGN-001-LIT_SPEC-prototyping/cutting-room/lit-spec.vim.session
+LIT_SPEC Sandpit/prototypes/DESIGN-001-LIT_SPEC-prototyping/cutting-room/assets.002/tags
+LIT_SPEC Sandpit/prototypes/DESIGN-001-LIT_SPEC-prototyping/tags
+MISC Sandpit/tags
+tags
