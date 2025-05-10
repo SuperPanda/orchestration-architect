@@ -133,7 +133,6 @@ function weather -a args; curl "wttr.in/$args" | most; end
 
  1. Add a code block and provide a label for the codeblock:
 
-
 ```sh «weather bash function»
 function weather(){ local args=${1:-":help"}; curl "wttr.in/$args" | less; }
 weather

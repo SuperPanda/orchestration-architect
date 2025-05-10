@@ -1,1 +1,1 @@
-/home/panda/repos/orchestration-architect/documentation/Development Journal/Projects/Kanban/LIT-SPEC Self-Bootstrapping Literate Specifications.md
+/home/panda/repos/orchestration-architect/documentation/Development Journal/Projects/Kanban/LIT_SPEC Literate Specifications Kanban.md

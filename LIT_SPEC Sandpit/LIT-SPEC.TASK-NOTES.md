@@ -1,3 +1,0 @@
-# LIT_SPEC TASK NOTES
-
-
