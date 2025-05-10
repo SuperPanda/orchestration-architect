@@ -1,0 +1,1 @@
+echo "/tmp/last_message" | entr -pc bat /tmp/last_message
