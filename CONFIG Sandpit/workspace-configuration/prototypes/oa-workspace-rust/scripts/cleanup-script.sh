@@ -1,0 +1,1 @@
+./target/debug/worktree_setup --use-version 0.8.0 --target-directory /tmp/test --source-repository /srv/git/orchestration-architect.git | grep -E mirror | grep -oP "(\".*\")" | sed "s/\"//g" >> remotes-to-delete.list

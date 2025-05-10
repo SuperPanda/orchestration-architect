@@ -1,0 +1,23 @@
+workspaces:
+  test:
+    state: present
+    workspace_path: "/tmp/oa-workspace-test"
+    included_worktrees:
+      detached: [demo, tests, develop, documents, initial, sandbox, seed]
+  user:    
+    state: info
+    workspace_path: "$HOME/repos/orchestration-architect"
+    included_worktree: 
+      present: [assets, develop, documents, initial, sandbox, seed, assets, tools]
+
+worktrees:
+  assets: 0.8.0-assets
+  develop: 0.8.0-dev
+  documents: 0.8.0-documents
+  initial: 0.8.0-initial
+  release: 0.8.0-pristine
+  sandbox: 0.8.0-sandbox
+  seed: 0.8.0-seed
+  tests: 0.8.0-tests
+  tools: 0.8.0-tools
+  demo: pre-release_splash

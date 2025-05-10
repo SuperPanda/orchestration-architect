@@ -1,0 +1,86 @@
+grid-columns: 1
+grid-rows: 3
+
+classes: {
+  active: { style.fill: "lime"; style.stroke: "black" }
+  inactive: { style.fill: "red"; style.opacity: 0.3; style.stroke: "red"; style.font-color: "black"}
+  file: { shape: page }
+  # active: { style.fill: "linear-gradient(black,lime,lime,black)"; style.stroke: "lime" }
+  # inactive: { style.fill: "linear-gradient(black,red,red,black)"; style.stroke: "red"; style.opacity: "1"; style.font-color: "black"}
+}
+
+
+introduction: |md 
+
+  # Orchestration Architect Workspace Configuration
+
+  This diagram illustrates how the workspace and worktrees are linked.
+
+|
+config: |md
+
+## Contents of `workspace.config`
+  
+      develop 0.8.0-dev
+      assets  0.8.0-assets
+      documentation  0.8.0-documents
+      initial  0.8.0-initial
+      pristine  0.8.0-pristine
+      sandbox 0.8.0-sandbox
+      seed  0.8.0-seed
+      tests  0.8.0-tests
+      tools  0.8.0-tools
+      splash pre-release_splash
+|
+
+
+#workspace-config: { shape: page; style.opacity: 0 };
+
+
+  workspace-config: {
+#  grid-rows: 1
+#  grid-columns: 2
+  branches.*."0.8.0".class: active
+  branches.*."0.9.0".class: inactive
+  *.grid-columns: 1;
+  branches: {
+
+    dev:{"0.8.0"; "0.9.0"}
+    assets: {"0.8.0"; "0.9.0"}
+    documents: {"0.8.0"; "0.9.0"}
+    initial: {"0.8.0"; "0.9.0"}
+    pristine: {"0.8.0"; "0.9.0"}
+    sandbox: {"0.8.0"; "0.9.0"}
+    seed: {"0.8.0"; "0.9.0"}
+    tests: {"0.8.0"; "0.9.0"}
+    tools: {"0.8.0"; "0.9.0"}
+    pre-release_splash
+  }
+
+
+
+workspace: {
+  "develop"
+  "assets"
+  "documentation"
+  "initial"
+  "pristine"
+  "sandbox"
+  "seed"
+  "tests"
+  "tools"
+}
+
+workspace."develop" -- branches."dev": "0.8.0-dev"
+workspace."assets" -- branches."assets": "0.8.0-assets"
+workspace."documentation" -- branches."documents": "0.8.0-documents"
+workspace."initial" -- branches."initial": "0.8.0-initial"
+workspace."pristine" -- branches."pristine": "0.8.0-pristine"
+workspace."sandbox" -- branches."sandbox": "0.8.0-sandbox"
+workspace."seed" -- branches."seed": "0.8.0-seed"
+workspace."tests" -- branches."tests": "0.8.0-tests"
+workspace."tools" -- branches."tools": "0.8.0-tools"
+workspace."splash" -- branches."pre-release_splash"
+
+
+}
