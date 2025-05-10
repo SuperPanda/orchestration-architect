@@ -1,0 +1,32 @@
+Repository: {
+  grid-columns: 2
+  orchestration-architect: {
+    grid-columns: 1
+
+    topology: {
+      authoriative
+      mirror: github
+      system: local system bare repo
+      user: local user bare repo
+      workspace: user repo worktrees
+      workspace -> user
+      user -> system
+      system -> mirror: push
+      system -> authoriative: push
+      authoriative <-> mirror: sync
+    }
+
+    branches: {
+      initial -> documents
+      initial -> tests
+      initial -> tools
+      initial -> sandbox
+      initial -> seed: heads
+      initial -> pristine: heads
+      pristine -> develop: heads
+      develop -> pristine: rebase
+      seed -> pristine: patch of diff(pristine,bootstrap(seed))
+      develop -> seed: semantic cherry pick
+    }
+  }
+}

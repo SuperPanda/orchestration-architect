@@ -1,0 +1,49 @@
+    Collections: {
+      grid-columns: 1
+      Meta: {
+        grid-columns: 1
+        description: |md
+          Generates and orchestrates the meta specifications component.
+
+          Allows for component interactions to achieve generative effects (think synergy).
+
+          Used to generate other subsystem components.
+        |
+        components: {
+          meta_document
+          meta_test
+          meta_role -> meta_template: creates
+          meta_role -> meta_playbook: creates
+          meta_role -> meta_orchestrator: creates
+          meta_role -> meta_document: creates
+          meta_template -> meta_role: provides
+          meta_template -> meta_playbook: provides
+          meta_role -> meta_orchestrator: creates
+          meta_orchestrator -> meta_role: delegates
+          meta_orchestrator -> meta_playbook: delegates
+          meta_orchestrator -> meta_template: delgates
+          meta_orchestrator -> meta_playbook: delegates
+          meta_playbook -> meta_orchestrator: invokes
+        }
+      }
+      Storage: {
+        storage -> loop_device: delegates
+        storage -> partitions: delegates
+        storage -> luks: delegates
+        storage -> filesystem: delegates
+        storage -> btrfs_subvolumes: delegates
+        storage -> mounts: delegates
+      }
+      Network: {
+        openvswitch: |md
+          # OpenVSwitch
+          Allows network topologies
+          to be applied in a virtualised way
+        |
+      }
+
+      Container: {
+        nspawn
+        qemu
+      }
+    }

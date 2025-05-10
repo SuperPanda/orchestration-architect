@@ -1,0 +1,51 @@
+<p><strong>L3</strong></p>
+<hr />
+<h1 id="oa000-recovery-system">OA000: Recovery System</h1>
+<h2 id="regenerate">Regenerate</h2>
+<p>Generates the system.</p>
+<p>If existing, this process will regenerate broken parts.</p>
+<p>Restores missing components of a system.</p>
+<h2 id="recover">Recover</h2>
+<p>This system allows you to unlock the Encrypted Master System and
+access the data partitions and backups</p>
+<p>Used to access encrypted backups, data and systems.</p>
+<h2 id="restore">Restore</h2>
+<p>This system allows for migrations to new systems and restoring from
+backups.</p>
+<h1 id="oa001-encrypted-portable-master-control-system">OA001: Encrypted
+Portable Master Control System</h1>
+<p>Encrypted persistent portable bootable system.</p>
+<p>Generate systems from configurations.</p>
+<p>Deploys systems over network or onto physical media.</p>
+<p><strong>Encrypted</strong>: Encrypted boot media</p>
+<p><strong>Transisent</strong>: Provide a secure environments to deploy
+ephemeral systems.</p>
+<p><strong>Self-contained</strong>: Design to deploy orchestrate
+architecture deployments</p>
+<p><strong>Offline</strong>: Designed to support deploying in air gapped
+environments</p>
+<p><strong>Secure</strong>: Stores the master keys to allow deployed
+systems to be generated with new keys.</p>
+<p>Each deployment can rotate keys.</p>
+<h1 id="oa002-live-ephemeral-immutable-nested-hypervisor">OA002: Live
+Ephemeral Immutable Nested Hypervisor</h1>
+<p>A system design to create a nested ephemeral PXE booted system that
+runs in memory.</p>
+<p>Hardened system that creates OA001 Service worker account with
+rotated keys.</p>
+<p>Configured PAM, SUDO, SSH to be restricted as possible.</p>
+<p>Auto logins into an ephemeral guest account by default.</p>
+<p>Requires no storage.</p>
+<p>The OA001 embeds the secrets.</p>
+<p>Used to allow systems to reboot without restarting system.</p>
+<h1 id="all-the-else">ALL THE ELSE</h1>
+<figure>
+<img src="./00-EPICS.svg" alt="L0" />
+<figcaption aria-hidden="true">L0</figcaption>
+</figure>
+<p><img src="./01-REPOS.svg" alt="L1" /> <img
+src="./02-subsystem-components.svg" alt="L2" /></p>
+<figure>
+<img src="./04-tools.svg" alt="L4" />
+<figcaption aria-hidden="true">L4</figcaption>
+</figure>
