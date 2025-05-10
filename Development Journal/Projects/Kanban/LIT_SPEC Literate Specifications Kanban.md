@@ -1,33 +1,44 @@
 # Kanban
 
-**Document Type**: Kanban
-
-**Creation Date**: `2025-04-04`
-
-**Project Code**: LIT_SPEC
-
-**Resource Identifer**: `urn:oa:docs:kanban#LIT_SPEC`
+    **Document Type**: Kanban
+    **Creation Date**: 2025-04-04
+    **Project Code**: LIT_SPEC
+    **Resource Identifer**: [urn:oa:docs:kanban#LIT_SPEC]
 
 ## Introduction
 
-**Project Objective**
+ **Project Objective**
 
 Generate a *Literate Specification* framework that 
 facilitates the design of self-assembling specifications.
 
 ## Active Tasks 
 
-### **Task LIT_SPEC.006**: Create `DESIGN-000 Literate Document`
+## Inactive Tasks 
 
-**Created**: 2025-04-12
+    
 
-**Related Resources**:
+---
+
+### Task LIT_SPEC.008: Finish the `RETROSPECTIVES.md` Literate Specification
+
+**Created**: 2025-05-10
+
+**Notes** [Task Notes LIT_SPEC.008](../../../../sandbox/LIT_SPEC Sandpit/LIT_SPEC Task Notes.md#task-lit-spec-008)
 
 **Description**
 
-Complete the `DESIGN-001` Literate Specification` so that it can be used to organsied development.
+The `$OA_RETROSPECTIVES_PATH` contains *drafts* in the [LIT_SPEC Sandbox](../../../../sandbox/LIT_SPEC Sandpit/).
 
-This will generate a backlog of tasks. However, the goal is to resume **[`TASK.LIT_SPEC.003`**](<LIT_SPEC Self-Bootstrapping Literate Specifications#**Task LIT_SPEC.003**: Focus Literate Spec Development>)**
+### Task LIT_SPEC.006: Create `DESIGN-000 Literate Document`
+
+**Created**: 2025-04-12
+
+**Description**
+
+Complete the `DESIGN-001` Literate Specification` so that it can be used to organise development.
+
+This will generate a backlog of tasks. However, the goal is to resume **[`TASK.LIT_SPEC.003`](<LIT_SPEC Self-Bootstrapping Literate Specifications#Task LIT_SPEC.003: Focus Literate Spec Development>)**
 
 ```text
 [ ] Added Diagrams
@@ -35,36 +46,10 @@ This will generate a backlog of tasks. However, the goal is to resume **[`TASK.L
 [ ] Generated a Template with descriptions
 ```
 
-## Inactive Tasks 
-### **Task LIT_SPEC.007**: Reorganise LIT-SPEC Tasks
-
-**Created**: 2025-04-12
-
-**Description**
-
-- Move 'Tasks Notes' to Notes.
-
-- Find all references to OA-NOTES, and rename them. Also track them.
-
-- Combine project **CONFIG-SPEC** 
-
-- Create a prototype tool to quickly view projects, and tasks.
-  Refer to Daily Notes for example. Use prototype tool to check each Kanban is consistent. At the very least, be able to see the next numeric id easily.
-
-- Consider adding a "DESIGN-001 PROJECT". 
-
-- Rename `LIT_SPEC` project code to `LIT_SPEC` so the tasks can be `TASK-LIT_SPEC.XYZ`
-
-
-**Deliverables**
-
-```text
-[ ] Create Task Template 
-```
 
 
 
-### **Task LIT_SPEC.003**: Focus Literate Spec Development 
+### Task LIT_SPEC.003: Focus Literate Spec Development 
 
 **Created**: 2025-04-09
 
@@ -152,7 +137,7 @@ Applying the difference engine process to achieve literate capability between th
 
 - [NOTE.16]()
 
-### **Task LIT_SPEC.001**: Generate a Demonstrative Literate Specification
+### Task LIT_SPEC.001: Generate a Demonstrative Literate Specification
 
 **Description**
 
@@ -200,7 +185,7 @@ end
 Also note, I need to move the entry for fish config for terminal ai to`.
 
 
-### **Task LIT_SPEC.002**: Generate Literate Specification for Literate Specifications 
+### Task LIT_SPEC.002: Generate Literate Specification for Literate Specifications 
 
 **Description**
 
@@ -222,7 +207,7 @@ The literate specification should define architectural structure be able to scaf
 - [ ] The literate specification that can scaffold new literate specification
 - [ ] The literate specification generates tools that can 
 
-### **Task LIT_SPEC.005**: Add recursive macro resolution for `urn:oa:spec#oa.literate-specs`
+### Task LIT_SPEC.005: Add recursive macro resolution for `urn:oa:spec#oa.literate-specs`
 
 **Description**
 
@@ -247,7 +232,7 @@ Some interesting experiments should allow things like:
 
 ## Completed Tasks
 
-### **Task LIT_SPEC.004**: Check progress and take inventory
+### Task LIT_SPEC.004: Check progress and take inventory
 
 **Created**: 2025-04-09
 
@@ -255,43 +240,6 @@ Some interesting experiments should allow things like:
 
 **Description**
 
+[Task Notes LIT_SPEC.004](../../../../sandbox/LIT_SPEC Sandpit/LIT_SPEC Task Notes.md#task-lit-spec-004)
 > Prepare the project so that work can be continued later.
-
-**Pause Thoughts**
-
-> there is a **backlog of potential literate capability**
-
-> need to be able to bootstrap a **literate capability** from a specification 
-
-> need for `literate specs` to be **capable of self-actualisation**
-
->  this is to allows extensions to the specifications to autogenerate the capabilities 
-
-> **leverage emergent literate capability**: *actualise* a literate capability
-
->   this is done by achieve an emergent capability from the composition of literate resources
-
-
-**A Good place to resume**
-
- *Literate Spec:Core* `LIT_SPEC#Core`.
-
-Project Summary
-    
-> Sub Task **Execute a Literate Specification: Set Environment Variables**:
-
->   This will allow for environment variables to be executable from the literate specifications  
-
->   This will enable `«oa project docs from env vars»/Kanban/LIT_SPEC Self-Bootstrap Literate Specifications.md`
-
-**DEV JOURNAL ACTIONS**
-
-> Sub Task **Create `LIT_SPEC Development Journal` Literate Commands** 
-
-> Sub Task **Add `Structure Preserving Composition Operation Primitives` Literate Specification**
-
-- [LIT_SPEC Kanban](LIT-SPEC Self-Bootstrap Literate Specifications.md)
-
-- [CONFIG-SPEC Kanban](CONFIG-SPEC Configurations Literate Spec.md)
-
 
