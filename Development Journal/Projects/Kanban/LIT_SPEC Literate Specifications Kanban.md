@@ -2,37 +2,44 @@
 
     **Document Type**: Kanban
     **Creation Date**: 2025-04-04
-    **Project Code**: LIT_SPEC
-    **Resource Identifer**: [urn:oa:docs:kanban#LIT_SPEC]
 
 ## Introduction
 
- **Project Objective**
+**Project Objective**
 
 Generate a *Literate Specification* framework that 
-facilitates the design of self-assembling specifications.
+facilitates the design of tools and specifications that self-assembles
+its implementation.
 
 ## Active Tasks 
 
 ## Inactive Tasks 
 
-    
-
----
-
-### Task LIT_SPEC.008: Finish the `RETROSPECTIVES.md` Literate Specification
+### Task LIT_SPEC.008: Finish the provisional `RETROSPECTIVES.md` Literate Specification
 
 **Created**: 2025-05-10
 
-**Notes** [Task Notes LIT_SPEC.008](../../../../sandbox/LIT_SPEC Sandpit/LIT_SPEC Task Notes.md#task-lit-spec-008)
+**Status**: BLOCKED
 
 **Description**
 
 The `$OA_RETROSPECTIVES_PATH` contains *drafts* in the [LIT_SPEC Sandbox](../../../../sandbox/LIT_SPEC Sandpit/).
 
-### Task LIT_SPEC.006: Create `DESIGN-000 Literate Document`
+**Related Resources**
+
+[Task Notes LIT_SPEC.008](../../../../sandbox/LIT_SPEC Sandpit/LIT_SPEC Task Notes.md#task-lit-spec-008)
+
+**Comments** 
+
+This task is blocked due to needing to go through to proper process. 
+
+Needs *requirements* and *design* before *lit spec*
+
+### Task LIT_SPEC.006: Create `DESIGN-001 Literate Specification`
 
 **Created**: 2025-04-12
+
+**Status**: BLOCKED (reason: needs REQUIREMENTS doc)
 
 **Description**
 
@@ -47,11 +54,11 @@ This will generate a backlog of tasks. However, the goal is to resume **[`TASK.L
 ```
 
 
-
-
-### Task LIT_SPEC.003: Focus Literate Spec Development 
+### Task LIT_SPEC.003: Fast Track Literate Spec Development 
 
 **Created**: 2025-04-09
+
+**Status** BLOCKED (Need requirements document)
 
 **Description**:
 Focus on immediate capabilities.
@@ -76,6 +83,10 @@ Focus on immediate capabilities.
     # oa:env:config:paths#oa.notes
     setenv OA_NOTES_PATH "$OA_DEV_JOURNAL_PATH/"
 ```
+
+**Related Resources**
+
+[Task ARCHITECTURE.001] Setup Architecture Design and Development Framework
 
 ![Literate Specification Capability and Resource Model](../../Notes/2025-04-09 [OA-NOTE-031] Draft - Achieve Literate Competency OA-LIT_SPEC/lit-spec.svg]
 
@@ -124,7 +135,6 @@ setenv OA_NOTES_PATH "$OA_DEV_JOURNAL_PATH/Notes"
 
 # oa.dev-journal.projects
 setenv OA_PROJ_DOCS_PATH "$OA_DEV_JOURNAL_PATH/Projects"
-
 # oa.dev-journals.ideas 
 setenv OA_IDEAS_PATH: "$OA_DEV_JOURNAL_PATH/Ideas"
 ```
@@ -230,7 +240,22 @@ Some interesting experiments should allow things like:
 - [ ] Create commands to modify documents and keep them in sync 
 
 
-## Completed Tasks
+## Finished Tasks
+
+### Task LIT_SPEC.009: Make an immediate usable template for `RETROSPECTIVES`
+
+**Date Created**: 2025-05-21 
+
+**Date Finished**: 2025-05-21 
+
+**Related Tasks** [Task LIT_SPEC.008](#task-litspec008-finish-the-retrospectivesmd-literate-specification)
+
+**Description** Create a template that [Task LIT_SPEC.008](#task-litspec008-finish-the-retrospectivesmd-literate-specification) 
+can implement. Use the template to do a retrospective.
+
+**Comments**
+
+*Finished Task* I did a retrospective with something resembling a template.
 
 ### Task LIT_SPEC.004: Check progress and take inventory
 

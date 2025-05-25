@@ -1,8 +1,9 @@
 # Kanban: Configuration Subsystem
 
-Configuration Management 
+**Project Objective**
 
-**Configuration Management: Tracking and Management Configurations**
+Generate a *Configuration Framework* for the Creation, Management 
+and Integration amongst the various systems. 
 
     **Document Type**: Kanban
     **Creation Date**: 2025-04-05
@@ -11,92 +12,61 @@ Configuration Management
 
 ## Active Tasks
 
-### Task ARCHITECTURE.001: CREATE A NOTE SPLIT INTO THE DIFFERENT DOMAINS AND ... USE THE COMPLETED TASK-CONFIG.003 TO START REQUIREMENTS -> DESIGN -> SPEC PROCESS 
- 
-**Created**: 2025-05-10
-
-**Related Tasks**: [Task CONFIG.003](#task-config003-tool-to-view-projects-and-kanban)
-
-STARTING FROM **TASK-CONFIG.003** INTEGRATE THE oa-shell-configuration and oa-tools Deliverables
-                     PROTOTYPES, PERHAPS PUT IN REQUIREMENTS. 
-                     
-
-**Description** 
-
-AND WHATS IN THE LATEST NOTES
-
-ENSURE WORKSPACE SETUP IN SANDBOX.
-
-Create a `NOTE-XXX` and create an `ARCHITECTURE` that captures the environment variables,
-and the natural transformations; which the ARCHITECTURE WILL: (1) Put shell configuration tools in tools, (2)
-the functionality added as requirements for project, (3) oa-tools will be where the tools go.. 
-
-```
-    USE THE TOOLS AND DOCUMENT HOW IT WORKS. SO THE OA-PROJECT DISPLAY, the fish functions to navigate, 
-    the oa-monitor tool that is an OA_TOOLS Sandpit/prototype/oa-mintor... 
-
-    ... INTEGRATE THAT INTO THE FFOLLOWING PROCESSES WHILE MODELLING ...
-
-    **ARCHITECTURE -> OA_TOOLS: Adds SHELL TOOLS AND CONFIG FUNCTIONS FOR PROJECT STUFF**
-1 ARCHITECTURE.NOTES <- SANDBOX.CONFIG.REQUIREMENTS_PROCESS: ADD MODELLING OF REQUIREMENTS PROCESS 
-                                                             TO ARCH.NOTES, ADD RESEARCH 
-                                                             FOR REQUIREMENTS. 
-                        
-2 ARCHITECTURE.NOTES <- TASK-CONFIG.003 DELIVERED RESULTS: SHOWS RELATIONSHIP BETWEEN DOCS.NOTES, SANDBOX, TASKS, DOCS,
-                                REQUIREMENTS, DESIGNS, ... 
-                        <- SANDBOX.OA_PROJECT.REQUIREMENTS_PROCESS
-                        **REMOVE THE SANDPIT PREFIX**.
-
-3 ARCHITECTURE.NOTES <- LIT-SPEC.DESIGN-001 Literate SPEC: LITERATE SPEC SHELL FUNCTS
-
-3 ARCHITECTURE.NOTES -> LIT-SPEC.DESIGN: USE LIT_SPEC.SHELL_FUNCS DESIGN TO IMPLEMENT LITERATE SHELL FUNCTIONS...
-    TO CREATE TOOLS TO CONFIGURE ENVIRONMENT AND CREATE TOOLS. 
-
-4 ARCHITECTURE.NOTES <- NOTES THE ABSTRACT ARCHITECTURE PREORDER MATRIX FROM SOMEWHERE.
-
-5 ARCHITECT.STRUCTURE -> LITERATE README TO GENERATE TOOLS 
-6 ARCHITECTURE -> PROJECT.REQUIREMENTS / PROJECT.DESIGHN {GROUP BY ISOMORPHISMS, AND AND ADD PURPOSE AND DESIGN
-        FOR REQUIREMENTS / DESIGN / SPECIFICATIONS /RETROSPECTIVES / PROJECTS->TASKS.
-        DEMONSTRATE THE BRAIDING WITH THE BRAID DIAGRAM MADe (PROBABLY ON GISTS).
-    
-1. ARCHITECTURE <- LIT_SPEC FOR SHELL FUNCS DEMO**
-ARCHITECTURE -> LITERATE READMES THAT GENERATE TOOLS
-ARCHITECTURE -> PROJECT.REQUIREMENTS + PROJECTS.DESIGNS
-
-
-
-    *** THESE ARE DELIVERED RESULTS FROM PROTOTYPING A FISH SHELL FUNCTION. 
-- [Load Environment Script to apply shell with functions](../../../../sandbox/CONFIG Sandpit/oa-load-environment.fish)
-
-- [Auto-Load Shell Config o Change Dev Tool](../../../../sandbox/CONFIG Sandpit/update-shell-config-on-change.md)
-
-- [Orchestration Architect Shell Functions](../../../../sandbox/CONFIG Sandpit/shell-configurations/orchestration-architect.fish)
-
-    - Set Paths for `OA_{WORKSPACE,DOCS,JOURNAL,TOOLS,NOTES,SANDBOX,KANBANS,PROJECTS}_PATH`
-    
-    - Added functions to navigate with `oa-{kanban,notes,sandbox,tools}`
-
-    - Added `oa-list-projects function` to run `bat` on PROJECTS_OVERVIEW.md
-
-    - Added `oa-find-{kanban,note}` (CAN STILL ADD)
-
-    - Added `oa-display-projects` to display project lists and redraw if changed (using `entr`). 
-`oa-load-environment.fish`, a literate `update-shell-config-on-change.md`
-
-
-
-```
-
 ## Inactive Tasks
 
-### Task CONFIG.004: USE THE COMPLETED TASK-CONFIG.003 TO START REQUIREMENTS -> DESIGN -> SPEC PROCESS 
+### Task CONFIG.004: Create requirements document for the existing configuration subsystem 
 
 **Created**: 2025-05-10
 
-**Description**: After doing some architecture, return here and use the collesced structure, to write the requirements 
-and specifications,  and monitoring.
+**Description**: Create REQUIREMENTS document to detail the initial requirements 
+to ensure the configurations defined in [Task CONFIG.003: Tools to View Projects and Kanban]
+are captured, and the work used to create and automate live reloading 
+on spec change is captured. The initial requirements for the requirements are:
 
-**Related Tasks**: [Task ARCHITECTURE.001](./ARCHITECTURE Kanban.md#task-architect-001) must proceed before "CONFIG.004"
+0) Merge and close tasks [Task CONFIG.001] [Task CONFIG.002]
+
+1) Define what work was done, why it was done, and what has changed because of it.
+
+2) Evaluate the work done in CONFIG.003, and ensure the requirements 
+   for its implementation are captured.
+
+3) Evaluate the limitations of the implementation 
+   - such as not having a lazy evaluated function 
+   - and being limited to fish 
+
+4) Define how this can be composed from different parts 
+   - What is `TERMINAL_AI` related 
+   - What is `PROJECT` related 
+   - What is `ARCHITECTURE` related 
+   - What is `TOOL` related
+
+5) Add the requirements `POSIX Shell`  and `FISH` shells 
+
+6) Add the consumers of the configurations 
+   - NVIM 
+   - SHELLS 
+   - TerminalAI
+
+7) Add additional requirements for tools 
+   - `oa-monitor`
+   - `nvim-orchestration-architect`
+   - `terminal-ai`
+
+The result should be a list of goals and problems and a quick 
+validity and soundness check. 
+
+The next step is to create tasks for: 1) the design document for the existing solutions, 
+for the purposes of making a `LITERATE SPEC` to ensure the tools and 
+implementation from work on [Task CONFIG.003: View Projects and Kanbans].
+
+**Related Resources**:
+
+[Task ARCHITECTURE.001](./ARCHITECTURE Kanban.md#task-architect-001)
+must proceed before "CONFIG.004"
+
+[Task LIT_SPEC.003](./LIT_SPEC Literate Specifications Kanban.md#task-lit_spec.003)
+Very closely related as it is about setting 
+environment variables.
 
 ### Task CONFIG.002: Build a DESIGN for Configurations
 
@@ -147,10 +117,6 @@ Prepare to create a `Configurations Literate Specification` updating `OA-NOTE-30
     - [ ] Proposing a structure to be able to apply configurations to different shells.
 
     - [ ] Synced to `public` mirror repository
-
-**Deliverables**
-
-> **TODO** _ADD DELIVERABLES FOR `LIT_SPEC.CONFIG.001`
 
 ##  Tasks
 

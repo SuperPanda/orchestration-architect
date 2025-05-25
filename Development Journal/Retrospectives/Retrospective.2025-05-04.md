@@ -182,7 +182,7 @@ Let's plot out how I see this going.
 
     Could rewrite it with a purpose, let's start with the projects and tasks.
 
->   **Actionable Item** 
+>   **Actionable Item**
 >   Have the project and kanbans demonstrate via literate writing Abstract Compositional Topology 
 
 
@@ -220,7 +220,7 @@ Let's plot out how I see this going.
 
     Change of plans, going to write a LSP.
 
->   **Actionable Item** 
+>   **Actionable Item**
 >   Add an *Idea* for LSP work.
 
 **Review Item** Ensure neovim project is included as a project. Call it something like DevOptimisations.
@@ -243,4 +243,3 @@ Let's plot out how I see this going.
         «Create New Retrospective from Skeleton»
         «Locate Previous Retrospective»
         «Import Previous 'Actionable Items' as 'Review Items'»
-
