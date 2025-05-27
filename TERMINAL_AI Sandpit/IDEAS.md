@@ -66,6 +66,10 @@ cat | «clipboard copy»; «set message variable»
 «set message variable»; «terminal ai» -- «message variable» | tee «path to last message»
 ```
 
+This should be changed to `$XDG_STATE_HOME/terminal-ai/last_message-default` DIRECTORY.
+Or the path should be configured in `$XDG_HOME_CONFIG/terminal-ai/...`, such that it can be overridden
+by with Environment Variables.
+
 ```sh «path to last message»
 "/tmp/last_message"
 ```
@@ -93,6 +97,25 @@ message="$(«clipboard-paste»)"
 
 ```nvim  
 :'<,'>.w !cat | wl-copy; set message "$(wl-paste)"; terminal-ai -- "$message" | tee "/tmp/last_message"
+```
+
+Should make command  to pipe DATA to INSTRUCTIONS tools 
+
+```fish 
+function process_data -a instructions value
+    echo "$instructions"
+    echo "$value"
+end 
+
+function process_data_2 -a instruction 
+    cat | wl-copy 
+    set -f instructions "$instruction"
+    set -f message "$(wl-paste)"
+    
+# maybe there is a way to make it easy to make more instructions 
+# like simple agents like "IMPROVE CODE" "REVIEW"
+
+echo "hi" | cat | wl-copy | process_data "read this" (wl-paste)
 ```
 
 ```sh
