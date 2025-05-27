@@ -1,0 +1,6 @@
+[book]
+authors = ["Andrew Briscoe"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Orchestration Architect: The Architecture Book"
