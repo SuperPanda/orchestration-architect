@@ -1,0 +1,1 @@
+cat "/home/panda/repos/orchestration-architect/documentation/Development Journal/Retrospectives/Retrospective.2025-05-04.md" | grep -P '\W{1,8} \*\*Actionable' --after=1 | sed -E 's/Actionable/Review/g' | sed -E 's/--//g'
