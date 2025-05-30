@@ -1,0 +1,1 @@
+user: git log 0.8.0-documents, system: git --git-dir=/srv/git/orchestration-architect.git --bare log 0.8.0-documents, the mirrors and logs are like one behind on the system, so i need to ensure that the refs are like shared or something

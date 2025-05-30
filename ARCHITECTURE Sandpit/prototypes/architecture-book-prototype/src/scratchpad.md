@@ -55,7 +55,6 @@ Functionally, it is to actualise realised potentialities.
   to map to an architecture level 
   (a homeomorphism/preorder).
 
-
 * *SWEBOK Mindset*: Capture the requirements, designs, 
   construction and maintenance.
 
@@ -125,7 +124,9 @@ Run command `hyperctl dispatch renameworkspace «workspace id» «workspace name
     `rg 'oa-sandbox' --iglob 'fish'`
 
 > **Identified Potentiality** A simple 'is this right pattern for *terminal-ai*'
-       
+ 
+*Placed in the `$XDG_CONFIG_HOME/.fish/functions` directory. Update user guide. :)*
+
 
 ```fish «rename workspace function»
 
@@ -195,7 +196,8 @@ Use separate named sessions for things.
 * Repository Models: **[See D2 DIAGRAMS](../../architectiure-diagrams/architecture.d2)**
 
 > **Realised Potentiality**: Use of command preprocessor will allow me to list resources. 
-  
+
+
 ### ARCHITECTURAL THEMES
 
 ### ARCHITECTURAL DESIGN PATTERNS
