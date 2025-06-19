@@ -13,8 +13,31 @@
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 50_content_region_message
 
+- name: Open LiveUSB
+  hosts: localhost
+  connection: local
+  vars_files: 
+    - vars/storage.target.yml
+  vars:
+    state: mounted
+
+  tasks:
+    - name: Activate System Storage
+      ansible.builtin.include_role:
+        name: storage
+      vars:
+        storage: "{{ system_volume }}"
+
+    - name: Activate Data Storage
+      ansible.builtin.include_role:
+        name: storage
+      vars:
+        storage: "{{ data_volume }}"
+
+
+
+
 ### 04_Managed_Region_After_Content ORCHESTRATION ARCHITECT REGION ###
 
 # BEGIN ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
 # END ORCHESTRATION ARCHITECT MANAGED BLOCK 90_managed_block_after_content
-

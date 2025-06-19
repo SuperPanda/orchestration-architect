@@ -1,0 +1,28 @@
+- name: Open LiveUSB
+  hosts: localhost
+  connection: local
+  vars_files: 
+    - LiveUSB-OA001/vars.yml
+    - LiveUSB-OA001/external_vars.yml
+  tasks:
+    - name: Create restore point
+      ansible.builtin.file:
+        state: directory
+        path: /mnt/OA001_System/.snapshots
+      loop:
+        - /mnt/OA001_Snapshots/OA001_System
+
+    - name: Create snapshot
+      community.general.btrfs_subvolume:
+        automount: True
+        filesystem_label: OA001_System
+        name: '@OA001_System-snapshots/@OA001_System'
+        snapshot_source: '@OA001_System'
+        snapshot_conflict: skip
+
+    - name: Move to snapshot backup
+      args:
+        creates: '/mnt/OA001_Snapshots/OA001_System/@OA001_System'
+      shell: 'btrfs property set /mnt/OA001_System/.snapshots/@OA001_System ro true && btrfs send /mnt/OA001_System/.snapshots/@OA001_System | btrfs receive /mnt/OA001_Snapshots/OA001_System'
+
+

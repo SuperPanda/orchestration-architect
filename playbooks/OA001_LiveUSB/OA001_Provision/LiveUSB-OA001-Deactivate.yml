@@ -1,0 +1,16 @@
+- name: Close LiveUSB
+  hosts: localhost
+  connection: local
+  vars_files: 
+    - LiveUSB-OA001/vars.yml
+    - LiveUSB-OA001/external_vars.yml
+  roles:
+    - role: storage
+      storage: "{{ data_volume }}"
+      state: closed
+    - role: storage
+      storage: "{{ system_volume }}"
+      state: closed
+
+
+

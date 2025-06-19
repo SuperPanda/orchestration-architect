@@ -1,0 +1,28 @@
+- name: Prepare LiveUSB for Installation
+  hosts: localhost
+  connection: local
+  vars_files: 
+    - LiveUSB-OA001/vars.yml
+    - LiveUSB-OA001/external_vars.yml
+  vars:
+    state: mounted
+
+  roles:
+    - role: partition
+      partitions_table: 
+        label: "{{ oa001_partition_table.label }}"
+        table: "{{ oa001_partition_table.table }}"
+        device: "{{ install_target }}"
+      state: present
+    - role: storage
+      storage: "{{ efi_volume }}"
+      state: mounted
+    - role: storage
+      storage: "{{ system_volume }}"
+      state: mounted
+    - role: storage
+      storage: "{{ data_volume }}"
+      state: mounted
+
+- name: Install System to USB
+  ansible.builtin.import_playbook: LiveUSB-OA001-Build.yml
