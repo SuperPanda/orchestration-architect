@@ -1,0 +1,1662 @@
+
+#### OLD STUFF                   
+=====================================
+ORCHESTRATION ARCHITECT: Documenation
+======================================
+
+                   Framework
+                  ===========
+
+           ... @ CONTENT TO ADD @ ...
+        SUPPLY CONTRUCTION BEHIND VERSION CONTROL PROCESS...
+          IMPORTANCE OF INITIAL OBJECT AND HISTORY AUTO-REWRITE
+          USING `META TEST`, `REPLAY AND DIFF CAPTURE`,
+        VERSION BRANCH STRATEGY WITH WORK TREES / SUB TREES / MIRROR / REBASE / PATCH / INITIAL BRANCH
+        ...
+        TO ADD THE NEXT STEP TO CONVERT TO PROPER INSTALLATION LOCATIONS,
+        PACKAGED, AND SIGNED BUILD PIPELINES.
+        ...
+        IDENTIFY SECURITY DESIGN IN GIT HISTORY.
+        OA000 -> _ -> OA999 
+        Communication, ACL, SSH, SUDOERS, PAM, NAMESPACES, CONTAINERS/EXECUTION CONTEXT
+        Thin Hypervisor, key rotation, live system, immutable, code signing,
+        secure boot, ...
+        ...
+        COMPOSABILITY
+        ...
+        SELF-VALIDATION -> SEED -> PRISTINE -> DEV -> SEED' mappings and functors
+          and how to architect system properties for the software engineering process. 
+
+                          
+
+          BUILD / DEPLOY / MAINTAIN
+      A FLEET OF ROLLING RELEASE SYSTEMS
+     
+   TRYING TO BUILD EACH PART FOLLOWING
+   CONSTRUCTIONS THAT ENSURE PROPERTIES
+   TRHOUGHOUT THE SYSTEM. THE PROJECT
+   IS TO DISCOVER THESE PROPERTIES,
+   THE CONDITIONS FOR EACH,
+   AND DEMONSTRATE CONCRETE DEMONSTRATION
+   OF THESE ABSTRACT PROPERTIES,
+
+
+
+                  GENERATE TOOLS ALONGSIDE AI, IN A MANNER THAT REINFORCES
+                  LEARNING, THROUGH EXPLORING EFFECTIVE HUMAN-AI TASK
+                  ORIENTATED INTERACTIONS. AND DEVELOPMENT FOR DYNAMIC KNOWLEDGE
+                  SYSTEMS DESIGN FOR BOTH HUMAN-COMPUTER COLLABORATIONS.
+
+                  USE THE SAME STRUCTURES TO CAPTURE THE FUNCTORIAL RELATIONS
+                  AND STRUCTURES, BY USING TRANSCRIPTION, GIT COMMIT HISTORY,
+                  FILE DATES, AND CODE EVOLUTION, TO IDENTIFY HIGHER ORDER
+                  SYNCRONISATION DYNAMICS OR FEEDBACK LOOPS.                  
+
+                  ==============================
+                  Abstract Compositional Topology
+                  ==============================
+
+                         READ AT ---PUT LINK HERE----
+     ....
+
+
+
+     ==========================
+     Components and Collections
+     ==========================
+    
+     Collection
+     =========-
+     Collection types include groups of related of a system component
+     that has a clique 
+
+    
+
+     `Meta` Collection
+     ==================
+
+     The `Meta` Collection Consists of Role and Playbooks required to bootstrap,
+     modify and execute the elements of the system itself.
+    
+     Specifications Configuration Variables
+    -----------------------------------------
+
+     -- Discuss Collections/Component -- 
+     1. Schema Evolution and Defintition and Ideas
+     2. Bootstrap Validation Pipeline
+             It works because it exists,
+             if it doesn't work, then it cannot exist.
+      3. Clearly capture change. Dense subgraph discovery
+            using information extracted from collaboration,
+            to be able to parse history along various versions
+            and conversation contexts.
+      4. Lanaguage Server Integration, Treesitter, ....
+      5. To be released ...
+
+
+
+
+    Directories
+    ==========
+    Natural Transformation / ...
+    Change of paths...
+    ...
+
+
+
+    Later
+    ======
+    Rice Rice. Theme Grub, Plymouthd, etc..
+    Finish NCursors ASCII Compositor... Generate efficient compositing 
+    like a Window Manager, using masks and projection, and ensuring 
+    efficient direct region writing.
+     
+
+
+
+
+  Recovery
+  ========
+  Bootstrap Execution
+  Be left in machine to update bootable iso,
+  different iso, and tested to ensure that it can
+  recovered a system, it will contain a key to unlock
+  limited sections, with a master key, allowing
+  to unlock, and rekey a luks slots.
+  ...
+  Contains a Minimal Install to Access Packages from Offline Repository.
+  Regularly regenerated, and tested as part of the build pipeline.
+  Recover with the Master Secret.
+  Restore Master System, by running the Provision Playbook against a broken
+  system, rebuild of System, is kept separate from data.
+
+  LiveUSB
+  =======
+  Master Control Node OR Intermediate Mode (Restricted) but portable system
+  Boot anywhere, Clean Image, with persistence of write cache layer.
+  - PXE Boot Image Generation
+  - User Configuration
+  - Image Customisation
+  - Write to Removable Storage
+  - Run bare metal install target (Test plymouth and grub) in qemu
+  - Run system image pipeline supply composable nspawn containers with btrfs
+    for live system <-> snapshot relationships managed to
+    take advantage of copy on write efficient snapshot strategies
+  - Take advantage of zram, fine control of file and process processing.                                          
+
+
+Summary
+=======
+
+Orchestration Architect framework allows for rapid, customizable, and resilient system generation and management. Through structured role tasks and precedence of variables, the framework provides a stable yet flexible environment for complex system orchestrations.
+
+DBUS Inter Process Control, Configurabke with Pipewire, Wireplumber, JACK,
+other added system pipeline, and Whisper and Festival soon.
+
+
+
+=====================================
+ORCHESTRATION ARCHITECT: Documenation
+======================================
+
+
+
+     ....
+
+     Roles
+
+     ==========================
+     Components and Collections
+     ==========================
+    
+     Collection
+     =========-
+     Collection types include groups of related of a system component
+     that has a clique 
+
+    
+
+     `Meta` Collection
+     ==================
+
+     The `Meta` Collection Consists of Role and Playbooks required to bootstrap,
+     modify and execute the elements of the system itself.
+              ----------------------
+              BOOTSTRAP REPLAY
+              ----------------------
+          SHOWS HOW THE SYSTEM GENERATES ITSELF FROM SEED,
+          AND IT FLOWS INTO THE DEVELOPMENT CYCLE.
+
+          ALLOWING FOR THE STRUCTURES BETWEEN THE COMPONENTS
+          AND THE BOOTSTRAP IDENTIFIES CERTAIN POINTS WHERE 
+          THE THERE IS A CUT AND FLOOR (?)
+
+
+    Directories
+    ==========
+    Natural Transformation / ...
+    Change of paths...
+    ...
+
+
+    Meta Role
+    ==========
+    Creating the 'Role', need to update ?template?
+    so role can update selof. 
+    ....
+    Bootstrap....
+    Meta Role <---> Meta Template
+          - go through specification of boths and explain
+    Meta Orchestrator ---> Meta Template, Meta Role, Meta Playbook....
+
+
+    Meta Template
+     ==============
+     Template Specification `templates.yml`: 
+
+      -- Discuss Fragments, Templates, Regions, Skeletons, Specification, 
+         Fields, tags, objects (transcripts, code, text documents, role, playbooks)---
+    
+    Variables: Fragment Vars, Template Vars, Fragment vars
+    Boundaries: Regions, Fragments, Skeleton, Sections...
+    Live Update <--> Sync / data
+    Fragment and Template Preprocessor
+
+
+    Meta Orchestrator
+    ==============
+    Paths, Environments, Processing, Selector Slices,
+    dynamic configuration, ...
+
+
+
+    Meta Playbook
+    ===========
+      
+  
+
+    Later
+    ======
+    Rice Rice. Theme Grub, Plymouthd, etc..
+    Finish NCursors ASCII Compositor... Generate efficient compositing 
+    like a Window Manager, using masks and projection, and ensuring 
+    efficient direct region writing.
+     
+     
+     
+     Meta Template
+     --------------      
+    
+
+
+Welcome to the `Orchestration Architect` framework—a comprehensive system designed to facilitate system generation and provisioning using templated roles and tasks with Jinja2 or similar templating engines. This document is categorized into different sections to help easily understand and navigate the various layers, roles, and tasks vital to the Orchestration Architect framework.
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Framework Structure](#framework-structure)
+3. [Roles](#roles)
+   - [Role Tasks](#role-tasks)
+4. [Collections and Components](#collections-and-components)
+   - [Meta Collection](#meta-collection)
+   - [System Planes Collection](#system-planes-collection)
+5. [Bootstrapping and System Update Process](#bootstrapping-and-system-update-process)
+6. [Terminal AI Integration](#terminal-ai-integration)
+    - [DBUS Inter Process Control](#dbus-inter-process-control)
+    - [Resilient Intelligence](#resilient-intelligence)
+7. [References](#references)
+
+## Overview
+
+The `Orchestration Architect` framework is meant to provide a structured approach for efficient system generation and management. With an emphasis on minimal third-party dependencies and leveraging native tools, this solution also focuses on security and composability principles influenced by category theory.
+
+## Framework Structure
+
+The framework is organized into several collections and subsystems that collectively provide diverse functionalities. Each major subsystem, such as storage and network, is represented through composable blocks, facilitating efficient coordination among them.
+
+### Constraints
+
+- Minimize third-party dependencies.
+- Implement primitives when useful features are identified.
+- Influence design through category theory.
+- Ensure continuous growth in velocity, security, and compositional integrity.
+
+## Roles
+
+Roles are the central components of the Orchestration Architect framework. They are composed of several key parts, defined by category R, and include:
+
+- **States:** Minimal objects such as `absent`, `present`, and `info` (identity) morphisms.
+- **Tasks:** Defined in `tasks/<role_state>.yml` files like `present.yml`.
+- **Configuration Variables:** Packaged into a `<role_name>_params` object.
+
+Each role follows a structured precedence when handling configuration variables.
+
+### Precedence of Variables
+
+
+## Terminal AI Integration
+### DBUS Inter Process Control
+Configurable with Pipewire, Wireplumber, or JACK, and soon integrating Whisper and Festival, the focus is on efficient multi-agent strategies.
+
+### Resilient Intelligence
+- **Distributed:** Designing for resilient and ambient intelligence.
+- **Live Updates:** Continuous synchronization with concurrent feedback loops.
+
+# Appendices
+
+## Natural Transformation
+- Change of paths in handling directories.
+
+## Meta Role and Meta Template
+- **Creating the Role:** Update the template for self-updating capabilities.
+- **Template Specification:** Discuss fragments, templates, regions, and fields.
+
+## References
+- REST and API Documentation
+- Git and Version Control Best Practices
+- DBSync and Data Storage Technologies
+- Functorial Structures and Category Theory Basics
+
+# Orchestration Architect Documentation
+
+Welcome to the `Orchestration Architect` framework—a comprehensive system designed to facilitate system generation and provisioning using templated roles and tasks with Jinja2 or similar templating engines. This document is structured in layers for easy readability and modification. To assist in future updates, a schema and boundary definitions for each section are provided.
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Constraints and Design Principles](#constraints-and-design-principles)
+3. [Framework Structure](#framework-structure)
+4. [Roles](#roles)
+   - [Role Tasks](#role-tasks)
+5. [Collections and Components](#collections-and-components)
+   - [Meta Collection](#meta-collection)
+   - [System Planes Collection](#system-planes-collection)
+6. [Bootstrapping and System Update Process](#bootstrapping-and-system-update-process)
+7. [Terminal AI Integration](#terminal-ai-integration)
+   - [DBUS Inter Process Control](#dbus-inter-process-control)
+   - [Resilient Intelligence](#resilient-intelligence)
+8. [Appendices](#appendices)
+9. [References](#references)
+
+## Overview
+
+The `Orchestration Architect` framework is designed to provide a structured approach for efficient system generation and management. Emphasizing minimal third-party dependencies, leveraging native tools, while focusing on security and composability principles influenced by category theory.
+
+## Constraints and Design Principles
+@SECTION_START: Constraints and Design Principles
+
+- Minimize third-party dependencies and use native tools.
+- Implement primitives when useful features are identified.
+- Influence design through category theory.
+- Ensure the system supports continuous growth in velocity, security, and compositional integrity.
+
+@SECTION_END: Constraints and Design Principles
+
+## Framework Structure
+@SECTION_START: Framework Structure
+
+The framework is organized into several collections and subsystems, each providing diverse functionalities and facilitating efficient coordination.
+
+### Version Control Process
+- Use `META TEST`, `REPLAY AND DIFF CAPTURE`.
+- Adopt version branch strategies with work trees, subtrees, mirror/rebase, patch, and initial branch.
+- Convert to proper installation locations, package, and sign build pipelines.
+- Identify security design in Git history through version control mechanisms.
+
+### Layers of Systems
+1. **Code Layer**: Low-level implementation details.
+2. **Systems Layer**: Configuration and management of components.
+3. **Operational Layer**: Deployment and maintainance processes.
+4. **Strategic Layer**: Overall design and strategy for system orchestration.
+
+## Build, Deploy, and Maintain
+Ensuring a fleet of rolling-release systems, constructed to maintain certain properties throughout.
+
+## Composability
+Defining functors and morphisms that ensure system properties and composability across components.
+
+## Meta Levels
+Self-modifying systems are essential for adaptability and efficiency. Focus on feedback loops and dynamic knowledge systems.
+
+@SECTION_END: Framework Structure
+
+## Roles
+@SECTION_START: Roles
+
+Roles are the central components of the Orchestration Architect framework. They are composed of several key parts, defined by category R, and include:
+
+- **States**: Minimal objects such as `absent`, `present`, and `info` (identity) morphisms.
+- **Tasks**: Defined in `tasks/<role_state>.yml` files like `present.yml`.
+- **Configuration Variables**: Packaged into a `<role_name>_params` object.
+
+Each role follows a structured precedence when handling configuration variables.
+
+### Precedence of Variables
+
+| **Precedence Level** | **Description**                                                                    |
+|----------------------|-----------------------------------------------------------------------------------|
+| Lowest               | Omit                                                                              |
+| Lower                | Role defaults (`<role_name>_<param_name>`)                                        |
+| Middle               | `<role_name>_<param_name>` input variable                                         |
+| High                 | Defined in `<role_name>` object (fixed objects delegated towards leaf nodes)      |
+| Highest              | `-e <role_name>_<role_param>=<role_param_value>`                                  |
+
+### Role Tasks
+Role tasks are specified within task files (e.g., `roles/<role_name>/tasks/*.yml`). Tasks represent morphisms to be applied based on the provided state of `<role_name>_state`. These tasks ensure functional boundaries and composability.
+
+@SECTION_END: Roles
+
+## Collections and Components
+@SECTION_START: Collections and Components
+
+### Meta Collection
+The `Meta` collection comprises roles and playbooks needed to bootstrap, modify, and execute system elements.
+
+- **Role:** `Meta.meta_role`
+- **Meta Template:** `meta_template`
+
+### System Planes Collection
+The `OAXXX` collection includes units of composable system planes, partitioned by regeneration:
+
+- **OA000**: System Bootstrap, Installation, or Recovery Media.
+- **OA001**: System Master Control Node for LiveUSB, Applications, Containers.
+- **OA002**: Live Hypervisor running entirely on RAM.
+- **OA999**: Work Currently Prototyped
+
+#### OA000: System Bootstrap
+- **Purpose**: Bootstrap, Installation, or Recovery Media.
+- **Tools**: pacstrap, ansible (software dependencies).
+
+#### OA001: System Master Control Node
+- **Purpose**: Provides LUKS-encrypted persistent LiveUSB to provision systems via PXE Boot Live Images.
+- **Functionality**: Generates local repository, manages version control, provisions OA002 and OA999 systems.
+
+#### OA002: Live Hypervisor
+- **Design**: Runs entirely on RAM.
+- **Focus**: Iterative prototyping and testing.
+
+@SECTION_END: Collections and Components
+
+## Bootstrapping and System Update Process
+@SECTION_START: Bootstrapping and System Update Process
+
+The bootstrapping process involves changing an image and transitioning through various states from initial, base, to container.
+
+```text
+BOOTSTRAP: Image -> Image'          # Changes an Image
+BUILD:     Image -> Container       # Builds a Container
+SNAP:      Container -> Image       # Clones reflink clone
+SNAP(UPDATE): Image -> Image'
+```
+
+### Installation Updates Progression
+
+```text
+BOOTSTRAP: Image -> (Snapshot Image -> Image)
+           
+        BOOTSTRAP                              SNAP(C')
+    init-----------------> base ----------------> container-------> derived
+        |       B: (init -> base)   |                  ^   | |       |
+        |                          | SNAP(UPDATE(base')) |___| |       |
+        |                     [NEW IMAGE ]               | UPDATE |       
+        | SNAP: base, base'                              
+        v     INSTALL(base')                             
+    base'     ---------> container'                      
+```
+
+* Major and minor updates showcase the functional relationships between different system states.
+* Focus on benchmarking system architecture and rapid system provisioning.
+
+@SECTION_END: Bootstrapping and System Update Process
+
+## Terminal AI Integration
+@SECTION_START: Terminal AI Integration
+
+### DBUS Inter Process Control
+Configurable with Pipewire, Wireplumber, or JACK, integrating Whisper and Festival.
+
+### Resilient Intelligence
+- **Distributed**: Designing for resilient and ambient intelligence.
+- **Live Updates**: Continuous synchronization with concurrent feedback loops.
+
+@SECTION_END: Terminal AI Integration
+
+## Appendices
+@SECTION_START: Appendices
+
+### Natural Transformation
+Change of paths in handling directories.
+
+### Meta Role and Meta Template
+- **Creating the Role**: Update the template for self-updating capabilities.
+- **Template Specification**: Discuss fragments, templates, regions, and fields.
+
+@SECTION_END: Appendices
+
+## References
+@SECTION_START: References
+
+- REST and API Documentation
+- Git and Version Control Best Practices
+- DBSync and Data Storage Technologies
+- Functorial Structures and Category Theory Basics
+
+@SECTION_END: References
+
+---
+
+## Master Plan for Documentation Types
+
+### Document Schema
+To standardize the technical documentation, each document type should follow a consistent schema. Here is a proposed schema:
+
+1. **Title**: Clearly defined title.
+2. **Purpose**: A brief description of the section's purpose.
+3. **Content Structure**:
+   - Subsections
+   - Definitions (Roles, Tasks)
+   - Configurations (Variables, Parameters)
+   - Implementation Details.
+4. **Boundary Definitions**: Tags for start and end of the section.
+5. **Linkages**: Notes on interconnections with other sections.
+
+### Boundary Definitions
+To standardize and programmatically extract sections, use the following tags:
+
+- **Section Start**: `@SECTION_START: <section_name>`
+- **Section End**: `@SECTION_END: <section_name>`
+- **Open Boundary**: `@OPEN_BOUNDARY: <boundary_name>`
+- **Close Boundary**: `@CLOSE_BOUNDARY: <boundary_name>`
+
+For regex or line-based boundaries, custom delimiters can be defined.
+
+Using this structured approach ensures both clarity and flexibility in the document's structure, allowing easy updates, modifications, and extraction of content for various automation and orchestration tools.
+
+Thank you for exploring the `Orchestration Architect` documentation. This framework is designed to provide a stable, flexible, and secure platform for scalable system orchestration, generation, and provisioning.
+---
+
+
+
+[2024-08-05 03:44:54+08:00,speaker=GPT]
+```
+# (@usage=13777) prompt_tokens=12658 completion_tokens=1119
+# (@conversation_id=chatcmpl-9sbRjzrphKbnQUgTz0PD0fDmRSzAP)
+```
+Certainly! Below, I have broken the original document into easily manageable and clearly defined sections. We’ll also work on creating a metadata schema for each section to help with automated extraction and updates. Each section is introduced with a clear title, purpose, and structure.
+
+# Orchestration Architect Documentation
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Constraints and Design Principles](#constraints-and-design-principles)
+3. [Framework Structure](#framework-structure)
+4. [Roles](#roles)
+   - [Role Tasks](#role-tasks)
+5. [Collections and Components](#collections-and-components)
+   - [Meta Collection](#meta-collection)
+   - [System Planes Collection](#system-planes-collection)
+6. [Bootstrapping and System Update Process](#bootstrapping-and-system-update-process)
+7. [Terminal AI Integration](#terminal-ai-integration)
+8. [References](#references)
+
+## Introduction
+
+### Purpose
+
+To provide a comprehensive guide to the Orchestration Architect framework, designed for efficient system generation, secure provisioning, and consistent system management.
+
+### High-Level Overview
+
+Orchestration Architect is a system centered around dynamic, secure, and effective software orchestration and provisioning.
+
+## Constraints and Design Principles
+
+### Minimize Third-Party Dependencies
+- Understand and document low-level default tools and capabilities.
+
+### Implement Primitives
+- Avoid libraries or frameworks; build useful components yourself.
+
+### Category Theory in Design
+- Leverage category theory for system design to address growing challenges and blockers.
+
+### Security Considerations
+- Employ secure design patterns including ACLs, SSH, SUDOERS, PAM, namespaces, containers, and execution contexts.
+
+## Framework Structure
+
+### Overview
+
+The framework is segmented into various collections and subsystems, each designed to streamline different aspects of system management.
+
+### Version Control
+
+- **History Auto-Rewrite:** Use `META TEST`, `REPLAY AND DIFF CAPTURE` for history management.
+- **Branch Strategy:** Employ strategies using work trees, sub-trees, mirror, rebase, patch, and initial branch.
+
+### Build/Deploy/Maintain Cycle
+
+- Provide secure, packaged, and signed build pipelines.
+- Free from tampering, support live system updates, and facilitate continuous integration and deployment.
+
+## Roles
+
+### Definition
+
+Roles are pivotal components made up of states, tasks, and configuration variables.
+
+### States
+
+- `absent`
+- `present`
+- `info` (identity morphisms)
+
+### Configuration Variables
+
+Packaged into a `<role_name>_params` object, defined by the role’s parameters.
+
+### Precedence of Variables
+
+```
+Lowest -> Omit
+Higher -> Role defaults
+Higher -> Input variable
+Higher -> Defined in <role_name> object
+Highest -> -e <role_name>_<role_param>=<role_param_value>
+```
+
+### Role Tasks
+
+Role tasks are the morphisms applied based on the state (`<role_name>_state`). 
+
+## Collections and Components
+
+### Meta Collection
+
+Composed of roles and playbooks designed to bootstrap, modify, and execute system components.
+
+- **Role:** `Meta.meta_role`
+- **Meta Template:** `meta_template`
+
+### System Planes Collection
+
+Includes composable system planes, partitioned by regeneration:
+
+- `OA000`: System Bootstrap or Recovery Media
+- `OA001`: System Master Control Node for LiveUSB Applications and Containers
+- `OA002`: Live Hypervisor
+
+### OA001: System Master Control Node
+
+- **Goal:** Provide a LUKS-encrypted persistent LiveUSB for systems provisioning.
+- **Components:**
+  - Local repository 
+  - Version control management 
+  - Master blueprints
+
+### OA002: Live Hypervisor
+
+- **Design:** Runs entirely on RAM, facilitating iterative prototyping and testing.
+- **Focus:** Live updates and major/minor system transitions.
+
+## Bootstrapping and System Update Process
+
+### Bootstrapping
+
+- Initial to base to container states
+```
+BOOTSTRAP: Image -> Image'
+BUILD: Image -> Container
+SNAP: Container -> Image
+SNAP(UPDATE): Image -> Image'
+```
+
+### Installation Updates
+
+Object-oriented transitions and updates:
+```
+init -> base -> container -> derived
+BOOTSTRAP -> SNAP(C')
+```
+
+## Terminal AI Integration
+
+### DBUS Inter-Process Control
+
+Configurable with Pipewire, Wireplumber, JACK, integrating Whisper, and Festival for advanced functionalities.
+
+### Resilient Intelligence
+
+- **Distributed:** Supports resilient and decentralized intelligence.
+- **Live Updates:** Continuous synchronization with feedback loops.
+
+## References
+
+- Follow standards for REST API documentation, Git best practices, and more.
+
+---
+
+## Meta Schema for Document Definition
+
+Integrate structured meta-tags for sections to ensure clarity and programmatic extraction.
+
+### Structure
+
+1. **Title**
+2. **Purpose**
+3. **Content Structure**
+   - Subsections
+   - Definitions
+   - Implementations
+4. **Boundary Definitions**
+   - Section Start: `@SECTION_START: <section_name>`
+   - Section End: `@SECTION_END: <section_name>`
+   - Custom Extraction
+   - Boundaries: Regex, Line-based, etc
+
+### Example Boundaries
+
+```
+@SECTION_START: Framework_Structure
+...
+@SECTION_END: Framework_Structure
+```
+
+### Tree for Document Definitions
+
+Each section can be modularized and managed efficiently, allowing easier updates, modifications, and dynamic extraction.
+---
+
+
+
+Draft Schema
+------------
+```yaml
+library:
+  ...navigate...
+    $schema...
+    
+  ...meta...
+  $schema: 
+    ... meta schema...
+  schema:
+    <$type>:
+      <$property_label>: <key>
+      <$property_value>: <value>
+    <$operations>: ...
+    <$objects>: ...
+
+    RESOURCE_TYPE:
+      ROLE: ...
+      PLAYBOOK: ...
+      COLLECTION: ...
+      PLUGINS: ...
+      SCRIPTS: ...
+      SPECIFICATION: ...      
+      THIRD_PARTY: ...
+      CONVERSATION: 
+        SPEECH: ...
+        SPEAKER: ...        
+      REFERENCE: ...
+      PROCESS: ...
+      CONCEPT: ....
+      DESIGN: ...
+      TAG: ..
+      
+      
+    DOC_TYPE:
+      <technical>: 
+        $ref: $schema/docs/technical
+      <research>: ...
+      <brainstorming>: ...      
+      <user_docs>: ...
+    CONTENT_TYPE:
+      <....>: ...
+      <...>: ....
+  entities:
+    entities:
+      PROJECTS:
+        type: dict
+       
+   CONSTRUCTIONS:
+    Abstract Compositional Topology:
+      Link: ...
+      Key Idea: ...
+      Example: ...
+      #: P_{a_j[?+1]} <= P_{a_i, ... ,a_j[?-1] <= S_{a_j}
+      Summary: ...
+    Category Theory Framework:
+      ...
+      how, Why, when, what, where its used...
+      capture thought the history...
+    Development Framework:....
+  
+      ...
+    
+   COLLECTIONS:      
+    PROJECTS:
+      - name: Orchestration Architect
+        shortname: OrchArch
+        project_code: OA
+        major_components: 
+          COLLECTIONS: ....$ref ... ROLES, PLAYBOOKS,....
+          ROLES: $ref/roles/...
+          REPO: ....
+          TEMPLATE:....
+            |PLAYS|TASKS|TESTS|CONFIG|REPO|TEMPLATE
+          CONCEPTS: ... $ref/types/docs/...
+
+      - name: Terminal AI
+        shortname: TermAI
+        project_code: TAI
+      - name: Scripts and Misc
+        shortname: MISC|UTIL|TOOL        
+        ...project_code: fzf)|nvim|misc|util
+      - name: nvim-orchestration-architect
+        ...
+######  
+######  
+    COLLECTIONS:
+      - name:
+        shortname: META
+
+
+    
+
+
+ , CODE, DEPLOYMENT
+
+
+    <....>: ....
+  relations:
+    <...>: ...
+
+    
+    
+    
+
+```
+
+
+Components and Usage
+====================
+
+Below are the details on the components within specific collections and their functionalities:
+
+OA001: System Master Control Node
+---------------------------------
+
+Goals include providing a LUKS-encrypted persistent LiveUSB capable of provisioning systems via PXE Boot Live Images, generating other systems, and storing secure system user specifications.
+
+* **Storage and Control:**
+  - Generates a local repository.
+  - Manages version control and holds master blueprints.
+  - Provisions `OA002` and `OA999` systems and generates `OA000` images.
+
+OA002: Live Hypervisor
+----------------------
+
+Designed to run entirely on RAM and configured for image provisioning, allowing iterative prototyping and testing.
+
+* **Functional Design:**
+  - Focuses on live updates through snapshot cloning.
+  - Modular system transition via major and minor updates.
+
+Bootstrapping and System Update Process
+========================================
+
+The bootstrapping process involves changing an image and transitioning through various states from initial, base, to container. Here's a process outline:
+
+.. code-block:: text
+
+   BOOTSTRAP: Image -> Image'         # Changes an Image
+   BUILD: Image -> Container          # Builds a Container
+   SNAP: Container -> Image           # Clones reflink clone
+   SNAP(UPDATE): Image -> Image'
+
+Installation Updates Progression:
+----------------------------------
+
+.. code-block:: text
+
+   BOOTSTRAP: Image -> (Snapshot Image -> Image)
+           
+           BOOTSTRAP                                    SNAP(C')
+    init---------------------------> base ---------------------------> container---------->derived
+    |           B: (init -> base)     |                                     ^          ^        |
+    |                                 | SNAP(UPDATE(base'))                 |__________|        |
+    |                                 |                                     UPDATE               |
+
+
+Summary
+=======
+
+Orchestration Architect framework allows for rapid, customizable, and resilient system generation and management. Through structured role tasks and precedence of variables, the framework provides a stable yet flexible environment for complex system orchestrations.
+
+===========
+TERMINAL AI 
+===========
+
+tAI say 'hi'.
+
+flows, function creation, sandbox infrastructure, 
+diff collect, multiagent strategies and efficiencies.
+implement useful features
+
+DBUS Inter Process Control, Configurabke with Pipewire, Wireplumber, JACK,
+other added system pipeline, and Whisper and Festival soon.
+
+
+=============================================================
+TERMINAL BASED UI BASED MIND MAP / GRAPH / DISPLAY COMPOSITOR
+=============================================================
+Distributed + Ambient + Resilient Intelligence
+
+
+TERMINAL AI X ORCHESTRATION ARCHITECT X CUSTOM DEV TOOLING.
+GENERATE SCHEMA FOR SCHEMA CONSTRUCTION.
+SCHEMA CONSTRUCTION DESCRIBE API FOR AI, AND THE GENERATED SYSTEMS,
+NEED TO STANDARDISE TEXINFO AND MAN PAGES GENERATION.
+COPY OVER MOTD SYSTEM.
+
+Generate Vector Embeddings for Referenced Content.
+
+MIND-MAP EDIT NODES --FUNCTOR-->  MAPS MORPHISM STRUCTURES -> SOME SYSTEM CONSTRUCTION
+                      ASSIGN                                  
+                      STRUCTURE
+                      BETWEEN UI
+                      AND OBJECTS
+                      REPRESENTED
+
+                    -- AI HAS OVERLAY AND BATCH JOBS, AND CAN GENERATE FUNCTIONS,
+                       ACCESS A SHARED KNOWLEDGE STORE,
+                       CONTEXT FRAME SIZE,
+                       
+H-Score Resource System.
+
+Bibliography. BibTex.
+
+SPDX.
+
+Integrate with ENDPOINT MANAGEMENT AND IPS/IDS.
+
+2
+:
+[2024-08-05 03:22:47+08:00,speaker=GPT]
+```
+# (@usage=5741) prompt_tokens=4311 completion_tokens=1430
+# (@conversation_id=chatcmpl-9sb6FVYWbBoca12spd6Ll5lsJFdSN)
+```
+Certainly! Here’s a proposed schema to improve and organize the Orchestration Architect documentation:
+
+# Master Plan for Orchestration Architect Documentation
+
+## Schema Overview
+
+1. **Introduction**
+   - Purpose
+   - High-level overview
+
+2. **Constraints and Design Principles**
+   - Minimize third-party dependencies
+   - Use of category theory
+   - Security design
+
+3. **Framework Structure**
+   - Overview of the framework
+   - Importance of version control
+   - Build/Deploy/Maintain cycle
+   
+4. **Roles and Tasks**
+   - Definition of roles
+   - Role tasks
+   - Configuration and variables
+
+5. **Collections**
+   - Meta Collection
+   - System Planes Collection (OA000, OA001, OA002, OA999)
+
+6. **Components and Usage**
+   - Detailed components of OA001
+   - Detailed components of OA002
+   - Bootstrapping and updates
+
+7. **Meta Components**
+   - Meta Role
+   - Meta Template
+   - Meta Orchestrator
+   - Meta Playbook
+
+8. **Advanced Topics**
+   - Terminal AI Integration
+   - Terminal-based UI Compositing
+   - Distributed Intelligence
+
+## Boundary Definitions
+
+To standardize and programmatically extract sections, use the following tags:
+
+- **Section Start**: `@SECTION_START: <section_name>`
+- **Section End**: `@SECTION_END: <section_name>`
+- **Open Boundary**: `@OPEN_BOUNDARY: <boundary_name>`
+- **Close Boundary**: `@CLOSE_BOUNDARY: <boundary_name>`
+
+For regex or line-based boundaries, custom delimiters can be defined.
+
+## Example Document Structure
+
+Here's how it looks when implemented:
+
+```
+@SECTION_START: Introduction
+=====================================
+ORCHESTRATION ARCHITECT: Documentation
+======================================
+
+Purpose:
+--------
+To provide comprehensive guidance on the Orchestration Architect framework, its roles, tasks, and collections.
+
+High-Level Overview:
+-------------------
+Orchestration Architect is a system designed for dynamic, secure, and effective software orchestration.
+@SECTION_END: Introduction
+
+@SECTION_START: Constraints_and_Design_Principles
+=============================
+CONSTRAINTS AND DESIGN PRINCIPLES
+=============================
+
+- Minimise third-party dependencies.
+- Implement primitives for any useful component yourself.
+- Utilize category theory to enhance design.
+- Ensure secure, immutable system components.
+
+@SECTION_END: Constraints_and_Design_Principles
+
+@SECTION_START: Framework_Structure
+====================
+Framework Structure
+====================
+
+Roles:
+------
+Roles are fundamental in Orchestration Architect. They are defined by:
+
+- **States**: 'absent', 'present', 'info'
+- **Tasks**: Tasks defined in YAML files
+- **Configuration Variables**: Managed via a precedence hierarchy
+
+Version Control Process:
+-------------------------
+- Auto-rewriting of history using `META TEST`
+- Branch strategies with work/su trees
+- Security design within Git history
+
+@SECTION_END: Framework_Structure
+
+@SECTION_START: Roles_and_Tasks
+====================
+Roles and Tasks
+====================
+
+Role Tasks:
+-----------
+Tasks are morphisms applied based on a provided state. Functional boundaries ensure composability. Example tasks include:
+
+- **Storage Roles**: loop_device, partition, btrfs_subvolumes, filesystem, mount_table
+- **Network Roles**: Networking roles for setup and management
+
+Configuration Variables:
+-----------------------
+Role configurations follow a precedence system. Higher precedence values overwrite lower ones. Here’s the hierarchy:
+
+.. table:: Precedence of Variables
+   :align: center
+   :widths: 10 90
+
+   ====================  =================================================================================
+   Precedence Level      Description
+   ====================  =================================================================================
+   Lowest                Omit
+   Lower                 Role defaults (`<role_name>_<param_name>`)
+   Middle                `<role_name>_<param_name>` input variable
+   High                   Defined in `<role_name>` object (fixed objects delegated towards leaf nodes)
+   Highest               `-e <role_name>_<role_param>=<role_param_value>`
+   ====================  =================================================================================
+
+@SECTION_END: Roles_and_Tasks
+
+@SECTION_START: Collections
+====================
+Collections
+====================
+
+Meta Collection:
+-----------------
+Roles and playbooks required to bootstrap, modify, and manage system components.
+
+System Planes Collection:
+---------------------------
+`OAXXX` units cover various system components:
+
+- **OA000**: System Bootstrap or Recovery Media
+- **OA001**: System Master Control Node
+- **OA002**: Live Hypervisor
+- **OA999**: Work Prototyping
+
+@SECTION_END: Collections
+
+@SECTION_START: Components_and_Usage
+=========================
+Components and Usage
+=========================
+
+OA001: System Master Control Node
+---------------------------------
+- **Goal**: Provide a LUKS-encrypted persistent LiveUSB
+- **Functionality**: Generates a local repository, manages version control, and provisions systems
+
+OA002: Live Hypervisor
+-----------------------
+- **Design**: Runs entirely on RAM
+- **Focus**: Iterative prototyping and live updates
+
+Bootstrapping and Updates:
+---------------------------
+- Transition states from initial, base, to container
+- Utilize SNAP and BUILD strategies for updates
+
+@SECTION_END: Components_and_Usage
+
+@SECTION_START: Meta_Components
+====================
+Meta Components
+====================
+
+Meta Role
+---------
+Defines roles within the system.
+
+Meta Template
+-------------
+Specifies templates and fields for generating tasks and configurations.
+
+Meta Orchestrator
+-----------------
+Manages paths, environments, and dynamic configuration.
+
+Meta Playbook
+-------------
+Defines playbooks needed for system roles.
+
+@SECTION_END: Meta_Components
+
+@SECTION_START: Advanced_Topics
+======================
+Advanced Topics
+======================
+
+Terminal AI X Orchestration Architect:
+-------------------------------------
+Integrate terminal-based UIs with intelligent orchestration.
+
+Distributed Intelligence:
+-------------------------
+Support decentralized and resilient system intelligence capabilities.
+
+@SECTION_END: Advanced_Topics
+```
+
+## Tree for Document Definitions
+
+Each section should be detailed with standardized components:
+
+1. **Title**: Clearly defined title
+2. **Purpose**: A brief description of the section's purpose
+3. **Content Structure**:
+   - Subsections
+   - Definitions (Roles, Tasks)
+   - Configurations (Variables, Parameters)
+   - Implementation Details
+4. **Boundary Definitions**: Tags for start and end of the section
+5. **Linkages**: Notes on interconnections with other sections
+
+## Integration and Extraction
+
+To programmatically address updates and extraction, define the tree with specific metadata tags:
+
+- **Section Start and End**: `@SECTION_START`, `@SECTION_END`
+- **Custom Extraction**: Regex or line-based boundaries
+- **Content Modifications**: Specific subsections referencing line numbers or tags
+
+By using this approach, it ensures both clarity and flexibility in the document's structure, allowing for easy updates, modifications, and extraction of content for various automation and orchestration tools.
+---
+[2024-08-05 03:22:30+08:00,speaker=USER]
+IMPROVE EACH SECTIONS IN CHUNKS IN AN ATTEMPT TO MERGE THE DIFFERENT SECTIONS. MAKE IT EASY TO READ AND MODIFY IN TEXT FORMAT, MAKE IT CLEARLY HAVE DIFFERENT SECTIONS, BUILD A SCHEMA ON THE CONTENTS OF THE DOCUMENT AND A WAY TO LINK TO AN EXAMPLE SO LATER IT CAN BE PROGRAMMAT+OICALLY EXTRACTED. Focus on identifying the layers of systems, like at a code layer, a systems layer, a operational layer, strategic layer, and different hats like creatives, debuggers, tinkerers, ..., and the meta levels the self modifying bits.. every collection, so one for every major feature functionality l;ike storage system, networking system etc. etc., so they would be collections of roles, and collection of playbooks would usually be around a system, so the OA000 Recover and Repair, OA001 LiveUSB Master Control LUKS Perisstent LiveUSB, OA002 Nested PXE BOOTED HYPERVISOR, BUILT WITH CUSTOM OS, BOOTLOADER, ALL CONFIGURABLE. IT BUILDS IN RAM, ALL SYSTEMS ENCRYPTED AND SECURED AGAINST TAMPERING. I WANT A MASTER PLAN FOR ALL THE DIFFERENT TYPES OF DOCUMENT NEEDED. CAN YOU PROPOSE A SCHEMA THAT IS EASY TO NOTATE WITH INSTRUCTION FOR GPT TO UPDATE, WHERE IT CAN PROVIDE THE UPDATE FOR THE TREE AND BUILD ON IT AND USE IT TO LINK TO OTHER RESOURCES BY A CUSTOMISABLE DEFINITION OF SECTION, A BOUNDARY WHICH COULD BE START/END OR A REGEX OR SOMETHING, OR A LINE NUMBER OR PAIRm SO A TWO OR ONE OPTION, AND WHETHER TO BE OPEN OR CLOSED AT THE BOUNDARY IN A NICE WAY. ALSO GENERATE A META SCHEMA FOR DEFINING A TREE FOR A DOCUMENT SO I CAN SAY WHAT EACH SHOULD HAVE AND STANDARDISE THE TECHNICAL DOCUMENTATION COMMUNICATION TERMS
+--- (@attachment) ---
+                  
+=====================================
+ORCHESTRATION ARCHITECT: Documenation
+======================================
+
+    Constraints:
+      - Minimise 3rd party dependencies, and learn and document
+        the low-level or tools available by default.
+      - Critically evaluate standardise practice and identify
+        the baby in the bathwater.
+      - Avoid using libraries or frameworks,
+        if something is useful, implement the primitives myself.
+      - Adhere to using category theory to influence design,
+        and ensure that blockers and challenges that need to
+        address the need for continued growth in velocity.
+        
+
+
+                   Framework
+                  ===========
+
+           ... @ CONTENT TO ADD @ ...
+        SUPPLY CONTRUCTION BEHIND VERSION CONTROL PROCESS...
+          IMPORTANCE OF INITIAL OBJECT AND HISTORY AUTO-REWRITE
+          USING `META TEST`, `REPLAY AND DIFF CAPTURE`,
+        VERSION BRANCH STRATEGY WITH WORK TREES / SUB TREES / MIRROR / REBASE / PATCH / INITIAL BRANCH
+        ...
+        TO ADD THE NEXT STEP TO CONVERT TO PROPER INSTALLATION LOCATIONS,
+        PACKAGED, AND SIGNED BUILD PIPELINES.
+        ...
+        IDENTIFY SECURITY DESIGN IN GIT HISTORY.
+        OA000 -> _ -> OA999 
+        Communication, ACL, SSH, SUDOERS, PAM, NAMESPACES, CONTAINERS/EXECUTION CONTEXT
+        Thin Hypervisor, key rotation, live system, immutable, code signing,
+        secure boot, ...
+        ...
+        COMPOSABILITY
+        ...
+        SELF-VALIDATION -> SEED -> PRISTINE -> DEV -> SEED' mappings and functors
+          and how to architect system properties for the software engineering process. 
+
+                          
+
+                    BUILD / DEPLOY / MAINTAIN
+                A FLEET OF ROLLING RELEASE SYSTEMS
+        
+                    TRYING TO BUILD EACH PART FOLLOWING
+                    CONSTRUCTIONS THAT ENSURE PROPERTIES
+                    TRHOUGHOUT THE SYSTEM. THE PROJECT
+                    IS TO DISCOVER THESE PROPERTIES,
+                    THE CONDITIONS FOR EACH,
+                    AND DEMONSTRATE CONCRETE DEMONSTRATION
+                    OF THESE ABSTRACT PROPERTIES,
+
+
+
+                  GENERATE TOOLS ALONGSIDE AI, IN A MANNER THAT REINFORCES
+                  LEARNING, THROUGH EXPLORING EFFECTIVE HUMAN-AI TASK
+                  ORIENTATED INTERACTIONS. AND DEVELOPMENT FOR DYNAMIC KNOWLEDGE
+                  SYSTEMS DESIGN FOR BOTH HUMAN-COMPUTER COLLABORATIONS.
+
+                  USE THE SAME STRUCTURES TO CAPTURE THE FUNCTORIAL RELATIONS
+                  AND STRUCTURES, BY USING TRANSCRIPTION, GIT COMMIT HISTORY,
+                  FILE DATES, AND CODE EVOLUTION, TO IDENTIFY HIGHER ORDER
+                  SYNCRONISATION DYNAMICS OR FEEDBACK LOOPS.                  
+
+                  ==============================
+                  Abstract Compositional Topology
+                  ==============================
+
+                         READ AT ---PUT LINK HERE----
+     ....
+
+     Roles
+     -----
+     Roles are constructed as category R with:
+     objects at minimal include: 'absent', 'present', 'info' (identity) morphisms,
+     which identifies a `tasks/<role_state>yml` task (e.g. `present.yml`) that 
+     is routed via the auto generated `main.yml` task when the role is called,
+     with the `configuration variables` packaged into a <role_name>_params object,
+     defined by the role's parameters defined in the `vars/specifications/<version>/roles.yml`
+     by default.
+
+     Tasks
+     -----
+     Role task files (i.e. `roles/<role_name>/tasks/*.yml`) content (tasks) represent the morphisms
+     to be at the provided `<role_name>_state`. Functors are currently applied at boundaries
+     of composability. These allows subsystems like storage and network roles, to be
+     the concatentation of the various storage roles: loop_device, partition, btrfs_subvolumes,
+     filesystem, mount_table, etc. etc.
+     These subsystem roles allows for composable blocks, to have customisable
+       blocks, that can be used as part of the bigger systems.
+
+     ==========================
+     Components and Collections
+     ==========================
+    
+     Collection
+     =========-
+     Collection types include groups of related of a system component
+     that has a clique 
+
+    
+
+     `Meta` Collection
+     ==================
+
+     The `Meta` Collection Consists of Role and Playbooks required to bootstrap,
+     modify and execute the elements of the system itself.
+    
+     Specifications Configuration Variables
+    -----------------------------------------
+
+     -- Discuss Collections/Component -- 
+     1. Schema Evolution and Defintition and Ideas
+     2. Bootstrap Validation Pipeline
+             It works because it exists,
+             if it doesn't work, then it cannot exist.
+      3. Clearly capture change. Dense subgraph discovery
+            using information extracted from collaboration,
+            to be able to parse history along various versions
+            and conversation contexts.
+      4. Lanaguage Server Integration, Treesitter, ....
+      5. To be released ...
+
+
+              ----------------------
+              BOOTSTRAP REPLAY
+              ----------------------
+          SHOWS HOW THE SYSTEM GENERATES ITSELF FROM SEED,
+          AND IT FLOWS INTO THE DEVELOPMENT CYCLE.
+
+          ALLOWING FOR THE STRUCTURES BETWEEN THE COMPONENTS
+          AND THE BOOTSTRAP IDENTIFIES CERTAIN POINTS WHERE 
+          THE THERE IS A CUT AND FLOOR (?)
+
+
+    Directories
+    ==========
+    Natural Transformation / ...
+    Change of paths...
+    ...
+
+
+    Meta Role
+    ==========
+    Creating the 'Role', need to update ?template?
+    so role can update selof. 
+    ....
+    Bootstrap....
+    Meta Role <---> Meta Template
+          - go through specification of boths and explain
+    Meta Orchestrator ---> Meta Template, Meta Role, Meta Playbook....
+
+
+    Meta Template
+     ==============
+     Template Specification `templates.yml`: 
+
+      -- Discuss Fragments, Templates, Regions, Skeletons, Specification, 
+         Fields, tags, objects (transcripts, code, text documents, role, playbooks)---
+    
+    Variables: Fragment Vars, Template Vars, Fragment vars
+    Boundaries: Regions, Fragments, Skeleton, Sections...
+    Live Update <--> Sync / data
+    Fragment and Template Preprocessor
+
+
+    Meta Orchestrator
+    ==============
+    Paths, Environments, Processing, Selector Slices,
+    dynamic configuration, ...
+
+
+
+    Meta Playbook
+    ===========
+      
+  
+
+    Later
+    ======
+    Rice Rice. Theme Grub, Plymouthd, etc..
+    Finish NCursors ASCII Compositor... Generate efficient compositing 
+    like a Window Manager, using masks and projection, and ensuring 
+    efficient direct region writing.
+     
+     
+     
+     Meta Template
+     --------------      
+    
+
+
+     Role: `Meta.meta_role`
+     ----------------------
+
+     `meta_template`
+     ---------------
+
+     `
+
+     ``Meta.meta_role``: 
+    
+     
+
+
+
+
+
+               Composable container and system design:
+                - Currently in `playbooks.Sandbox.Temporary_Container_Experiment`,
+                  move to: `orchestration_architect.system.container`
+                  `system` := storage + container [+ network] ------------>  system
+                                                               Sa: S -> Sa 
+                                          
+
+               
+
+
+     
+
+---
+[2024-08-05 03:13:55+08:00,speaker=GPT]
+```
+# (@usage=5479) prompt_tokens=4153 completion_tokens=1326
+# (@conversation_id=chatcmpl-9saxc3oMEjlz6UAdoJHOkzvvTmUBi)
+```
+# Orchestration Architect Documentation
+
+Welcome to the `Orchestration Architect` framework—a comprehensive system designed to facilitate system generation and provisioning using templated roles and tasks with Jinja2 or similar templating engines. This document is categorized into different sections to help easily understand and navigate the various layers, roles, and tasks vital to the Orchestration Architect framework.
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Framework Structure](#framework-structure)
+3. [Roles](#roles)
+   - [Role Tasks](#role-tasks)
+4. [Collections and Components](#collections-and-components)
+   - [Meta Collection](#meta-collection)
+   - [System Planes Collection](#system-planes-collection)
+5. [Bootstrapping and System Update Process](#bootstrapping-and-system-update-process)
+6. [Terminal AI Integration](#terminal-ai-integration)
+    - [DBUS Inter Process Control](#dbus-inter-process-control)
+    - [Resilient Intelligence](#resilient-intelligence)
+7. [References](#references)
+
+## Overview
+
+The `Orchestration Architect` framework is meant to provide a structured approach for efficient system generation and management. With an emphasis on minimal third-party dependencies and leveraging native tools, this solution also focuses on security and composability principles influenced by category theory.
+
+## Framework Structure
+
+The framework is organized into several collections and subsystems that collectively provide diverse functionalities. Each major subsystem, such as storage and network, is represented through composable blocks, facilitating efficient coordination among them.
+
+### Constraints
+
+- Minimize third-party dependencies.
+- Implement primitives when useful features are identified.
+- Influence design through category theory.
+- Ensure continuous growth in velocity, security, and compositional integrity.
+
+## Roles
+
+
+Roles are the central components of the Orchestration Architect framework. They are composed of several key parts, defined by category R, and include:
+
+- **States:** Minimal objects such as `absent`, `present`, and `info` (identity) morphisms.
+- **Tasks:** Defined in `tasks/<role_state>.yml` files like `present.yml`.
+- **Configuration Variables:** Packaged into a `<role_name>_params` object.
+
+Each role follows a structured precedence when handling configuration variables.
+
+
+### Role Tasks
+Role tasks are specified within task files (e.g., `roles/<role_name>/tasks/*.yml`). Tasks represent morphisms to be applied based on the provided state of `<role_name>_state`.
+
+## Collections and Components
+### Meta Collection
+The `Meta` collection comprises roles and playbooks needed to bootstrap, modify, and execute system elements. Components include:
+
+- **Role:** `Meta.meta_role`
+- **Meta Template:** `meta_template`
+
+### System Planes Collection
+The `OAXXX` collection includes units of composable system planes, partitioned by regeneration:
+
+- **OA000:** System Bootstrap, Installation, or Recovery Media.
+- **OA001:** System Master Control Node for LiveUSB, Applications, Containers.
+- **OA002:** Live Hypervisor running entirely on RAM.
+
+### OA001: System Master Control Node
+The OA001 component provides a LUKS-encrypted persistent LiveUSB capable of provisioning systems via PXE Boot Live Images, generating other systems, and storing secure user specifications.
+
+- **Storage and Control:** 
+  - Generates a local repository.
+  - Manages version control and holds master blueprints.
+  - Provisions OA002 and OA999 systems and generates OA000 images.
+
+### OA002: Live Hypervisor
+The OA002 is designed to run entirely on RAM, allowing iterative prototyping and testing.
+
+- **Functional Design:**
+  - Focuses on live updates through snapshot cloning.
+  - Modular system transition via major and minor updates.
+
+## Bootstrapping and System Update Process
+The bootstrapping process involves changing an image and transitioning through various states from initial, base, to container.
+
+
+### Installation Updates Progression
+
+
+Note:
+- Major and minor updates showcase the functional relationships between different system states.
+- Focus on benchmarking system architecture and rapid system provisioning.
+
+## Terminal AI Integration
+### DBUS Inter Process Control
+Configurable with Pipewire, Wireplumber, or JACK, and soon integrating Whisper and Festival, the focus is on efficient multi-agent strategies.
+
+### Resilient Intelligence
+- **Distributed:** Designing for resilient and ambient intelligence.
+- **Live Updates:** Continuous synchronization with concurrent feedback loops.
+
+# Appendices
+
+## Natural Transformation
+- Change of paths in handling directories.
+
+## Meta Role and Meta Template
+- **Creating the Role:** Update the template for self-updating capabilities.
+- **Template Specification:** Discuss fragments, templates, regions, and fields.
+
+## References
+- REST and API Documentation
+- Git and Version Control Best Practices
+- DBSync and Data Storage Technologies
+- Functorial Structures and Category Theory Basics
+
+=====================================
+ORCHESTRATION ARCHITECT: Documenation
+======================================
+
+        
+
+
+                   Framework
+                  ===========
+
+           ... @ CONTENT TO ADD @ ...
+        SUPPLY CONTRUCTION BEHIND VERSION CONTROL PROCESS...
+          IMPORTANCE OF INITIAL OBJECT AND HISTORY AUTO-REWRITE
+          USING `META TEST`, `REPLAY AND DIFF CAPTURE`,
+        VERSION BRANCH STRATEGY WITH WORK TREES / SUB TREES / MIRROR / REBASE / PATCH / INITIAL BRANCH
+        ...
+        TO ADD THE NEXT STEP TO CONVERT TO PROPER INSTALLATION LOCATIONS,
+        PACKAGED, AND SIGNED BUILD PIPELINES.
+        ...
+        IDENTIFY SECURITY DESIGN IN GIT HISTORY.
+        OA000 -> _ -> OA999 
+        Communication, ACL, SSH, SUDOERS, PAM, NAMESPACES, CONTAINERS/EXECUTION CONTEXT
+        Thin Hypervisor, key rotation, live system, immutable, code signing,
+        secure boot, ...
+        ...
+        COMPOSABILITY
+        ...
+        SELF-VALIDATION -> SEED -> PRISTINE -> DEV -> SEED' mappings and functors
+          and how to architect system properties for the software engineering process. 
+
+
+
+
+   -- Discuss Collections/Component -- 
+   1. Schema Evolution and Defintition and Ideas
+   2. Bootstrap Validation Pipeline
+           It works because it exists,
+           if it doesn't work, then it cannot exist.
+    3. Clearly capture change. Dense subgraph discovery
+          using information extracted from collaboration,
+          to be able to parse history along various versions
+          and conversation contexts.
+    4. Lanaguage Server Integration, Treesitter, ....
+    5. To be released ...
+
+    Directories
+    ==========
+    Natural Transformation / ...
+    Change of paths...
+    ...
+
+  
+
+    Later
+    ======
+    Rice Rice. Theme Grub, Plymouthd, etc..
+    Finish NCursors ASCII Compositor... Generate efficient compositing 
+    like a Window Manager, using masks and projection, and ensuring 
+    efficient direct region writing.
+     
+     
+     
+                                          Master Control Node OR Intermediate Mode (Restricted) but portable system
+                                          Boot anywhere, Clean Image, with persistence of write cache layer.
+                                          - PXE Boot Image Generation
+                                          - User Configuration
+                                          - Image Customisation
+                                          - Write to Removable Storage
+                                          - Run bare metal install target (Test plymouth and grub) in qemu
+                                          - Run system image pipeline supply composable nspawn containers with btrfs
+                                            for live system <-> snapshot relationships managed to
+                                            take advantage of copy on write efficient snapshot strategies
+                                          - Take advantage of zram, fine control of file and process processing.                                          
+
+                                          PXE BOOT IMAGE
+                                          ===============
+                                          NBD...
+
+                                          Containers    
+                                          ==========
+                                          ...
+                                          
+
+
+
+
+[2024-08-05 06:23:03+08:00,speaker=GPT]
+```
+# (@usage=2779) prompt_tokens=1520 completion_tokens=1259
+# (@conversation_id=chatcmpl-9sdul9a6jpIfpQxwp72HLyBZ63aYG)
+```
+Certainly! Let's tidy up the document for better readability using reStructuredText (RST) formatting and complete sentences.
+
+---
+
+```rst
+**********************************************************************
+                    DOCUMENTS @ ORCHESTRATION ARCHITECT
+**********************************************************************
+
+============================
+
+
+
+
+Collections
+===========
+
+The collections are categorized as follows:
+
+Non-System Collections
+----------------------
+See [Components Meta, Storage, Container, ...].
+
+Other Systems
+-------------
+Specifications:
+  - See also: [...] [...]
+
+Template and Fragment Preprocessor
+
+TERMINAL AI: TODO IMPROVE HEADER
+--------------------------------
+Collection (Units of Composable System Planes partitioned by regeneration)
+
+
+========
+

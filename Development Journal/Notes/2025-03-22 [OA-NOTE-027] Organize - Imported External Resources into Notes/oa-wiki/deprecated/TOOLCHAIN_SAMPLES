@@ -1,0 +1,1 @@
+git grep --line-number '' | fzf --delimiter : --preview 'bat --style=full --color=always --highlight-line {2} {1}' --preview-window '~3,+{2}+3/2'

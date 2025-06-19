@@ -8,6 +8,8 @@
 
 ## Active Tasks
 
+### Task MISC.008 Move `mdbook` stuff from Architecture to `LIT-SPEC`
+
 ### Task MISC.XXX: Clean up 
 
 **Created** 2025-05-22
