@@ -1,0 +1,5 @@
+[book]
+authors = ["Andrew Briscoe"]
+language = "en"
+src = "src"
+title = "Orchestration Architect: The User Guide"
